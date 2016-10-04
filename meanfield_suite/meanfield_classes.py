@@ -94,7 +94,7 @@ class MFSource(object):
         return tmp
 
     def print_sys(self):
-        print "%s: %f" % (self, self.conductance)
+        print("%s: %f" % (self, self.conductance))
 
     def __repr__(self):
         return "MFSource [%s] <%s, nmda: %s, E_rev: %.1f>" % (id(self),self.name, self.is_nmda, self.E_rev)
@@ -192,10 +192,10 @@ class MFpop(object):
         return "MFpop [%s] <%s (%i sources, n: %i, rate: %.4f, v_mean: %.4f)>" % (id(self), self.name, len(self.sources), self.n, self.rate_hz, self.v_mean)
 
     def print_sys(self, mf=False):
-            print "\t%s - tau_eff: %.1fms, mu: %.4f, sig^2: %.4f, rate_pred: %.4f, v_mean_pred: %.4f" % (self, self.tau_eff, self.mu, self.sigma_square, self.rate_pred, self.v_mean_prediction)
+            print("\t%s - tau_eff: %.1fms, mu: %.4f, sig^2: %.4f, rate_pred: %.4f, v_mean_pred: %.4f" % (self, self.tau_eff, self.mu, self.sigma_square, self.rate_pred, self.v_mean_prediction))
             for s in self.sources:
-                print "\t\t",
-                s.print_sys()
+                print("\t\t",
+                s.print_sys())
 
 
 class MFSystem(object):
@@ -214,7 +214,7 @@ class MFSystem(object):
         return self.pops[idx]
 
     def print_sys(self, mf=False):
-        print "%s" % self
+        print("%s" % self)
         for p in self.pops:
             p.print_sys(mf)
 
@@ -476,9 +476,9 @@ class MFSolver(object):
         crit = self.crit
         tol = self.tol
 
-        print "\n-------------------"
-        print "[%s] initializing minimization: %s" % (self.__class__.__name__, self.solver)
-        print "[",
+        print("\n-------------------")
+        print("[%s] initializing minimization: %s" % (self.__class__.__name__, self.solver))
+        print("[")
 
         # allow interruption of minimization loop, did not work otherwise.
         signal_handler = lambda signal, frame: sys.exit(0)
@@ -491,7 +491,7 @@ class MFSolver(object):
 
             # interrupt upon reaching the maxiter.
             if self.it > self.maxiter:
-                print "]\n[%s] maximum iterations reached" % self.__class__.__name__
+                print("]\n[%s] maximum iterations reached" % self.__class__.__name__)
                 self.state = "EXCEEDED"
                 return self.finalize(min_sol)
 
@@ -521,7 +521,7 @@ class MFSolver(object):
                 sys.stdout.write('\n ')
             sys.stdout.flush()
 
-        print "]\n[%s] finished successfully" % self.__class__.__name__
+        print("]\n[%s] finished successfully" % self.__class__.__name__)
         self.state = "SUCCESS"
         return self.finalize(sol)
 
@@ -533,8 +533,8 @@ class MFSolver(object):
             self.mfstate.state = sol.x * self.fail_val
 
         self.error = sol.fun
-        print self.mfstate
-        print "-------------------\n"
+        print(self.mfstate)
+        print("-------------------\n")
         return self.mfstate
 
 
@@ -559,7 +559,7 @@ class MFSolver_RatesVoltages(MFSolver):
             )
 
             if p.has_nmda or force_nmda:
-                print "Population %s has NMDA -> solving for voltages" % p.name
+                print("Population %s has NMDA -> solving for voltages" % p.name)
                 constraints.append(
                     MFConstraint(
                         "%s-%s" % (p.name, "v_mean"),

@@ -4,11 +4,13 @@ from setuptools import find_packages, setup
 readme = open('README.md').read()
 
 install_requires = [
-
+    'numpy',
+    'scipy',
+    'matplotlib'
 ]
 
 tests_require = [
-
+    'pytest'
 ]
 
 setup(

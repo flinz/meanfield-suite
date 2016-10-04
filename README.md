@@ -1,2 +1,4 @@
-# meanfield-suite
+
+# Meanfield suite
+
 Meanfield suite
