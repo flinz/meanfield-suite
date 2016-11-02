@@ -15,7 +15,7 @@ N_I = int(N * 0.2)  # interneurons
 # voltage
 V_L = -70. * mV  # resting
 V_thr = -50. * mV
-V_reset = -55. * mV
+V_reset = -60. * mV # -55
 V_E = 0. * mV
 V_I = -70. * mV
 
@@ -33,7 +33,7 @@ tau_rp_I = 1. * ms
 
 # external stimuli
 rate = 3 * Hz
-C_ext = 800
+C_ext = 1000 # 800
 
 # synapses
 C_E = N_E
@@ -49,10 +49,12 @@ tau_AMPA = 2. * ms
 # NMDA (excitatory)
 g_NMDA_E = 0.327 * nS  * 800. / N_E
 g_NMDA_I = 0.258 * nS * 800. / N_E
-tau_NMDA_rise = 2. * ms
+tau_NMDA_rise = 1. * ms # 2
 tau_NMDA_decay = 100. * ms
 alpha = 0.5 / ms
 Mg2 = 1.
+# tau_x
+# tau_rise_I
 
 # GABAergic (inhibitory)
 g_GABA_E = 1.25 * nS  * 200. / N_I

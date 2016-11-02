@@ -25,7 +25,7 @@ params_standard = {
         "C_m": 500.,
         "g_L": 25.,
         "Cext": 1000,
-        "nu_ext": 0.0024,
+        "nu_ext": 0.0024, # nu
         "gAMPA": 2.08,
         "gNMDA": 0.327,
         "gGABA": 1.25
