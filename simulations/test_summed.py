@@ -58,16 +58,12 @@ indices = array([0, 1, 0, 1])
 times = array([10, 500, 1000, 1000]) * ms
 sg = SpikeGeneratorGroup(2, indices, times)
 
-C1 = Synapses(sg, n, method='rk4', model=eqs_glut, on_pre=eqs_pre_glut)
-C1.connect(i=0, j=0)
-C1.w[:] = 4
+C = Synapses(sg, n, method='rk4', model=eqs_glut, on_pre=eqs_pre_glut)
+C.connect()
+C.w[0] = 2.
+C.w[1] = 1.
 
-C2 = Synapses(sg, n, method='rk4', model=eqs_glut, on_pre=eqs_pre_glut)
-C2.connect(i=1, j=0)
-C2.w[:] = 1
-
-sc1 = StateMonitor(C1, ['s_NMDA', 'x', 'w'], record=True)
-sc2 = StateMonitor(C2, ['s_NMDA', 'x', 'w'], record=True)
+sc1 = StateMonitor(C, ['s_NMDA', 'x', 'w'], record=True)
 s = StateMonitor(n, ['s_AMPA', 's_AMPA_ext', 's_NMDA_tot'], record=True)
 sp = SpikeMonitor(n)
 sp_sg = SpikeMonitor(sg)
@@ -80,11 +76,6 @@ plot(sc1.t / ms, sc1.x[0], label='x')
 plot(sc1.t / ms, sc1.w[0], label='w')
 legend()
 
-subplot(222)
-plot(sc2.t / ms, sc2.s_NMDA[0], label='nmda')
-plot(sc2.t / ms, sc2.x[0], label='x')
-plot(sc2.t / ms, sc2.w[0], label='w')
-legend()
 
 subplot(223)
 plot(s.t / ms, s.s_AMPA_ext[0], label="ext")

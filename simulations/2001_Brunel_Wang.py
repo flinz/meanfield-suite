@@ -4,6 +4,7 @@ Effects of Neuromodulation in a Cortical Network Model of Object Working Memory 
 Journal of Computational Neuroscience 11, 63-85, 2001.
 """
 
+import numpy as np
 from brian2 import *
 BrianLogger.log_level_debug()
 
@@ -15,7 +16,7 @@ N_I = int(N * 0.2)  # interneurons
 # voltage
 V_L = -70. * mV  # resting
 V_thr = -50. * mV
-V_reset = -60. * mV # -55
+V_reset = -55. * mV
 V_E = 0. * mV
 V_I = -70. * mV
 
@@ -33,7 +34,7 @@ tau_rp_I = 1. * ms
 
 # external stimuli
 rate = 3 * Hz
-C_ext = 1000 # 800
+C_ext = 1000
 
 # synapses
 C_E = N_E
@@ -49,12 +50,10 @@ tau_AMPA = 2. * ms
 # NMDA (excitatory)
 g_NMDA_E = 0.327 * nS  * 800. / N_E
 g_NMDA_I = 0.258 * nS * 800. / N_E
-tau_NMDA_rise = 1. * ms # 2
+tau_NMDA_rise = 2. * ms
 tau_NMDA_decay = 100. * ms
 alpha = 0.5 / ms
 Mg2 = 1.
-# tau_x
-# tau_rise_I
 
 # GABAergic (inhibitory)
 g_GABA_E = 1.25 * nS  * 200. / N_I
@@ -63,9 +62,10 @@ tau_GABA = 10. * ms
 
 # subpopulations
 f = 0.1
-p = 5
+p = 1
 N_sub = int(N_E * f)
-w_plus = 2.1
+N_non = int(N_E * (1. - f * p))
+w_plus = 2.5
 w_minus = 1 - f * (w_plus - 1) / (1 - f)
 
 eqs_E = '''
@@ -129,8 +129,16 @@ s_AMPA_ext += 1
 
 # recurrent E to E
 C_E_E = Synapses(P_E, P_E, method='rk4', model=eqs_glut, on_pre=eqs_pre_glut)
-C_E_E.connect(condition='i != j')
+C_E_E.connect('i != j')
 C_E_E.w[:] = 1
+
+for pi in range(N_non, N_non + p * N_sub, N_sub):
+
+    # internal other subpopulation to current nonselective
+    C_E_E.w[C_E_E.indices[:, pi:pi + N_sub]] = w_minus
+
+    # internal current subpopulation to current subpopulation
+    C_E_E.w[C_E_E.indices[pi:pi + N_sub, pi:pi + N_sub]] = w_plus
 
 # E to I
 C_E_I = Synapses(P_E, P_I, method='rk4', model=eqs_glut, on_pre=eqs_pre_glut)
@@ -139,7 +147,7 @@ C_E_I.w[:] = 1
 
 # recurrent I to I
 C_I_I = Synapses(P_I, P_I, on_pre=eqs_pre_gaba)
-C_I_I.connect(condition='i != j')
+C_I_I.connect('i != j')
 
 # I to E
 C_I_E = Synapses(P_I, P_E, on_pre=eqs_pre_gaba)
@@ -149,63 +157,35 @@ C_I_E.connect()
 C_P_E = PoissonInput(P_E, 's_AMPA_ext', C_ext, rate, 1)
 C_P_I = PoissonInput(P_I, 's_AMPA_ext', C_ext, rate, 1)
 
-# internal
-
-# irresponsive = P_E[:N_p]
-# C_E_rec = Synapses(
-#     irresponsive,
-#     irresponsive,
-#     on_pre=eqs_pre
-# )
-# C_E_rec.connect(condition='i != j')
-#
-# C_E_rec2 = Synapses(
-#     P_E[N_p:],
-#     irresponsive,
-#     on_pre=eqs_pre
-# )
-# C_E_rec2.connect()
-#
-# for pi in range(p):
-#     pi = (pi + 1) * N_p
-#     group = P_E[pi:pi + N_p]
-#     next = P_E[pi + N_p:]
-#
-#     C_E_rec3 = Synapses(
-#         group,
-#         group,
-#         on_pre='''
-#         w = w_plus
-#         ''' + eqs_pre
-#     )
-#     C_E_rec3.connect(condition='i != j')
-#
-#     C_E_rec4 = Synapses(
-#         next,
-#         group,
-#         on_pre='''
-#         w = w_minus
-#         ''' + eqs_pre
-#     )
-#    C_E_rec4.connect()
+stimuli = TimedArray(np.r_[np.zeros(10), np.ones(2) * 50, np.zeros(50)] * Hz, dt=100 * ms)
+C_PG_sti = PoissonGroup(100, 'stimuli(t)')
+C_PG_E = Synapses(C_PG_sti, P_E[N_non: N_non + N_sub], on_pre='s_AMPA += 1')
+C_PG_E.connect()
 
 # monitors
+s_E_sel = StateMonitor(P_E, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA_tot'], record=[N_non + 1])
 s_E = StateMonitor(P_E, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA_tot'], record=[0])
 s_I = StateMonitor(P_I, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA_tot'], record=[0])
-sp_E = SpikeMonitor(P_E[:10])
-sp_I = SpikeMonitor(P_I[:10])
+sp_E_sel = SpikeMonitor(P_E[N_non:N_non + 40])
+sp_E = SpikeMonitor(P_E[:40])
+sp_I = SpikeMonitor(P_I[:40])
 r_E = PopulationRateMonitor(P_E)
 r_I = PopulationRateMonitor(P_I)
 
 run(3000 * ms)
 
 subplot(321)
-title('pyramidal neuron rate')
-plot(r_E.t / ms, r_E.smooth_rate(width=10 * ms) / Hz)
+title('selective pyramidal neuron parameters')
+plot(s_E_sel.t / ms, s_E_sel.s_GABA[0], label='gaba')
+plot(s_E_sel.t / ms, s_E_sel.s_AMPA_ext[0], label='ext')
+plot(s_E_sel.t / ms, s_E_sel.s_AMPA[0], label='ampa')
+plot(s_E_sel.t / ms, s_E_sel.s_NMDA_tot[0], label='nmda')
+legend()
 
 subplot(322)
-title('interneuron rate')
-plot(r_I.t / ms, r_I.smooth_rate(width=10 * ms) / Hz)
+title('rates')
+plot(r_E.t / ms, r_E.smooth_rate(width=10 * ms) / Hz, label='pyramidal neuron')
+plot(r_I.t / ms, r_I.smooth_rate(width=10 * ms) / Hz, label='interneuron')
 
 subplot(323)
 title('pyramidal neuron parameters')
@@ -225,7 +205,9 @@ legend()
 
 subplot(325)
 title('pyramidal spikes (10)')
-plot(sp_E.t / ms, sp_E.i, '.', markersize=5)
+plot(sp_E_sel.t / ms, sp_E_sel.i, '.', markersize=5, label='selective')
+plot(sp_E.t / ms, sp_E.i, '.', markersize=5, label='nonselective')
+legend()
 
 subplot(326)
 title('interneuron spikes (10)')
