@@ -9,7 +9,7 @@ from brian2 import *
 BrianLogger.log_level_debug()
 
 # neurons
-N = 1000 / 5
+N = 1000
 N_E = int(N * 0.8)  # pyramidal neurons
 N_I = int(N * 0.2)  # interneurons
 
@@ -34,7 +34,7 @@ tau_rp_I = 1. * ms
 
 # external stimuli
 rate = 3 * Hz
-C_ext = 1000
+C_ext = 800
 
 # synapses
 C_E = N_E
@@ -65,7 +65,7 @@ f = 0.1
 p = 1
 N_sub = int(N_E * f)
 N_non = int(N_E * (1. - f * p))
-w_plus = 2.5
+w_plus = 2.1
 w_minus = 1 - f * (w_plus - 1) / (1 - f)
 
 eqs_E = '''
