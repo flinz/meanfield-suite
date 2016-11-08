@@ -1,6 +1,6 @@
 from brian2 import *
 
- 20000 # neurons
+C = 20000 # neurons
 C_i = int(C * 0.2) # inibitory
 C_e = int(C * 0.2) # excitatory
 tau_0 = 2*ms

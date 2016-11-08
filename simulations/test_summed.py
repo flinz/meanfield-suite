@@ -76,7 +76,6 @@ plot(sc1.t / ms, sc1.x[0], label='x')
 plot(sc1.t / ms, sc1.w[0], label='w')
 legend()
 
-
 subplot(223)
 plot(s.t / ms, s.s_AMPA_ext[0], label="ext")
 plot(s.t / ms, s.s_AMPA[0], label="ampa")
