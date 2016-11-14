@@ -57,7 +57,7 @@ class Synapse(object):
         except KeyError:
             param['label'] = self.__repr__()
 
-        x = np.arange(1., 181., 1.)*1e-3
+        x = np.arange(1., 181., 1.) * 1e-3
         pl.plot(x*1e3, [self(xv) for xv in x], **param)
         pl.xlim((0, 180))
         pl.legend(loc="best")
@@ -68,29 +68,3 @@ class Synapse(object):
     def make_fun(self):
         return lambda x: np.sum(self.taus) * x * self.stp_ur(x)
 
-
-class MFConstraint(object):
-
-    def __init__(self, name, free_get, free_set, error_fun=lambda x: 0., bound_low=-1e5, bound_up=1e5, bound_hard=False):
-        self.name = name
-        self.free_set = free_set
-        self.free_get = free_get
-        self.error_fun = error_fun
-        self.bound_low = bound_low
-        self.bound_up = bound_up
-        self.bound_hard = bound_hard
-
-    @property
-    def free(self):
-        return self.free_get()
-
-    @free.setter
-    def free(self, value):
-        self.free_set(value)
-
-    @property
-    def error(self):
-        return self.error_fun()
-
-    def __repr__(self):
-        return "MFConstraint <%s>" % (self.name)

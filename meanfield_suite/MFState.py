@@ -1,8 +1,14 @@
 import numpy as np
 
+import OutOfBoundsError
+
 class MFState(object):
 
-    def __init__(self, constraints, dependent_functions=[], bounds_check=True, bounds_correct=False, bounds_escalate=True, bounds_interrupt=False):
+    def __init__(self, constraints, dependent_functions=None, bounds_check=True, bounds_correct=False, bounds_escalate=True, bounds_interrupt=False):
+
+        if dependent_functions is None:
+            dependent_functions = []
+
         self.constraints = constraints
         self.dependent_functions = dependent_functions
         self.bounds_check = bounds_check
@@ -11,7 +17,7 @@ class MFState(object):
         self.bounds_interrupt = bounds_interrupt
 
     def __getitem__(self, key):
-        """Dictionarylike access to state values."""
+        """Dictionary-like access to state values."""
         try:
             idx = self.names.index(key)
         except ValueError:

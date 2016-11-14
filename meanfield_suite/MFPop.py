@@ -3,7 +3,6 @@ from math import erf
 import numpy as np
 from scipy.integrate import quad
 
-
 class MFpop(object):
     """pop: similar neurons"""
 
@@ -15,12 +14,8 @@ class MFpop(object):
 
         self.n = 1
         self.rate_ = 0.  # spikes/s
-        self.v_mean = -60.        # pop mean voltage
+        self.v_mean = -60.  # pop mean voltage
         self.is_adapting = False
-
-    @property
-    def rate_ms(self):
-        return self.rate_/1e3
 
     @property
     def rate_hz(self):
@@ -30,9 +25,13 @@ class MFpop(object):
     def rate_hz(self, value):
         self.rate_ = value
 
+    @property
+    def rate_ms(self):
+        return self.rate_ / 1e3
+
     @rate_ms.setter
     def rate_ms(self, value):
-        self.rate_ = value*1e3
+        self.rate_ = value * 1e3
 
     @property
     def has_nmda(self):
@@ -41,7 +40,7 @@ class MFpop(object):
     @property
     def J(self):
         """Linearization factor for NMDA"""
-        return 1 + self.params["gamma"] * np.exp(-self.params["beta"]*self.v_mean)
+        return 1 + self.params["gamma"] * np.exp(-self.params["beta"] * self.v_mean)
 
     @property
     def total_cond(self):
@@ -50,17 +49,17 @@ class MFpop(object):
 
     @property
     def tau_eff(self):
-        return self.params["C_m"]/self.total_cond
+        return self.params["C_m"] / self.total_cond
 
     @property
     def mu(self):
-        return 1./self.total_cond * np.sum(s.voltage_conductance for s in self.sources)
+        return 1. / self.total_cond * np.sum(s.voltage_conductance for s in self.sources)
 
     @property
     def sigma_square(self):
         if not self.noise:
             return 0.
-        return (self.noise.g_base / self.params["C_m"] * (self.v_mean - self.noise.E_rev))**2 * self.tau_eff * self.noise.g_dyn() * self.noise.noise_tau
+        return (self.noise.g_base / self.params["C_m"] * (self.v_mean - self.noise.E_rev)) ** 2 * self.tau_eff * self.noise.g_dyn() * self.noise.noise_tau
 
     @property
     def rate_pred(self):
@@ -68,7 +67,7 @@ class MFpop(object):
 
     @property
     def v_mean_prediction(self):
-        return self.params["E_L"] + self.mu - (self.params["V_th"]-self.params["V_reset"]) * self.rate_ms * self.tau_eff
+        return self.params["E_L"] + self.mu - (self.params["V_th"] - self.params["V_reset"]) * self.rate_ms * self.tau_eff
 
     def phi_firing_func(self):
 
@@ -76,20 +75,20 @@ class MFpop(object):
         tau_eff = self.tau_eff
 
         def beta():
-            return (self.params["V_reset"]-self.params["E_L"]-self.mu)/sigma
+            return (self.params["V_reset"] - self.params["E_L"] - self.mu) / sigma
 
         def alpha():
-            tmp = -0.5*self.noise.noise_tau/tau_eff \
-                    + 1.03*np.sqrt(self.noise.noise_tau/tau_eff) \
-                    + (-self.mu - self.params["E_L"] + self.params["V_th"])*(1. + (0.5 * self.noise.noise_tau / tau_eff))/sigma
+            tmp = -0.5 * self.noise.noise_tau / tau_eff \
+                    + 1.03 * np.sqrt(self.noise.noise_tau / tau_eff) \
+                    + (-self.mu - self.params["E_L"] + self.params["V_th"]) * (1. + (0.5 * self.noise.noise_tau / tau_eff)) / sigma
             return tmp
 
         def integrand(x):
             if x < -10.:
-                return np.exp(10.**2)*(1.+erf(10.))
+                return np.exp(10. ** 2) * (1. + erf(10.))
             if x > 10.:
                 return 0.
-            return np.exp(x**2)*(1.+erf(x))
+            return np.exp(x ** 2) * (1. + erf(x))
         return 1./(self.params["t_ref"] + tau_eff * np.sqrt(np.pi) * quad(integrand, beta(), alpha())[0])
 
     def __repr__(self):
@@ -98,5 +97,4 @@ class MFpop(object):
     def print_sys(self, mf=False):
             print("\t%s - tau_eff: %.1fms, mu: %.4f, sig^2: %.4f, rate_pred: %.4f, v_mean_pred: %.4f" % (self, self.tau_eff, self.mu, self.sigma_square, self.rate_pred, self.v_mean_prediction))
             for s in self.sources:
-                print("\t\t",
-                s.print_sys())
+                print("\t\t", s.print_sys())

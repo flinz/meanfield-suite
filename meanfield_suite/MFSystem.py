@@ -5,7 +5,7 @@ class MFSystem(object):
         self.pops = []
 
     def __getitem__(self, key):
-        """Dictionarylike access to state values."""
+        """Dictionary-like access to state values."""
         names = [x.name for x in self.pops]
         try:
             idx = names.index(key)

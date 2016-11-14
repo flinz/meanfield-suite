@@ -1,12 +1,9 @@
 import signal
 import sys
 
+import pylab as pl
 import numpy as np
 from scipy.optimize import root
-
-class OutOfBoundsError(Exception):
-    """Raised when solver out of bounds."""
-    pass
 
 def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
     """Simple gradient descent along the error."""
@@ -19,8 +16,6 @@ def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
         state -= dt * np.array(mfstate(state))
         t += dt
         states.append(list(state))
-
-    import pylab as pl
 
     states = np.array(states).T
     nspl = states.shape[0]

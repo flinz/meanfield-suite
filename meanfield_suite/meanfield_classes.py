@@ -1,6 +1,12 @@
 from functools import partial
 
-from . import MFSolver, MFSource, MFState, MFSystem, Synapse
+from MFConstraint import MFConstraint
+from MFPop import MFpop
+from MFSolver import MFSolver
+from MFSource import MFSource
+from MFState import MFState
+from MFSystem import MFSystem
+from Synapse import Synapse
 
 params_standard = {
     "NMDA": {
@@ -49,7 +55,6 @@ params_standard = {
 class MFSolver_RatesVoltages(MFSolver):
 
     def __init__(self, system, force_nmda=False, *args, **kwargs):
-
         # create constraints on the firing rates and mean voltages
 
         constraints = []
