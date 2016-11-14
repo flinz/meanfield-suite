@@ -4,11 +4,12 @@ Effects of Neuromodulation in a Cortical Network Model of Object Working Memory 
 Journal of Computational Neuroscience 11, 63-85, 2001.
 """
 
+import pandas as pd
 from brian2 import *
-BrianLogger.log_level_debug()
+BrianLogger.log_level_info()
 
 # neurons
-N = 1000
+N = 1000 / 4
 N_E = int(N * 0.8)  # pyramidal neurons
 N_I = int(N * 0.2)  # interneurons
 
@@ -160,54 +161,79 @@ C_P_I = PoissonInput(P_I, 's_AMPA_ext', C_ext, rate, 1)
 
 # monitors
 
-r_E = PopulationRateMonitor(P_E)
-r_I = PopulationRateMonitor(P_I)
+r_E = SpikeMonitor(P_E, record=False)
+r_I = SpikeMonitor(P_I, record=False)
 
 store()
 
-rates_E = []
-rates_I = []
+resolution = 3
+ges = np.linspace(0.1, 0.6, resolution)
+gis = np.linspace(0.1, 0.3, resolution)
+rates = []
 
-res = 3
-ges = np.linspace(0.25, 0.4, res)
-gis = np.linspace(0.2, 0.3, res)
+import sys
+
+class ProgressBar(object):
+    def __init__(self, toolbar_width):
+        self.toolbar_width = toolbar_width
+        self.ticks = 0
+
+    def __call__(self, elapsed, complete, start, duration):
+        if complete == 0.0:
+            # setup toolbar
+            sys.stdout.write("[%s]" % (" " * self.toolbar_width))
+            sys.stdout.flush()
+            sys.stdout.write("\b" * (self.toolbar_width + 1)) # return to start of line, after '['
+        else:
+            ticks_needed = int(round(complete * 40))
+            if self.ticks < ticks_needed:
+                sys.stdout.write("-" * (ticks_needed-self.ticks))
+                sys.stdout.flush()
+                self.ticks = ticks_needed
+        if complete == 1.0:
+            sys.stdout.write("\n")
 
 for ge in ges:
-
-    rates_E.append([])
-    rates_I.append([])
-
     for gi in gis:
-
+        print('Run %f/%f' % (ge, gi))
         restore()
 
         g_NMDA_E = ge * nS * 800. / N_E
+        g_GABA_E = 4. * g_NMDA_E
         g_NMDA_I = gi * nS * 800. / N_E
+        g_GABA_I = 4. * g_NMDA_I
 
-        run(2000 * ms)
+        run(500 * ms, report='text', report_period=0.5 * second)
 
         #plot(r_E.t / ms, r_E.smooth_rate(width=10 * ms) / Hz)
         #plot(r_I.t / ms, r_I.smooth_rate(width=10 * ms) / Hz)
         #show()
 
-        rates_E[-1].append(r_E.smooth_rate(width=10 * ms)[-11] / Hz)
-        rates_I[-1].append(r_I.smooth_rate(width=10 * ms)[-11] / Hz)
+        rates.append({
+            'g_E': ge,
+            'g_I': gi,
+            'rate_E': r_E.num_spikes / N_E / 2.,
+            'rate_I': r_I.num_spikes / N_I / 2.
+        })
 
+rates = pd.DataFrame(rates)
+pd.to_pickle(rates, '2001_Brunel_Wang_simplified_mean_%d.p' % resolution)
 
-subplot(131)
+rates_E = rates.pivot_table(index='g_I', columns='g_E', values='rate_E')
+rates_I = rates.pivot_table(index='g_I', columns='g_E', values='rate_I')
+
+# TODO : progress
+
+subplot(121)
 title('excitatory')
-imshow(rates_E)
-xticks(arange(len(ges)), ges)
-yticks(arange(len(gis)), gis)
+imshow(rates_E, aspect='auto', interpolation='nearest', extent=[rates_E.columns.values[0], rates_E.columns.values[-1], rates_E.index.values[0], rates_E.index.values[-1]], origin="lower")
+colorbar()
 print(rates_E)
 
-subplot(132)
+subplot(122)
 title('inhibitory')
-imshow(rates_I)
-xticks(arange(len(ges)), ges)
-yticks(arange(len(gis)), gis)
+imshow(rates_I, aspect='auto', interpolation='nearest', extent=[rates_I.columns.values[0], rates_I.columns.values[-1], rates_I.index.values[0], rates_I.index.values[-1]], origin="lower")
+colorbar()
 print(rates_I)
 
-subplot(133)
-colorbar()
 show()
