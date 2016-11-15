@@ -52,45 +52,6 @@ params_standard = {
 }
 
 
-class MFSolver_RatesVoltages(MFSolver):
-
-    def __init__(self, system, force_nmda=False, *args, **kwargs):
-        # create constraints on the firing rates and mean voltages
-
-        constraints = []
-        functions = []
-
-        for p in system.pops:
-            constraints.append(
-                MFConstraint(
-                    "%s-%s" % (p.name, "rate_hz"),
-                    partial(lambda x: x.rate_hz, p),
-                    partial(lambda x, val: setattr(x, "rate_hz", val), p),
-                    partial(lambda x: x.rate_hz-x.rate_pred, p),
-                    0., 750.
-                )
-            )
-
-            if p.has_nmda or force_nmda:
-                print("Population %s has NMDA -> solving for voltages" % p.name)
-                constraints.append(
-                    MFConstraint(
-                        "%s-%s" % (p.name, "v_mean"),
-                        partial(lambda x: x.v_mean, p),
-                        partial(lambda x, val: setattr(x, "v_mean", val), p),
-                        partial(lambda x: x.v_mean-x.v_mean_prediction, p),
-                        -80., 50.
-                    )
-                )
-            else:
-                functions.append(
-                    partial(lambda x: setattr(x, "v_mean", x.v_mean_prediction), p),
-                )
-
-        state = MFState(constraints, dependent_functions=functions)
-        super(MFSolver_RatesVoltages, self).__init__(state, *args, **kwargs)
-
-
 def setup_brunel99(w_plus_val=2.5):
 
     # brunel 1999 system, one up state pop

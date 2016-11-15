@@ -12,7 +12,7 @@ class MFpop(object):
         self.params = params
         self.noise = None
 
-        self.n = 1
+        self.n = 1 # TODO: better property
         self.rate_ = 0.  # spikes/s
         self.v_mean = -60.  # pop mean voltage
         self.is_adapting = False
@@ -89,7 +89,8 @@ class MFpop(object):
             if x > 10.:
                 return 0.
             return np.exp(x ** 2) * (1. + erf(x))
-        return 1./(self.params["t_ref"] + tau_eff * np.sqrt(np.pi) * quad(integrand, beta(), alpha())[0])
+        return 1. / (self.params["t_ref"] + tau_eff * np.sqrt(np.pi) * quad(integrand, beta(), alpha())[0])
+# TODO math
 
     def __repr__(self):
         return "MFpop [%s] <%s (%i sources, n: %i, rate: %.4f, v_mean: %.4f)>" % (id(self), self.name, len(self.sources), self.n, self.rate_hz, self.v_mean)

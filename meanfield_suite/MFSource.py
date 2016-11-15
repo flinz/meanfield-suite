@@ -3,6 +3,9 @@ class MFSource(object):
 
     def __init__(self, name, pop):
 
+        # TODO source vs synapse
+        # TODO sometimes setup, sometimes constructed
+
         self.name = name
         self.g_dyn = lambda: 0.  # this should be given as a function describing the synaptic conductance
         self.is_nmda = False

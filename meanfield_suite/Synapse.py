@@ -1,13 +1,17 @@
 import numpy as np
-import pylab as pl
+import matplotlib.pyplot as plt
+
+# TODO : naming
 
 def stp_dgl_u(U, tau_f, tau_x, rate_ms):
-    """ Differential equation equilibrium solution of short-term plastic synaptic input: facilitation variable u."""
-    return float(U) * (1. + rate_ms * tau_f) * (1. + float(U) * rate_ms * tau_f)**(-1.)
+    """ Differential equation equilibrium solution of short-term pltastic synaptic input: facilitation variable u."""
+    return float(U) * (1. + rate_ms * tau_f) * (1. + float(U) * rate_ms * tau_f) ** (-1.)
 
 def stp_dgl_x(U, tau_f, tau_x, rate_ms):
-    """ Differential equation equilibrium solution of short-term plastic synaptic input: depression variable x."""
-    return (1. + float(U) * rate_ms * tau_f) * (1. + float(U) * rate_ms * (tau_f + tau_x + rate_ms * tau_f * tau_x))**(-1.)
+    """ Differential equation equilibrium solution of short-term pltastic synaptic input: depression variable x."""
+    return (1. + float(U) * rate_ms * tau_f) * (1. + float(U) * rate_ms * (tau_f + tau_x + rate_ms * tau_f * tau_x)) ** (-1.)
+
+# TODO : precision
 
 class Synapse(object):
     """
@@ -48,6 +52,7 @@ class Synapse(object):
     def stp_x(self, x):
         return stp_dgl_x(self.U, self.tau_f, self.tau_x, x)
 
+# TODO : fac * dep ?
     def stp_ur(self, x):
         return self.stp_x(x) * self.stp_u(x)
 
@@ -58,12 +63,12 @@ class Synapse(object):
             param['label'] = self.__repr__()
 
         x = np.arange(1., 181., 1.) * 1e-3
-        pl.plot(x*1e3, [self(xv) for xv in x], **param)
-        pl.xlim((0, 180))
-        pl.legend(loc="best")
+        plt.plot(x*1e3, [self(xv) for xv in x], **param)
+        plt.xlim((0, 180))
+        plt.legend(loc="best")
 
-        pl.xlabel("Input rate [Hz]")
-        pl.ylabel("Channel activation [1]")
+        plt.xlabel("Input rate [Hz]")
+        plt.ylabel("Channel activation [1]")
 
     def make_fun(self):
         return lambda x: np.sum(self.taus) * x * self.stp_ur(x)

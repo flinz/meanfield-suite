@@ -65,7 +65,7 @@ p = 1
 N_sub = int(N_E * f)
 N_non = int(N_E * (1. - f * p))
 w_plus = 2.1
-w_minus = 1 - f * (w_plus - 1) / (1 - f)
+w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
 eqs_E = '''
 dv / dt = (- g_m_E * (v - V_L) - I_syn) / C_m_E : volt (unless refractory)

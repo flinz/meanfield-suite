@@ -3,10 +3,10 @@ from functools import partial
 
 import numpy as np
 
-from MFSolver import MFSolver
+from MFSolver import MFSolver, MFSolverRatesVoltages
 from MFState import MFState
 from meanfield_suite.MFConstraint import MFConstraint
-from meanfield_suite.meanfield_classes import setup_brunel99, MFSolver_RatesVoltages, setup_EI
+from meanfield_suite.meanfield_classes import setup_brunel99, setup_EI
 
 
 class MFTestCase(unittest.TestCase):
@@ -107,7 +107,7 @@ class MFTestCase(unittest.TestCase):
 
     def testMFSolver_RatesVoltages(self):
         """Solve for firing rates & voltages with specialized subclass"""
-        solver = MFSolver_RatesVoltages(self.system)
+        solver = MFSolverRatesVoltages(self.system)
         r1 = solver.run()
 
         # take old implementation and compare
@@ -136,11 +136,11 @@ class MFTestCase(unittest.TestCase):
         """Solve for firing rates only with specialized subclass"""
 
         system1 = setup_EI(has_nmda=False)
-        solver = MFSolver_RatesVoltages(system1, maxiter=100)
+        solver = MFSolverRatesVoltages(system1, maxiter=100)
         r1 = solver.run()
 
         system2 = setup_EI(has_nmda=False)
-        solver = MFSolver_RatesVoltages(system2, force_nmda=True, maxiter=100)
+        solver = MFSolverRatesVoltages(system2, force_nmda=True, maxiter=100)
         r2 = solver.run()
 
         # test rates
@@ -157,10 +157,10 @@ class MFTestCase(unittest.TestCase):
 
         system = setup_EI()
 
-        solver = MFSolver_RatesVoltages(system, solver="gradient")
+        solver = MFSolverRatesVoltages(system, solver="gradient")
         sol1 = solver.run()
 
-        solver = MFSolver_RatesVoltages(system)
+        solver = MFSolverRatesVoltages(system)
         sol2 = solver.run()
 
         np.testing.assert_array_almost_equal(sol1.state, sol2.state, 5)

@@ -52,8 +52,6 @@ g_NMDA_E = 0.327 * nS * 800. / N_E
 g_NMDA_I = 0.258 * nS * 800. / N_E
 tau_NMDA_rise = 2. * ms
 tau_NMDA_decay = 100. * ms
-alpha = 0. / ms # 0.5 / ms
-Mg2 = 0. # 1.
 
 # GABAergic (inhibitory)
 g_GABA_E = 1.25 * nS * 200. / N_I
@@ -66,7 +64,7 @@ p = 1
 N_sub = int(N_E * f)
 N_non = int(N_E * (1. - f * p))
 w_plus = 2.1
-w_minus = 1 - f * (w_plus - 1) / (1 - f)
+w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
 eqs_E = '''
 dv / dt = (- g_m_E * (v - V_L) - I_syn) / C_m_E : volt (unless refractory)
@@ -74,7 +72,7 @@ dv / dt = (- g_m_E * (v - V_L) - I_syn) / C_m_E : volt (unless refractory)
 I_syn = I_AMPA_ext + I_AMPA_rec + I_NMDA_rec + I_GABA_rec : amp
 
 I_AMPA_ext = g_AMPA_ext_E * (v - V_E) * s_AMPA_ext : amp
-I_AMPA_rec = g_AMPA_rec_E * (v - V_E) * 1 * s_AMPA : amp
+I_AMPA_rec = g_AMPA_rec_E * (v - V_E) * s_AMPA : amp
 ds_AMPA_ext / dt = - s_AMPA_ext / tau_AMPA : 1
 ds_AMPA / dt = - s_AMPA / tau_AMPA : 1
 
@@ -91,7 +89,7 @@ dv / dt = (- g_m_I * (v - V_L) - I_syn) / C_m_I : volt (unless refractory)
 I_syn = I_AMPA_ext + I_AMPA_rec + I_NMDA_rec + I_GABA_rec : amp
 
 I_AMPA_ext = g_AMPA_ext_I * (v - V_E) * s_AMPA_ext : amp
-I_AMPA_rec = g_AMPA_rec_I * (v - V_E) * 1 * s_AMPA : amp
+I_AMPA_rec = g_AMPA_rec_I * (v - V_E) * s_AMPA : amp
 ds_AMPA_ext / dt = - s_AMPA_ext / tau_AMPA : 1
 ds_AMPA / dt = - s_AMPA / tau_AMPA : 1
 

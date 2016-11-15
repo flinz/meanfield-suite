@@ -1,10 +1,15 @@
 import signal
 import sys
+from functools import partial
 
-import pylab as pl
+import matplotlib.pylab as plt
 import numpy as np
 from scipy.optimize import root
 
+from MFConstraint import MFConstraint
+from MFState import MFState
+
+# TODO : gradient ?
 def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
     """Simple gradient descent along the error."""
 
@@ -20,9 +25,9 @@ def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
     states = np.array(states).T
     nspl = states.shape[0]
     for i in range(nspl):
-        pl.subplot(nspl, 1, i + 1)
-        pl.plot(states[i, :])
-    pl.show()
+        plt.subplot(nspl, 1, i + 1)
+        plt.plot(states[i, :])
+    plt.show()
 
     # minimal solution object to return
     class sol:
@@ -30,7 +35,6 @@ def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
         fun = np.array(mfstate.error)
 
     return sol()
-
 
 class MFSolver(object):
 
@@ -83,7 +87,9 @@ class MFSolver(object):
             up_dist = [c.bound_up - state_0[i] for i, c in enumerate(self.mfstate.constraints)]
             down_dist = [state_0[i] - c.bound_low for i, c in enumerate(self.mfstate.constraints)]
             max_dist = [min(up_dist[i], down_dist[i]) for i in range(len(self.mfstate.constraints))]
-            p_0 = state_0 + (2.*np.random.rand(len(state_0))-1.) * np.array(max_dist) * noise_percent
+
+            # TODO initial ?
+            p_0 = state_0 + (2. * np.random.rand(len(state_0)) - 1.) * np.array(max_dist) * noise_percent
 
             # solve
             if self.solver == "gradient":  # own implementation
@@ -120,3 +126,45 @@ class MFSolver(object):
         print(self.mfstate)
         print("-------------------\n")
         return self.mfstate
+
+class MFSolverRatesVoltages(MFSolver): # TODO which?
+
+    def __init__(self, system, force_nmda=False, *args, **kwargs):
+        # create constraints on the firing rates and mean voltages
+
+        constraints = []
+        functions = []
+
+        for p in system.pops:
+
+            # TODO constraint origin
+
+            constraints.append(
+                MFConstraint(
+                    "%s-%s" % (p.name, "rate_hz"),
+                    partial(lambda x: x.rate_hz, p),
+                    partial(lambda x, val: setattr(x, "rate_hz", val), p),
+                    partial(lambda x: x.rate_hz-x.rate_pred, p),
+                    0., 750.
+                )
+            )
+
+            if p.has_nmda or force_nmda:
+                print("Population %s has NMDA -> solving for voltages" % p.name)
+                constraints.append(
+                    MFConstraint(
+                        "%s-%s" % (p.name, "v_mean"),
+                        partial(lambda x: x.v_mean, p),
+                        partial(lambda x, val: setattr(x, "v_mean", val), p),
+                        partial(lambda x: x.v_mean-x.v_mean_prediction, p),
+                        -80., 50.
+                    )
+                )
+            else:
+                functions.append(
+                    partial(lambda x: setattr(x, "v_mean", x.v_mean_prediction), p),
+                )
+
+        state = MFState(constraints, dependent_functions=functions)
+        super(MFSolverRatesVoltages, self).__init__(state, *args, **kwargs)
+
