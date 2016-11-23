@@ -150,7 +150,7 @@ pop_i.noise = source_i_noise
 
 # E->E NMDA
 source_ee_nmda1 = MFSource('EE NMDA 1', pop_e1)
-source_ee_nmda1.is_nmda = False
+#source_ee_nmda1.is_nmda = True
 source_ee_nmda1.g_base = params_standard["E"]["gNMDA"]
 source_ee_nmda1.g_dyn = lambda: (
     pop_e1.n * f * w_plus * pop_e1.rate_ms * tau_NMDA_decay +
@@ -158,7 +158,7 @@ source_ee_nmda1.g_dyn = lambda: (
 )
 
 source_ee_nmda2 = MFSource('EE NMDA 2', pop_e2)
-source_ee_nmda2.is_nmda = False
+#source_ee_nmda2.is_nmda = True
 source_ee_nmda2.g_base = params_standard["E"]["gNMDA"]
 source_ee_nmda2.g_dyn = lambda: (
     pop_e1.n * f * w_minus * pop_e1.rate_ms * tau_NMDA_decay +
@@ -167,7 +167,6 @@ source_ee_nmda2.g_dyn = lambda: (
 
 # E->E AMPA
 source_ee_ampa1 = MFSource('EE AMPA 1', pop_e1)
-source_ee_ampa1.is_nmda = False
 source_ee_ampa1.g_base = params_standard["E"]["gAMPA"]
 source_ee_ampa1.g_dyn = lambda: (
     pop_e1.n * f * w_plus * pop_e1.rate_ms * tau_AMPA +
@@ -175,7 +174,6 @@ source_ee_ampa1.g_dyn = lambda: (
 )
 
 source_ee_ampa2 = MFSource('EE AMPA 2', pop_e2)
-source_ee_ampa2.is_nmda = False
 source_ee_ampa2.g_base = params_standard["E"]["gAMPA"]
 source_ee_ampa2.g_dyn = lambda: (
     pop_e1.n * f * w_minus * pop_e1.rate_ms * tau_AMPA +
@@ -183,8 +181,8 @@ source_ee_ampa2.g_dyn = lambda: (
 )
 
 # E->I NMDA
-source_ie_nmda = MFSource('IE NMDA', pop_i)
-source_ie_nmda.is_nmda = False
+source_ie_nmda = MFSource('EI NMDA', pop_i)
+#source_ie_nmda.is_nmda = True
 source_ie_nmda.g_base = params_standard["I"]["gNMDA"]
 source_ie_nmda.g_dyn = lambda: (
     pop_e1.n * f * pop_e1.rate_ms * tau_NMDA_decay +
@@ -192,8 +190,7 @@ source_ie_nmda.g_dyn = lambda: (
 )
 
 # E->I AMPA
-source_ie_ampa = MFSource('IE AMPA', pop_i)
-source_ie_ampa.is_nmda = False
+source_ie_ampa = MFSource('EI AMPA', pop_i)
 source_ie_ampa.g_base = params_standard["I"]["gAMPA"]
 source_ie_ampa.g_dyn = lambda: (
     pop_e1.n * f * pop_e1.rate_ms * tau_AMPA +
@@ -207,20 +204,25 @@ source_ii_gaba.g_base = params_standard["I"]["gGABA"]
 source_ii_gaba.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
 
 # I->E GABA
-source_ei_gaba1 = MFSource('EI Gaba', pop_e1)
-source_ei_gaba1.E_rev = -70. # TODO : adjust
-source_ei_gaba1.g_base = params_standard["E"]["gGABA"]
-source_ei_gaba1.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
+source_ie_gaba1 = MFSource('IE GABA 1', pop_e1)
+source_ie_gaba1.E_rev = -70. # TODO : adjust
+source_ie_gaba1.g_base = params_standard["I"]["gGABA"]
+source_ie_gaba1.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
 
-source_ei_gaba2 = MFSource('EI Gaba', pop_e2)
-source_ei_gaba2.E_rev = -70.
-source_ei_gaba2.g_base = params_standard["E"]["gGABA"]
-source_ei_gaba2.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
+source_ie_gaba2 = MFSource('IE GABA 2', pop_e2)
+source_ie_gaba2.E_rev = -70.
+source_ie_gaba2.g_base = params_standard["I"]["gGABA"]
+source_ie_gaba2.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
 
 
 # TODO : error when using no subpop
 
-solver = MFSolverRatesVoltages(system, maxiter=100)#, solver="gradient")
+solver = MFSolverRatesVoltages(system, maxiter=100, solver="gradient")
 print(solver.mfstate.state)
 
 res = solver.run()
+
+# Stability issue
+# synapse
+# PyNN
+# Submit model

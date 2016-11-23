@@ -164,32 +164,10 @@ r_I = SpikeMonitor(P_I, record=False)
 
 store()
 
-resolution = 3
-ges = np.linspace(0.1, 0.6, resolution)
-gis = np.linspace(0.1, 0.3, resolution)
+resolution = 25
+ges = np.linspace(0.1, 0.8, resolution)
+gis = np.linspace(0.1, 0.6, resolution)
 rates = []
-
-import sys
-
-class ProgressBar(object):
-    def __init__(self, toolbar_width):
-        self.toolbar_width = toolbar_width
-        self.ticks = 0
-
-    def __call__(self, elapsed, complete, start, duration):
-        if complete == 0.0:
-            # setup toolbar
-            sys.stdout.write("[%s]" % (" " * self.toolbar_width))
-            sys.stdout.flush()
-            sys.stdout.write("\b" * (self.toolbar_width + 1)) # return to start of line, after '['
-        else:
-            ticks_needed = int(round(complete * 40))
-            if self.ticks < ticks_needed:
-                sys.stdout.write("-" * (ticks_needed-self.ticks))
-                sys.stdout.flush()
-                self.ticks = ticks_needed
-        if complete == 1.0:
-            sys.stdout.write("\n")
 
 for ge in ges:
     for gi in gis:
@@ -219,8 +197,6 @@ pd.to_pickle(rates, '2001_Brunel_Wang_simplified_mean_%d.p' % resolution)
 
 rates_E = rates.pivot_table(index='g_I', columns='g_E', values='rate_E')
 rates_I = rates.pivot_table(index='g_I', columns='g_E', values='rate_I')
-
-# TODO : progress
 
 subplot(121)
 title('excitatory')
