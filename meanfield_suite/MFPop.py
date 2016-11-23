@@ -12,7 +12,7 @@ class MFpop(object):
         self.params = params
         self.noise = None
 
-        self.n = 1 # TODO: better property
+        self.n = 1
         self.rate_ = 0.  # spikes/s
         self.v_mean = -60.  # pop mean voltage
         self.is_adapting = False
@@ -74,14 +74,10 @@ class MFpop(object):
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
 
-        def beta():
-            return (self.params["V_reset"] - self.params["E_L"] - self.mu) / sigma
-
-        def alpha():
-            tmp = -0.5 * self.noise.noise_tau / tau_eff \
-                    + 1.03 * np.sqrt(self.noise.noise_tau / tau_eff) \
-                    + (-self.mu - self.params["E_L"] + self.params["V_th"]) * (1. + (0.5 * self.noise.noise_tau / tau_eff)) / sigma
-            return tmp
+        beta = (self.params["V_reset"] - self.params["E_L"] - self.mu) / sigma
+        alpha = -0.5 * self.noise.noise_tau / tau_eff \
+                + 1.03 * np.sqrt(self.noise.noise_tau / tau_eff) \
+                + (-self.mu - self.params["E_L"] + self.params["V_th"]) * (1. + (0.5 * self.noise.noise_tau / tau_eff)) / sigma
 
         def integrand(x):
             if x < -10.:
@@ -89,8 +85,7 @@ class MFpop(object):
             if x > 10.:
                 return 0.
             return np.exp(x ** 2) * (1. + erf(x))
-        return 1. / (self.params["t_ref"] + tau_eff * np.sqrt(np.pi) * quad(integrand, beta(), alpha())[0])
-# TODO math
+        return 1. / (self.params["t_ref"] + tau_eff * np.sqrt(np.pi) * quad(integrand, beta, alpha)[0])
 
     def __repr__(self):
         return "MFpop [%s] <%s (%i sources, n: %i, rate: %.4f, v_mean: %.4f)>" % (id(self), self.name, len(self.sources), self.n, self.rate_hz, self.v_mean)

@@ -9,7 +9,6 @@ from scipy.optimize import root
 from MFConstraint import MFConstraint
 from MFState import MFState
 
-# TODO : gradient ?
 def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
     """Simple gradient descent along the error."""
 
@@ -88,7 +87,6 @@ class MFSolver(object):
             down_dist = [state_0[i] - c.bound_low for i, c in enumerate(self.mfstate.constraints)]
             max_dist = [min(up_dist[i], down_dist[i]) for i in range(len(self.mfstate.constraints))]
 
-            # TODO initial ?
             p_0 = state_0 + (2. * np.random.rand(len(state_0)) - 1.) * np.array(max_dist) * noise_percent
 
             # solve
@@ -127,7 +125,7 @@ class MFSolver(object):
         print("-------------------\n")
         return self.mfstate
 
-class MFSolverRatesVoltages(MFSolver): # TODO which?
+class MFSolverRatesVoltages(MFSolver):
 
     def __init__(self, system, force_nmda=False, *args, **kwargs):
         # create constraints on the firing rates and mean voltages
@@ -136,8 +134,6 @@ class MFSolverRatesVoltages(MFSolver): # TODO which?
         functions = []
 
         for p in system.pops:
-
-            # TODO constraint origin
 
             constraints.append(
                 MFConstraint(
