@@ -17,7 +17,7 @@ V_I = -70.
 
 # membrane capacitance
 C_m_E = 0.5
-C_m_I = 0.2 # TODO : nano
+C_m_I = 0.2
 
 # membrane leak
 g_m_E = 25.
@@ -66,45 +66,25 @@ w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 print(N_non + N_sub)
 
 params_standard = {
-    "NMDA": {
-        "gamma": 0.280112,
-        "beta": 0.062,
-    },
     "E": {
         "gamma": 0.280112,
         "beta": 0.062,
-        "VE": V_E,
+        "g_L": g_m_E,
+        "C_m": C_m_E * 1e3,
         "E_L": V_L,
-        "VI": V_I,
         "V_th": V_thr,
         "V_reset": V_reset,
-        "tau_AMPA": tau_AMPA,
-        "t_ref": tau_rp_E,
-        "C_m": C_m_E * 1e3,
-        "g_L": g_m_E,
-        "Cext": C_ext,
-        "nu_ext": rate,
-        "gAMPA": g_AMPA_ext_E,
-        "gNMDA": g_NMDA_E,
-        "gGABA": g_GABA_E
+        "t_ref": tau_rp_E
     },
     "I": {
         "gamma": 0.280112,
         "beta": 0.062,
-        "VE": V_E,
+        "g_L": g_m_I,
+        "C_m": C_m_I * 1e3,
         "E_L": V_L,
-        "VI": V_I,
         "V_th": V_thr,
         "V_reset": V_reset,
-        "tau_AMPA": tau_AMPA,
-        "t_ref": tau_rp_I,
-        "C_m": C_m_I * 1e3,
-        "g_L": g_m_I,
-        "Cext": C_ext,
-        "nu_ext": rate,
-        "gAMPA": g_AMPA_ext_I,
-        "gNMDA": g_NMDA_I,
-        "gGABA": g_GABA_I
+        "t_ref": tau_rp_I
     }
 }
 
@@ -130,31 +110,29 @@ pop_i.v_mean = -52.
 
 system.pops += [pop_e1, pop_e2, pop_i]
 
-print(params_standard)
-
 # noise pops
 source_e_noise1 = MFSource("E_noise1", pop_e1)
-source_e_noise1.noise_tau = params_standard["E"]["tau_AMPA"]
+source_e_noise1.noise_tau = tau_AMPA
 source_e_noise1.g_base = g_AMPA_ext_E
-source_e_noise1.g_dyn = lambda: rate * C_ext * params_standard["E"]["tau_AMPA"]
+source_e_noise1.g_dyn = lambda: rate * C_ext * tau_AMPA
 pop_e1.noise = source_e_noise1
 
 source_e_noise2 = MFSource("E_noise2", pop_e2)
-source_e_noise2.noise_tau = params_standard["E"]["tau_AMPA"]
+source_e_noise2.noise_tau = tau_AMPA
 source_e_noise2.g_base = g_AMPA_ext_E
-source_e_noise2.g_dyn = lambda: rate * C_ext * params_standard["E"]["tau_AMPA"]
+source_e_noise2.g_dyn = lambda: rate * C_ext * tau_AMPA
 pop_e2.noise = source_e_noise2
 
 source_i_noise = MFSource("I_noise", pop_i)
-source_i_noise.noise_tau = params_standard["I"]["tau_AMPA"]
+source_i_noise.noise_tau = tau_AMPA
 source_i_noise.g_base = g_AMPA_ext_I
-source_i_noise.g_dyn = lambda: rate * params_standard["I"]["Cext"] * params_standard["I"]["tau_AMPA"]
+source_i_noise.g_dyn = lambda: rate * C_ext * tau_AMPA
 pop_i.noise = source_i_noise
 
 # E->E NMDA
 source_ee_nmda1 = MFSource('EE NMDA 1', pop_e1)
 #source_ee_nmda1.is_nmda = True
-source_ee_nmda1.g_base = params_standard["E"]["gNMDA"]
+source_ee_nmda1.g_base = g_NMDA_E
 source_ee_nmda1.g_dyn = lambda: (
     pop_e1.n * f * w_plus * pop_e1.rate_ms * tau_NMDA_decay +
     pop_e2.n * (1. - f) * w_minus * pop_e2.rate_ms * tau_NMDA_decay
@@ -162,7 +140,7 @@ source_ee_nmda1.g_dyn = lambda: (
 
 source_ee_nmda2 = MFSource('EE NMDA 2', pop_e2)
 #source_ee_nmda2.is_nmda = True
-source_ee_nmda2.g_base = params_standard["E"]["gNMDA"]
+source_ee_nmda2.g_base = g_NMDA_E
 source_ee_nmda2.g_dyn = lambda: (
     pop_e1.n * f * w_minus * pop_e1.rate_ms * tau_NMDA_decay +
     pop_e2.n * (1. - f) * w_plus * pop_e2.rate_ms * tau_NMDA_decay
@@ -186,7 +164,7 @@ source_ee_ampa2.g_dyn = lambda: (
 # E->I NMDA
 source_ie_nmda = MFSource('EI NMDA', pop_i)
 #source_ie_nmda.is_nmda = True
-source_ie_nmda.g_base = params_standard["I"]["gNMDA"]
+source_ie_nmda.g_base = g_NMDA_I
 source_ie_nmda.g_dyn = lambda: (
     pop_e1.n * f * pop_e1.rate_ms * tau_NMDA_decay +
     pop_e2.n * (1. - f) * pop_e2.rate_ms * tau_NMDA_decay
@@ -203,22 +181,21 @@ source_ie_ampa.g_dyn = lambda: (
 # I->I GABA
 source_ii_gaba = MFSource('II GABA', pop_i)
 source_ii_gaba.E_rev = -70.
-source_ii_gaba.g_base = params_standard["I"]["gGABA"]
+source_ii_gaba.g_base = g_GABA_I
 source_ii_gaba.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
 
 # I->E GABA
 source_ie_gaba1 = MFSource('IE GABA 1', pop_e1)
-source_ie_gaba1.E_rev = -70. # TODO : adjust
-source_ie_gaba1.g_base = params_standard["E"]["gGABA"]
+source_ie_gaba1.E_rev = -70.
+source_ie_gaba1.g_base = g_GABA_E
 source_ie_gaba1.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
 
 source_ie_gaba2 = MFSource('IE GABA 2', pop_e2)
 source_ie_gaba2.E_rev = -70.
-source_ie_gaba2.g_base = params_standard["E"]["gGABA"]
+source_ie_gaba2.g_base = g_GABA_E
 source_ie_gaba2.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
 
 
-# TODO : error when using no subpop
 
 solver = MFSolverRatesVoltages(system, maxiter=1, solver="gradient")
 print(solver.mfstate.state)
