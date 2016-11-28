@@ -100,9 +100,9 @@ I_GABA_rec = g_GABA_I * (v - V_I) * s_GABA : amp
 ds_GABA / dt = - s_GABA / tau_GABA : 1
 '''
 
-P_E = NeuronGroup(N_E, eqs_E, method='euler', threshold='v > V_thr', reset='v = V_reset;', refractory=tau_rp_E)
+P_E = NeuronGroup(N_E, eqs_E, method='euler', threshold='v > V_thr', reset='v = V_reset', refractory=tau_rp_E)
 P_E.v = V_L
-P_I = NeuronGroup(N_I, eqs_I, method='euler', threshold='v > V_thr', reset='v = V_reset;', refractory=tau_rp_I)
+P_I = NeuronGroup(N_I, eqs_I, method='euler', threshold='v > V_thr', reset='v = V_reset', refractory=tau_rp_I)
 P_I.v = V_L
 
 eqs_glut = '''
@@ -168,7 +168,7 @@ resolution = 25
 ges = np.linspace(0.1, 0.8, resolution)
 gis = np.linspace(0.1, 0.6, resolution)
 rates = []
-9
+
 for ge in ges:
     for gi in gis:
         print('Run %f/%f' % (ge, gi))

@@ -63,8 +63,6 @@ N_non = int(N_E * (1. - f * p))
 w_plus = 1
 w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
-print(N_non + N_sub)
-
 params_standard = {
     "E": {
         "gamma": 0.280112,
