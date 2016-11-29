@@ -152,21 +152,25 @@ C_I_E.connect()
 C_P_E = PoissonInput(P_E, 's_AMPA_ext', C_ext, rate, 1)
 C_P_I = PoissonInput(P_I, 's_AMPA_ext', C_ext, rate, 1)
 
-#stimuli = TimedArray(np.r_[np.zeros(10), np.ones(2) * 50, np.zeros(50)] * Hz, dt=100 * ms)
-#C_PG_sti = PoissonGroup(100, 'stimuli(t)')
-#C_PG_E = Synapses(C_PG_sti, P_E[N_non: N_non + N_sub], on_pre='s_AMPA += 1')
-#C_PG_E.connect()
+stimuli = TimedArray(np.r_[np.ones(1) * 50, np.zeros(50)] * Hz, dt=50 * ms)
+C_PG_sti = PoissonGroup(2500, 'stimuli(t)')
+C_PG_E = Synapses(C_PG_sti, P_E, on_pre='s_AMPA += 1')
+C_PG_E.connect()
+C_PG_I = Synapses(C_PG_sti, P_I, on_pre='s_AMPA += 1')
+C_PG_I.connect()
 
 # monitors
 
-r_E = SpikeMonitor(P_E, record=False)
-r_I = SpikeMonitor(P_I, record=False)
+#s_E = PopulationRateMonitor(P_E)
+#s_I = PopulationRateMonitor(P_I)
+r_E = SpikeMonitor(P_E, record=True)
+r_I = SpikeMonitor(P_I, record=True)
 
 store()
 
-resolution = 25
-ges = np.linspace(0.1, 0.8, resolution)
-gis = np.linspace(0.1, 0.6, resolution)
+resolution = 8
+ges = np.linspace(0.01, 0.25, resolution)
+gis = np.linspace(0.01, 0.2, resolution)
 rates = []
 
 for ge in ges:
@@ -179,7 +183,7 @@ for ge in ges:
         g_NMDA_I = gi * nS * 800. / N_E
         g_GABA_I = 4. * g_NMDA_I
 
-        run(500 * ms, report='text', report_period=0.5 * second)
+        run(800 * ms, report='text', report_period=0.5 * second)
 
         #plot(r_E.t / ms, r_E.smooth_rate(width=10 * ms) / Hz)
         #plot(r_I.t / ms, r_I.smooth_rate(width=10 * ms) / Hz)
@@ -188,9 +192,12 @@ for ge in ges:
         rates.append({
             'g_E': ge,
             'g_I': gi,
-            'rate_E': r_E.num_spikes / N_E / 2.,
-            'rate_I': r_I.num_spikes / N_I / 2.
+            'rate_E': count_nonzero(r_E.t > 200 * ms) / N_E / 2.,
+            'rate_I': count_nonzero(r_I.t > 200 * ms) / N_I / 2.
         })
+        #plot(s_E.t / ms, s_E.smooth_rate(width=10 * ms) / Hz, label='pyramidal neuron')
+        #plot(s_I.t / ms, s_I.smooth_rate(width=10 * ms) / Hz, label='interneuron')
+        #show()
 
 rates = pd.DataFrame(rates)
 pd.to_pickle(rates, '2001_Brunel_Wang_simplified_mean_%d.p' % resolution)
