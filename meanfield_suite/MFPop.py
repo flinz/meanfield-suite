@@ -39,24 +39,39 @@ class MFpop(object):
 
     @property
     def J(self):
-        """Linearization factor for NMDA"""
+        """
+        Linearization factor for NMDA
+        Unitless
+        """
         return 1 + self.params["gamma"] * np.exp(-self.params["beta"] * self.v_mean)
 
     @property
     def total_cond(self):
-        """Gm * SE in [1]"""
+        """
+        Gm * SE in [1]
+        Units of S
+        """
         return self.params["g_L"] + np.sum(s.conductance for s in self.sources)
 
     @property
     def tau_eff(self):
+        """
+        Seconds
+        """
         return self.params["C_m"] / self.total_cond
 
     @property
     def mu(self):
+        """
+        Volt
+        """
         return 1. / self.total_cond * np.sum(s.voltage_conductance for s in self.sources)
 
     @property
     def sigma_square(self):
+        """
+        Volt^2
+        """
         if not self.noise:
             return 0.
         return (self.noise.g_base / self.params["C_m"] * (self.v_mean - self.noise.E_rev)) ** 2 * self.tau_eff * self.noise.g_dyn() * self.noise.noise_tau
@@ -67,10 +82,13 @@ class MFpop(object):
 
     @property
     def v_mean_prediction(self):
+        """
+        Volt
+        """
         return self.params["E_L"] + self.mu - (self.params["V_th"] - self.params["V_reset"]) * self.rate_ms * self.tau_eff
 
     def phi_firing_func(self):
-
+        
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
 
