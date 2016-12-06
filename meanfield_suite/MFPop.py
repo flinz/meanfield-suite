@@ -58,20 +58,21 @@ class MFLinearPop(MFPop):
         super().__init__(name, n, params)
         self.params = params
 
+
     @property
     def total_cond(self):
         """
         Gm * SE in [1]
         Units of S
         """
-        return self.params["g_L"] + np.sum(s.conductance for s in self.sources)
+        return self.params.g_L + np.sum(s.conductance for s in self.sources)
 
     @property
     def tau_eff(self):
         """
         Seconds
         """
-        return self.params["C_m"] / self.total_cond
+        return self.params.C_m / self.total_cond
 
     @property
     def mu(self):
@@ -88,7 +89,7 @@ class MFLinearPop(MFPop):
         if not self.noise:
             return 0.
 
-        return (self.noise.g_base / self.params["C_m"] * (
+        return (self.noise.g_base / self.params.C_m * (
             self.v_mean - self.noise.E_rev)) ** 2 * self.tau_eff * self.noise.g_dyn() * self.noise.noise_tau
 
     def phi_firing_func(self):
@@ -96,10 +97,10 @@ class MFLinearPop(MFPop):
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
 
-        beta = (self.params["V_reset"] - self.params["E_L"] - self.mu) / sigma
+        beta = (self.params.V_reset - self.params.E_L - self.mu) / sigma
         alpha = -0.5 * self.noise.noise_tau / tau_eff \
                 + 1.03 * np.sqrt(self.noise.noise_tau / tau_eff) \
-                + (-self.mu - self.params["E_L"] + self.params["V_th"]) * (
+                + (-self.mu - self.params.E_L + self.params.V_th) * (
             1. + (0.5 * self.noise.noise_tau / tau_eff)) / sigma
 
         def integrand(x):
@@ -109,7 +110,7 @@ class MFLinearPop(MFPop):
                 return 0.
             return np.exp(x ** 2) * (1. + erf(x))
 
-        return 1. / (self.params["t_ref"] + tau_eff * np.sqrt(np.pi) * quad(integrand, beta, alpha)[0])
+        return 1. / (self.params.t_ref + tau_eff * np.sqrt(np.pi) * quad(integrand, beta, alpha)[0])
 
     @property
     def rate_prediction(self):
@@ -120,7 +121,7 @@ class MFLinearPop(MFPop):
         """
         Volt
         """
-        return self.params["E_L"] + self.mu - (self.params["V_th"] - self.params["V_reset"]) * self.rate_ms * self.tau_eff
+        return self.params.E_L + self.mu - (self.params.V_th - self.params.V_reset) * self.rate_ms * self.tau_eff
 
     def __repr__(self):
         return "MFpop [%s] <%s (%i sources, n: %i, rate: %.4f, v_mean: %.4f)>" % \
@@ -137,6 +138,7 @@ class MFOldPop(object):
     """pop: similar neurons"""
 
     def __init__(self, name, params):
+        self.name = name
         self.sources = []
         self.params = params
         self.noise = None

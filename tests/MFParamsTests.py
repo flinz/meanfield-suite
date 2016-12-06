@@ -5,8 +5,8 @@ from MFParams import MFParams
 class MFParamsTests(unittest.TestCase):
 
     def testConstructor(self):
-        assert MFParams().copy() == {}
-        assert MFParams(a=1).copy() == {'a': 1}
+        assert MFParams().to_dict() == {}
+        assert MFParams(a=1).to_dict() == {'a': 1}
 
     def testGetter(self):
         try:
