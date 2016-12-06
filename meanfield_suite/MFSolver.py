@@ -140,7 +140,7 @@ class MFSolverRatesVoltages(MFSolver):
                     "%s-%s" % (p.name, "rate_hz"),
                     partial(lambda x: x.rate_hz, p),
                     partial(lambda x, val: setattr(x, "rate_hz", val), p),
-                    partial(lambda x: x.rate_hz-x.rate_pred, p),
+                    partial(lambda x: x.rate_hz-x.rate_prediction, p),
                     0., 750.
                 )
             )

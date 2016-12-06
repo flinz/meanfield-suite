@@ -49,7 +49,7 @@ class MFTestCase(unittest.TestCase):
 
     def testFiringRate(self):
         """Mean firing rate predictions equal old implementation"""
-        rate_pred = np.array([p.rate_pred for p in self.system.pops])
+        rate_pred = np.array([p.rate_prediction for p in self.system.pops])
         rate_pred_brunel = np.array([0.015207823717059475, 0.0013208593687499856, 0.0068435294603920544])
         diff = (rate_pred - 1e3 * rate_pred_brunel)
         assert all(diff < 1e-8), "Values not equal: %s" % diff
@@ -68,7 +68,7 @@ class MFTestCase(unittest.TestCase):
             'aa',
             partial(lambda x: x.rate_hz, pop),
             partial(lambda x, val: setattr(x, "rate_hz", val), pop),
-            partial(lambda x: x.rate_hz-x.rate_pred, pop),
+            partial(lambda x: x.rate_hz-x.rate_prediction, pop),
             0.,
             750.
         )
@@ -83,7 +83,7 @@ class MFTestCase(unittest.TestCase):
                 "%s-%s" % (p.name, "rate_hz"),
                 partial(lambda x: x.rate_hz, p),
                 partial(lambda x, val: setattr(x, "rate_hz", val), p),
-                partial(lambda x: x.rate_hz-x.rate_pred, p),
+                partial(lambda x: x.rate_hz-x.rate_prediction, p),
                 0., 750.
             ) for p in self.system.pops
         ] + [
@@ -175,7 +175,7 @@ class MFTestCase(unittest.TestCase):
                 "%s-%s" % (p.name, "gNMDA"),
                 partial(lambda x: x.sources[1].g_base, p),
                 partial(lambda x, val: setattr(x.sources[1], "g_base", val), p),
-                partial(lambda x: x.rate_hz-x.rate_pred, p),
+                partial(lambda x: x.rate_hz-x.rate_prediction, p),
                 0., 500.
             ) for p in system.pops
         ] + [
@@ -193,7 +193,7 @@ class MFTestCase(unittest.TestCase):
         solver.run()
 
         for p in system.pops:
-            np.testing.assert_almost_equal(p.rate_pred, p.rate_hz, 5)
+            np.testing.assert_almost_equal(p.rate_prediction, p.rate_hz, 5)
 
     def testConductanceMinimizationRatio(self):
         """Solve for NMDA & Gaba conductances with constrained firing rates & EI fixed ratio"""
@@ -210,7 +210,7 @@ class MFTestCase(unittest.TestCase):
                 "%s-%s" % (p.name, "gNMDA"),
                 partial(lambda x: x.sources[1].g_base, p),
                 partial(e_setter, p),
-                partial(lambda x: x.rate_hz-x.rate_pred, p),
+                partial(lambda x: x.rate_hz-x.rate_prediction, p),
                 0., 500.
             ) for p in system.pops
         ] + [
@@ -228,7 +228,7 @@ class MFTestCase(unittest.TestCase):
         solver.run()
 
         for p in system.pops:
-            np.testing.assert_almost_equal(p.rate_pred, p.rate_hz, 5)
+            np.testing.assert_almost_equal(p.rate_prediction, p.rate_hz, 5)
             assert p.sources[1].g_base == p.sources[1].g_base
 
 

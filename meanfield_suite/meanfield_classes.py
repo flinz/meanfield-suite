@@ -1,7 +1,7 @@
 from functools import partial
 
 from MFConstraint import MFConstraint
-from MFPop import MFpop
+from MFPop import MFOldPop
 from MFSolver import MFSolver
 from MFSource import MFSource
 from MFState import MFState
@@ -60,11 +60,11 @@ def setup_brunel99(w_plus_val=2.5):
     initials = {'nu_plus': .025, 'nu_min': .0015, 'nu_i': .009}
 
     system = MFSystem("Brunel")
-    pop_e1 = MFpop("Eup", params_standard["E"])
+    pop_e1 = MFOldPop("Eup", params_standard["E"])
     pop_e1.n = 800
-    pop_e2 = MFpop("Edown", params_standard["E"])
+    pop_e2 = MFOldPop("Edown", params_standard["E"])
     pop_e2.n = 800
-    pop_i = MFpop("I", params_standard["I"])
+    pop_i = MFOldPop("I", params_standard["I"])
     pop_i.n = 200
     pop_e1.rate_ms = initials["nu_plus"]
     pop_e1.v_mean = -51.
@@ -164,9 +164,9 @@ def setup_EI(has_nmda=True):
         mult = 1.
 
     system = MFSystem("EI")
-    pop_e = MFpop("E", params_standard["E"])
+    pop_e = MFOldPop("E", params_standard["E"])
     pop_e.n = 800
-    pop_i = MFpop("I", params_standard["I"])
+    pop_i = MFOldPop("I", params_standard["I"])
     pop_i.n = 200
     pop_e.rate_ms = initials["nu_e"]
     pop_e.v_mean = -51.

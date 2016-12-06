@@ -1,4 +1,4 @@
-from MFPop import MFpop
+from MFPop import MFOldPop
 from MFSolver import MFSolver, MFSolverRatesVoltages
 from MFSource import MFSource
 from MFSystem import MFSystem
@@ -95,17 +95,17 @@ def mean():
 
     system = MFSystem("Brunel Wang simplified")
 
-    pop_e1 = MFpop("E", params_standard["E"])
+    pop_e1 = MFOldPop("E", params_standard["E"])
     pop_e1.n = N_non
     pop_e1.rate_ms = nu_e
     pop_e1.v_mean = -52.
 
-    pop_e2 = MFpop("Edown", params_standard["E"])
+    pop_e2 = MFOldPop("Edown", params_standard["E"])
     pop_e2.n = N_sub
     pop_e2.rate_ms = nu_e
     pop_e2.v_mean = -52.
 
-    pop_i = MFpop("I", params_standard["I"])
+    pop_i = MFOldPop("I", params_standard["I"])
     pop_i.n = N_I
     pop_i.rate_ms = nu_i
     pop_i.v_mean = -52.
