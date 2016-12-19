@@ -68,8 +68,10 @@ w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
 def mean():
 
-    E_params = MFParams(
-        gamma=0.280112,
+    Gamma =
+
+    E_params = MFParams({
+        Gamma=0.280112,
         beta=0.062,
         g_L=g_m_E,
         C_m=C_m_E * 1e3,
@@ -77,7 +79,7 @@ def mean():
         V_th=V_thr,
         V_reset=V_reset,
         t_ref=tau_rp_E
-    )
+    })
 
     I_params = MFParams(
         gamma=0.280112,

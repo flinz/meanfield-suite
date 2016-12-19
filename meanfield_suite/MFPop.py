@@ -58,13 +58,13 @@ class MFLinearPop(MFPop):
         super().__init__(name, n, params)
         self.params = params
 
-
     @property
     def total_cond(self):
         """
         Gm * SE in [1]
         Units of S
         """
+        if have_same_dimension():
         return self.params.g_L + np.sum(s.conductance for s in self.sources)
 
     @property
