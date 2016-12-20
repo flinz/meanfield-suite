@@ -145,7 +145,7 @@ class MFSolverRatesVoltages(MFSolver):
                 )
             )
 
-            if p.has_nmda or force_nmda:
+            if False:#p.has_nmda or force_nmda:
                 print("Population %s has NMDA -> solving for voltages" % p.name)
                 constraints.append(
                     MFConstraint(

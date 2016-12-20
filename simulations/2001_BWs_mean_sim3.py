@@ -4,6 +4,9 @@ from MFSolver import MFSolver, MFSolverRatesVoltages
 from MFSource import MFSource
 from MFSystem import MFSystem
 from brian2 import *
+
+from params import NP
+
 BrianLogger.log_level_debug()
 
 # neurons
@@ -12,15 +15,15 @@ N_E = int(N * 0.8)  # pyramidal neurons
 N_I = int(N * 0.2)  # interneurons
 
 # voltage
-V_L = -70.  # resting
+V_L = -70. * mV # resting
 V_thr = -50.
 V_reset = -55.
-V_E = 0.
+V_E = 0. * mV
 V_I = -70.
 
 # membrane capacitance
-C_m_E = 0.5
-C_m_I = 0.2
+C_m_E = 0.5 * nF
+C_m_I = 0.2 * nF
 
 # membrane leak
 g_m_E = 25. * nS
@@ -68,27 +71,27 @@ w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
 def mean():
 
-    E_params = MFParams(
-        gamma=0.280112,
-        beta=0.062,
-        g_L=g_m_E,
-        C_m=C_m_E * 1e3,
-        E_L=V_L,
-        V_th=V_thr,
-        V_reset=V_reset,
-        t_ref=tau_rp_E
-    )
+    E_params = MFParams({
+        NP.GAMMA: 0.280112,
+        NP.BETA: 0.062,
+        NP.GM: g_m_E,
+        NP.CM: C_m_E,# * 1e3,
+        NP.VL: V_L,
+        NP.VTHR: V_thr,
+        NP.VRES: V_reset,
+        NP.TAU_RP: tau_rp_E
+    })
 
-    I_params = MFParams(
-        gamma=0.280112,
-        beta=0.062,
-        g_L=g_m_I,
-        C_m=C_m_I * 1e3,
-        E_L=V_L,
-        V_th=V_thr,
-        V_reset=V_reset,
-        t_ref=tau_rp_I
-    )
+    I_params = MFParams({
+        NP.GAMMA: 0.280112,
+        NP.BETA: 0.062,
+        NP.GM: g_m_I,
+        NP.CM: C_m_I,# * 1e3,
+        NP.VL: V_L,
+        NP.VTHR: V_thr,
+        NP.VRES: V_reset,
+        NP.TAU_RP: tau_rp_I
+    })
 
     nu_e = 0.01
     nu_i = 0.01
@@ -98,6 +101,8 @@ def mean():
     pop_e1 = MFLinearPop("E", N_non, E_params)
     pop_e1.rate_ms = nu_e
     pop_e1.v_mean = -52.
+
+    print(pop_e1.brian_v)
 
     pop_e2 = MFLinearPop("Edown", N_sub, E_params)
     pop_e2.rate_ms = nu_e
@@ -194,8 +199,11 @@ def mean():
     source_ie_gaba2.g_base = g_GABA_E
     source_ie_gaba2.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
 
-    solver = MFSolverRatesVoltages(system, solver='gradient')
+    solver = MFSolverRatesVoltages(system)
     solver.run()
+
+    print(pop_e1.brian_v())
+
 
 
 def sim():
@@ -308,4 +316,3 @@ def sim():
     show()
 
 mean()
-sim()

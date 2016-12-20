@@ -1,10 +1,12 @@
-from abc import abstractmethod, abstractproperty
+from abc import abstractproperty
 from math import erf
 
 import numpy as np
+from brian2 import units, Equations
 from scipy.integrate import quad
 
 from MFParams import MFParams
+from params import NP
 
 
 class MFPop(object):
@@ -12,7 +14,7 @@ class MFPop(object):
     def __init__(self, name, n, params=None):
         self.name = name
         self.n = n
-        self.params = MFParams() if params is None else params
+        self.params = MFParams({}) if params is None else params
 
         self.sources = []
         self.noise = None
@@ -56,7 +58,30 @@ class MFLinearPop(MFPop):
 
     def __init__(self, name, n, params):
         super().__init__(name, n, params)
+        expectation = {
+            NP.GM: units.siemens,
+            NP.VL: units.volt,
+            NP.CM: units.farad
+        }
+        params.verify(expectation)
         self.params = params
+
+    def brian_v(self):
+        eqs = Equations(
+            'dv / dt = (- g * (v - vl) - I) / cm : volt (unless refractory)',
+            g=self.params[NP.GM],
+            vl=self.params[NP.VL],
+            cm=self.params[NP.CM]
+        )
+
+        total = []
+        for i, s in enumerate(self.sources):
+            id = 'i' + str(i)
+            eqs += s.brian2_model(str(i), id)
+            total.append(id)
+
+        eqs += 'I = ' + '+'.join(total) + ': amp'
+        return eqs
 
     @property
     def total_cond(self):
@@ -64,15 +89,15 @@ class MFLinearPop(MFPop):
         Gm * SE in [1]
         Units of S
         """
-        if have_same_dimension():
-        return self.params.g_L + np.sum(s.conductance for s in self.sources)
+        return self.params[NP.GM] / units.siemens +\
+               np.sum(s.conductance for s in self.sources)
 
     @property
     def tau_eff(self):
         """
         Seconds
         """
-        return self.params.C_m / self.total_cond
+        return self.params[NP.CM] / units.farad / self.total_cond
 
     @property
     def mu(self):
@@ -89,7 +114,7 @@ class MFLinearPop(MFPop):
         if not self.noise:
             return 0.
 
-        return (self.noise.g_base / self.params.C_m * (
+        return (self.noise.g_base / self.params[NP.CM] * units.farad * (
             self.v_mean - self.noise.E_rev)) ** 2 * self.tau_eff * self.noise.g_dyn() * self.noise.noise_tau
 
     def phi_firing_func(self):
@@ -97,10 +122,10 @@ class MFLinearPop(MFPop):
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
 
-        beta = (self.params.V_reset - self.params.E_L - self.mu) / sigma
+        beta = (self.params[NP.VRES] - self.params[NP.VL] / units.volt - self.mu) / sigma
         alpha = -0.5 * self.noise.noise_tau / tau_eff \
                 + 1.03 * np.sqrt(self.noise.noise_tau / tau_eff) \
-                + (-self.mu - self.params.E_L + self.params.V_th) * (
+                + (-self.mu - self.params[NP.VL] / units.volt + self.params[NP.VTHR]) * (
             1. + (0.5 * self.noise.noise_tau / tau_eff)) / sigma
 
         def integrand(x):
@@ -110,7 +135,7 @@ class MFLinearPop(MFPop):
                 return 0.
             return np.exp(x ** 2) * (1. + erf(x))
 
-        return 1. / (self.params.t_ref + tau_eff * np.sqrt(np.pi) * quad(integrand, beta, alpha)[0])
+        return 1. / (self.params[NP.TAU_RP] + tau_eff * np.sqrt(np.pi) * quad(integrand, beta, alpha)[0])
 
     @property
     def rate_prediction(self):
@@ -121,7 +146,7 @@ class MFLinearPop(MFPop):
         """
         Volt
         """
-        return self.params.E_L + self.mu - (self.params.V_th - self.params.V_reset) * self.rate_ms * self.tau_eff
+        return self.params[NP.VL] / units.volt + self.mu - (self.params[NP.VTHR] - self.params[NP.VRES]) * self.rate_ms * self.tau_eff
 
     def __repr__(self):
         return "MFpop [%s] <%s (%i sources, n: %i, rate: %.4f, v_mean: %.4f)>" % \
@@ -132,6 +157,27 @@ class MFLinearPop(MFPop):
             self, self.tau_eff, self.mu, self.sigma_square, self.rate_prediction, self.v_mean_prediction))
         for s in self.sources:
             print("\t\t", s.print_sys())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class MFOldPop(object):
