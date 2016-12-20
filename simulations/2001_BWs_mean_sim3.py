@@ -16,8 +16,8 @@ N_I = int(N * 0.2)  # interneurons
 
 # voltage
 V_L = -70. * mV # resting
-V_thr = -50.
-V_reset = -55.
+V_thr = -50. * mV
+V_reset = -55. * mV
 V_E = 0. * mV
 V_I = -70.
 
@@ -30,8 +30,8 @@ g_m_E = 25. * nS
 g_m_I = 20. * nS
 
 # refactorty period
-tau_rp_E = 2.
-tau_rp_I = 1.
+tau_rp_E = 2. * ms
+tau_rp_I = 1. * ms
 
 # external stimuli
 rate = 0.003
@@ -102,8 +102,6 @@ def mean():
     pop_e1.rate_ms = nu_e
     pop_e1.v_mean = -52.
 
-    print(pop_e1.brian_v)
-
     pop_e2 = MFLinearPop("Edown", N_sub, E_params)
     pop_e2.rate_ms = nu_e
     pop_e2.v_mean = -52.
@@ -151,7 +149,7 @@ def mean():
     )
 
     # E->E AMPA
-    source_ee_ampa1 = MFSource('EE AMPA 1', pop_e1)
+    source_ee_ampa1 = MFSource('EE AMPA 1', pop_e1, pop_e1)
     source_ee_ampa1.g_base = g_AMPA_rec_E
     source_ee_ampa1.g_dyn = lambda: (
         pop_e1.n * f * w_plus * pop_e1.rate_ms * tau_AMPA +
@@ -203,7 +201,7 @@ def mean():
     solver.run()
 
     print(pop_e1.brian_v())
-
+    print(source_ee_ampa1.brian_link())
 
 
 def sim():

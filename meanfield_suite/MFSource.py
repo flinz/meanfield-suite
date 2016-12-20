@@ -1,4 +1,4 @@
-from brian2 import units, Equations
+from brian2 import units, Equations, Synapses
 
 from MFParams import MFParams
 from params import SP, NP
@@ -7,7 +7,7 @@ from params import SP, NP
 class MFSource(object):
     """Source: a synapse coupled to pops"""
 
-    def __init__(self, name, pop):
+    def __init__(self, name, pop, from_pop=None):
 
         self.name = name
         self.g_dyn = lambda: 0.  # this should be given as a function describing the synaptic conductance
@@ -30,6 +30,7 @@ class MFSource(object):
         # link to pop
         pop.sources.append(self)
         self.pop = pop
+        self.from_pop = from_pop
 
     def brian2_model(self, n, var='I'):
         return Equations(
@@ -43,6 +44,18 @@ class MFSource(object):
             ve=self.params[SP.VE],
             tau=self.params[SP.TAU_M]
         )
+
+    def brian_link(self, mode='i != j'):
+        model = Equations('w : 1')
+        eqs_pre = '''
+        s_AMPA += w
+        s_NMDA += w
+        '''
+        C = Synapses(self.from_pop.brian2, self.pop.brian2, method='euler', model=model, on_pre=eqs_pre)
+        C.connect(mode)
+        C.w[:] = 1
+        return C
+
 
     @property
     def conductance(self):

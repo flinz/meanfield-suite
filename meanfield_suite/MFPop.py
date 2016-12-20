@@ -2,7 +2,7 @@ from abc import abstractproperty
 from math import erf
 
 import numpy as np
-from brian2 import units, Equations
+from brian2 import units, Equations, NeuronGroup
 from scipy.integrate import quad
 
 from MFParams import MFParams
@@ -61,7 +61,10 @@ class MFLinearPop(MFPop):
         expectation = {
             NP.GM: units.siemens,
             NP.VL: units.volt,
-            NP.CM: units.farad
+            NP.CM: units.farad,
+            NP.VTHR: units.volt,
+            NP.VRES: units.volt,
+            NP.TAU_RP: units.second
         }
         params.verify(expectation)
         self.params = params
@@ -82,6 +85,16 @@ class MFLinearPop(MFPop):
 
         eqs += 'I = ' + '+'.join(total) + ': amp'
         return eqs
+
+    @property
+    def brian2(self):
+        thres = 'v > {}'.format(self.params[NP.VTHR])
+        reset = 'v = {}'.format(self.params[NP.VRES])
+        P = NeuronGroup(self.n, self.brian_v(), method='euler', threshold=thres, reset=reset, refractory=self.params[NP.TAU_RP])
+        P.v = self.params[NP.VRES]
+        return P
+
+    # TODO : when parameter, source, modelling, when to construct
 
     @property
     def total_cond(self):
@@ -122,10 +135,10 @@ class MFLinearPop(MFPop):
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
 
-        beta = (self.params[NP.VRES] - self.params[NP.VL] / units.volt - self.mu) / sigma
+        beta = (self.params[NP.VRES] / units.volt - self.params[NP.VL] / units.volt - self.mu) / sigma
         alpha = -0.5 * self.noise.noise_tau / tau_eff \
                 + 1.03 * np.sqrt(self.noise.noise_tau / tau_eff) \
-                + (-self.mu - self.params[NP.VL] / units.volt + self.params[NP.VTHR]) * (
+                + (-self.mu - self.params[NP.VL] / units.volt + self.params[NP.VTHR] / units.volt) * (
             1. + (0.5 * self.noise.noise_tau / tau_eff)) / sigma
 
         def integrand(x):
@@ -135,7 +148,7 @@ class MFLinearPop(MFPop):
                 return 0.
             return np.exp(x ** 2) * (1. + erf(x))
 
-        return 1. / (self.params[NP.TAU_RP] + tau_eff * np.sqrt(np.pi) * quad(integrand, beta, alpha)[0])
+        return 1. / (self.params[NP.TAU_RP] / units.second + tau_eff * np.sqrt(np.pi) * quad(integrand, beta, alpha)[0])
 
     @property
     def rate_prediction(self):
@@ -146,7 +159,7 @@ class MFLinearPop(MFPop):
         """
         Volt
         """
-        return self.params[NP.VL] / units.volt + self.mu - (self.params[NP.VTHR] - self.params[NP.VRES]) * self.rate_ms * self.tau_eff
+        return self.params[NP.VL] / units.volt + self.mu - (self.params[NP.VTHR] - self.params[NP.VRES]) / units.volt * self.rate_ms * self.tau_eff
 
     def __repr__(self):
         return "MFpop [%s] <%s (%i sources, n: %i, rate: %.4f, v_mean: %.4f)>" % \
