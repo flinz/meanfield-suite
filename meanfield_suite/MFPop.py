@@ -83,7 +83,10 @@ class MFLinearPop(MFPop):
             eqs += s.brian2_model(str(i), id)
             total.append(id)
 
-        eqs += 'I = {} : amp'.format('+'.join(total))
+        if len(total):
+            eqs += 'I = {} : amp'.format('+'.join(total))
+        else:
+            eqs += 'I = 0: amp'
         return eqs
 
     @property
