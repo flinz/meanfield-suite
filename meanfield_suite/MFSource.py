@@ -32,14 +32,15 @@ class MFSource(object):
         self.pop = pop
         self.from_pop = from_pop
 
-    def brian2_model(self, n, var='I'):
-        return Equations(
+    def brian2_model(self, n):
+        current = 'I{}'.format(n)
+        return current, Equations(
             '''
             I = g * (v - ve) * s : amp
             ds / dt = - s / tau : 1
             ''',
-            s='s'+n,
-            I=var,
+            s='s{}'.format(n),
+            I='I{}'.format(n),
             g=self.params[SP.GM],
             ve=self.params[SP.VE],
             tau=self.params[SP.TAU_M]

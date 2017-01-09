@@ -79,14 +79,14 @@ class MFLinearPop(MFPop):
 
         total = []
         for i, s in enumerate(self.sources):
-            id = 'i{}'.format(i)
-            eqs += s.brian2_model(str(i), id)
-            total.append(id)
+            current, source_eqs = s.brian2_model(i)
+            eqs += source_eqs
+            total.append(current)
 
         if len(total):
             eqs += 'I = {} : amp'.format('+'.join(total))
         else:
-            eqs += 'I = 0: amp'
+            eqs += 'I = 0 : amp'
         return eqs
 
     @property
