@@ -6,7 +6,8 @@ readme = open('README.md').read()
 install_requires = [
     'numpy',
     'scipy',
-    'matplotlib'
+    'matplotlib',
+    'brian2'
 ]
 
 tests_require = [
