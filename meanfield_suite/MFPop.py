@@ -69,7 +69,7 @@ class MFLinearPop(MFPop):
         params.verify(expectation)
         self.params = params
 
-    def brian_v(self):
+    def brian2_model(self):
         eqs = Equations(
             'dv / dt = (- g * (v - vl) - I) / cm : volt (unless refractory)',
             g=self.params[NP.GM],
@@ -89,11 +89,22 @@ class MFLinearPop(MFPop):
             eqs += 'I = 0 : amp'
         return eqs
 
+    def brian2_threshold(self):
+        return 'v > {}'.format(self.params[NP.VTHR])
+
+    def brian2_reset(self):
+        return 'v = {}'.format(self.params[NP.VRES])
+
     @property
-    def brian2(self):
-        thres = 'v > {}'.format(self.params[NP.VTHR])
-        reset = 'v = {}'.format(self.params[NP.VRES])
-        P = NeuronGroup(self.n, self.brian_v(), method='euler', threshold=thres, reset=reset, refractory=self.params[NP.TAU_RP])
+    def brian2(self, method='euler'):
+        P = NeuronGroup(
+            self.n,
+            self.brian2_model(),
+            method=method,
+            threshold=self.brian2_threshold(),
+            reset=self.brian2_reset(),
+            refractory=self.params[NP.TAU_RP]
+        )
         P.v = self.params[NP.VRES]
         return P
 
@@ -105,8 +116,7 @@ class MFLinearPop(MFPop):
         Gm * SE in [1]
         Units of S
         """
-        return self.params[NP.GM] / units.siemens +\
-               np.sum(s.conductance for s in self.sources)
+        return self.params[NP.GM] / units.siemens + np.sum(s.conductance for s in self.sources)
 
     @property
     def tau_eff(self):

@@ -7,7 +7,7 @@ from params import SP, NP
 class MFSource(object):
     """Source: a synapse coupled to pops"""
 
-    def __init__(self, name, pop, from_pop=None):
+    def __init__(self, name, pop, params, from_pop=None):
 
         self.name = name
         self.g_dyn = lambda: 0.  # this should be given as a function describing the synaptic conductance
@@ -16,16 +16,16 @@ class MFSource(object):
         self.E_rev = 0.   # [mV] excitatory by default
         self.noise_tau = 0.   # [mV] excitatory by default
 
-        self.params = MFParams({
-            SP.GM: self.g_base * units.nS,
-            SP.VE: self.E_rev * units.mvolt,
-            SP.TAU_M: 10 * units.msecond
-        })
+        self.params = MFParams(params)
         self.params.verify({
             SP.GM: units.siemens,
             SP.VE: units.volt,
             SP.TAU_M: units.second
         })
+
+        self.g_base = params[SP.GM] / units.siemens
+        self.E_rev = params[SP.VE] / units.volt
+        self.noise_tau = params[SP.TAU_M] / units.second
 
         # link to pop
         pop.sources.append(self)
@@ -39,14 +39,15 @@ class MFSource(object):
             I = g * (v - ve) * s : amp
             ds / dt = - s / tau : 1
             ''',
-            s='s{}'.format(n),
-            I='I{}'.format(n),
+            s='s_{}'.format(self.name.replace(' ', '_')),
+            I='I_{}'.format(self.name.replace(' ', '_')),
             g=self.params[SP.GM],
             ve=self.params[SP.VE],
             tau=self.params[SP.TAU_M]
         )
 
-    def brian_link(self, mode='i != j'):
+    @property
+    def brian2(self, mode='i != j'):
         model = Equations('w : 1')
         eqs_pre = '''
         s_AMPA += w
@@ -61,11 +62,11 @@ class MFSource(object):
     @property
     def conductance(self):
         tmp = self.g_dyn() * self.g_base
-        if self.is_nmda:
-            J_ = 1./self.pop.J
-            return tmp * J_ * (
-                1. + (1.-J_) * self.pop.params[NP.BETA] * (self.pop.v_mean - self.E_rev)
-            )
+        #if self.is_nmda:
+        #    J_ = 1./self.pop.J
+        #    return tmp * J_ * (
+        #        1. + (1.-J_) * self.pop.params[NP.BETA] * (self.pop.v_mean - self.E_rev)
+        #    )
         return tmp
 
     @property

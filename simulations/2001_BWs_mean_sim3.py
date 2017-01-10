@@ -1,3 +1,5 @@
+from brian2 import units
+
 from MFParams import MFParams
 from MFPop import MFOldPop, MFLinearPop
 from MFSolver import MFSolver, MFSolverRatesVoltages
@@ -5,7 +7,7 @@ from MFSource import MFSource
 from MFSystem import MFSystem
 from brian2 import *
 
-from params import NP
+from params import NP, SP
 
 BrianLogger.log_level_debug()
 
@@ -42,24 +44,24 @@ C_E = N_E
 C_I = N_I
 
 # AMPA (excitatory)
-g_AMPA_ext_E = 2.08
-g_AMPA_ext_I = 1.62
-g_AMPA_rec_E =  0 * 0.104 * 800. / N_E
-g_AMPA_rec_I =  0 * 0.081 * 800. / N_E
-tau_AMPA = 2.
+g_AMPA_ext_E = 2.08 * nS
+g_AMPA_ext_I = 1.62 * nS
+g_AMPA_rec_E =  0 * 0.104 * 800. / N_E * nS
+g_AMPA_rec_I =  0 * 0.081 * 800. / N_E * nS
+tau_AMPA = 2. * ms
 
 # NMDA (excitatory)
-g_NMDA_E = 0.01 * 0.327 * 800. / N_E
-g_NMDA_I = 0.01 * 0.258 * 800. / N_E
-tau_NMDA_rise = 2.
-tau_NMDA_decay = 100.
+g_NMDA_E = 0.01 * 0.327 * 800. / N_E * nS
+g_NMDA_I = 0.01 * 0.258 * 800. / N_E * nS
+tau_NMDA_rise = 2. * ms
+tau_NMDA_decay = 100. * ms
 alpha = 0. # 0.5 / ms
 Mg2 = 0. # 1.
 
 # GABAergic (inhibitory)
-g_GABA_E = 0.5 * 1.25 * 200. / N_I
-g_GABA_I = 0.1 * 0.973 * 200. / N_I
-tau_GABA = 10.
+g_GABA_E = 0.5 * 1.25 * 200. / N_I * nS
+g_GABA_I = 0.1 * 0.973 * 200. / N_I * nS
+tau_GABA = 10. * ms
 
 # subpopulations
 f = 0.1
@@ -113,95 +115,125 @@ def mean():
     system.pops += [pop_e1, pop_e2, pop_i]
 
     # noise pops
-    source_e_noise1 = MFSource("E_noise1", pop_e1)
-    source_e_noise1.noise_tau = tau_AMPA
-    source_e_noise1.g_base = g_AMPA_ext_E
-    source_e_noise1.g_dyn = lambda: rate * C_ext * tau_AMPA
+    source_e_noise1 = MFSource("E_noise1", pop_e1, {
+        SP.GM: g_AMPA_ext_E,
+        SP.VE: 0. * mV,
+        SP.TAU_M: tau_AMPA
+    })
+    source_e_noise1.g_dyn = lambda: rate * C_ext * tau_AMPA / units.second
     pop_e1.noise = source_e_noise1
 
-    source_e_noise2 = MFSource("E_noise2", pop_e2)
-    source_e_noise2.noise_tau = tau_AMPA
-    source_e_noise2.g_base = g_AMPA_ext_E
-    source_e_noise2.g_dyn = lambda: rate * C_ext * tau_AMPA
+    source_e_noise2 = MFSource("E_noise2", pop_e2, {
+        SP.GM: g_AMPA_ext_E,
+        SP.VE: 0. * mV,
+        SP.TAU_M: tau_AMPA
+    })
+    source_e_noise2.g_dyn = lambda: rate * C_ext * tau_AMPA / units.second
     pop_e2.noise = source_e_noise2
 
-    source_i_noise = MFSource("I_noise", pop_i)
-    source_i_noise.noise_tau = tau_AMPA
-    source_i_noise.g_base = g_AMPA_ext_I
-    source_i_noise.g_dyn = lambda: rate * C_ext * tau_AMPA
+    source_i_noise = MFSource("I_noise", pop_i, {
+        SP.GM: g_AMPA_ext_I,
+        SP.VE: 0. * mV,
+        SP.TAU_M: tau_AMPA
+    })
+    source_i_noise.g_dyn = lambda: rate * C_ext * tau_AMPA / units.second
     pop_i.noise = source_i_noise
 
     # E->E NMDA
-    source_ee_nmda1 = MFSource('EE NMDA 1', pop_e1)
+    source_ee_nmda1 = MFSource('EE NMDA 1', pop_e1, {
+        SP.GM: g_NMDA_E,
+        SP.VE: 0. * mV,
+        SP.TAU_M: tau_NMDA_decay
+    }, from_pop=pop_e1 + pop_e2)
     #source_ee_nmda1.is_nmda = True
-    source_ee_nmda1.g_base = g_NMDA_E
     source_ee_nmda1.g_dyn = lambda: (
-        pop_e1.n * f * w_plus * pop_e1.rate_ms * tau_NMDA_decay +
-        pop_e2.n * (1. - f) * w_minus * pop_e2.rate_ms * tau_NMDA_decay
+        pop_e1.n * f * w_plus * pop_e1.rate_ms * tau_NMDA_decay / units.second +
+        pop_e2.n * (1. - f) * w_minus * pop_e2.rate_ms * tau_NMDA_decay / units.second
     )
 
-    source_ee_nmda2 = MFSource('EE NMDA 2', pop_e2)
+    source_ee_nmda2 = MFSource('EE NMDA 2', pop_e2, {
+        SP.GM: g_NMDA_E,
+        SP.VE: 0. * mV,
+        SP.TAU_M: tau_NMDA_decay
+    }, from_pop=pop_e1 + pop_e2)
     #source_ee_nmda2.is_nmda = True
-    source_ee_nmda2.g_base = g_NMDA_E
     source_ee_nmda2.g_dyn = lambda: (
-        pop_e1.n * f * w_minus * pop_e1.rate_ms * tau_NMDA_decay +
-        pop_e2.n * (1. - f) * w_plus * pop_e2.rate_ms * tau_NMDA_decay
+        pop_e1.n * f * w_minus * pop_e1.rate_ms * tau_NMDA_decay / units.second +
+        pop_e2.n * (1. - f) * w_plus * pop_e2.rate_ms * tau_NMDA_decay / units.second
     )
 
     # E->E AMPA
-    source_ee_ampa1 = MFSource('EE AMPA 1', pop_e1, pop_e1)
-    source_ee_ampa1.g_base = g_AMPA_rec_E
+    source_ee_ampa1 = MFSource('EE AMPA 1', pop_e1, {
+        SP.GM: g_AMPA_rec_E,
+        SP.VE: 0. * mV,
+        SP.TAU_M: tau_AMPA
+    }, from_pop=pop_e1 + pop_e2)
     source_ee_ampa1.g_dyn = lambda: (
-        pop_e1.n * f * w_plus * pop_e1.rate_ms * tau_AMPA +
-        pop_e2.n * (1. - f) * w_minus * pop_e2.rate_ms * tau_AMPA
+        pop_e1.n * f * w_plus * pop_e1.rate_ms * tau_AMPA / units.second +
+        pop_e2.n * (1. - f) * w_minus * pop_e2.rate_ms * tau_AMPA / units.second
     )
 
-    source_ee_ampa2 = MFSource('EE AMPA 2', pop_e2)
-    source_ee_ampa2.g_base = g_AMPA_rec_E
+    source_ee_ampa2 = MFSource('EE AMPA 2', pop_e2, {
+        SP.GM: g_AMPA_rec_E,
+        SP.VE: 0. * mV,
+        SP.TAU_M: tau_AMPA
+    }, from_pop=pop_e1 + pop_e2)
     source_ee_ampa2.g_dyn = lambda: (
-        pop_e1.n * f * w_minus * pop_e1.rate_ms * tau_AMPA +
-        pop_e2.n * (1. - f) * w_plus * pop_e2.rate_ms * tau_AMPA
+        pop_e1.n * f * w_minus * pop_e1.rate_ms * tau_AMPA / units.second +
+        pop_e2.n * (1. - f) * w_plus * pop_e2.rate_ms * tau_AMPA / units.second
     )
 
     # E->I NMDA
-    source_ie_nmda = MFSource('EI NMDA', pop_i)
+    source_ie_nmda = MFSource('EI NMDA', pop_i, {
+        SP.GM: g_NMDA_I,
+        SP.VE: 0. * mV,
+        SP.TAU_M: tau_NMDA_decay
+    }, from_pop=pop_e1 + pop_e2)
     #source_ie_nmda.is_nmda = True
-    source_ie_nmda.g_base = g_NMDA_I
     source_ie_nmda.g_dyn = lambda: (
-        pop_e1.n * f * pop_e1.rate_ms * tau_NMDA_decay +
-        pop_e2.n * (1. - f) * pop_e2.rate_ms * tau_NMDA_decay
+        pop_e1.n * f * pop_e1.rate_ms * tau_NMDA_decay / units.second +
+        pop_e2.n * (1. - f) * pop_e2.rate_ms * tau_NMDA_decay / units.second
     )
 
     # E->I AMPA
-    source_ie_ampa = MFSource('EI AMPA', pop_i)
-    source_ie_ampa.g_base = g_AMPA_rec_E
+    source_ie_ampa = MFSource('EI AMPA', pop_i, {
+        SP.GM: g_AMPA_rec_E,
+        SP.VE: 0. * mV,
+        SP.TAU_M: tau_AMPA
+    }, from_pop=pop_e1 + pop_e2)
     source_ie_ampa.g_dyn = lambda: (
-        pop_e1.n * f * pop_e1.rate_ms * tau_AMPA +
-        pop_e2.n * (1. - f) * pop_e2.rate_ms * tau_AMPA
+        pop_e1.n * f * pop_e1.rate_ms * tau_AMPA / units.second +
+        pop_e2.n * (1. - f) * pop_e2.rate_ms * tau_AMPA / units.second
     )
 
     # I->I GABA
-    source_ii_gaba = MFSource('II GABA', pop_i)
-    source_ii_gaba.E_rev = -70.
-    source_ii_gaba.g_base = g_GABA_I
-    source_ii_gaba.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
+    source_ii_gaba = MFSource('II GABA', pop_i, {
+        SP.GM: g_GABA_I,
+        SP.VE: -70. * mV,
+        SP.TAU_M: tau_GABA
+    }, from_pop=pop_i)
+    source_ii_gaba.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA / units.second
 
     # I->E GABA
-    source_ie_gaba1 = MFSource('IE GABA 1', pop_e1)
-    source_ie_gaba1.E_rev = -70.
-    source_ie_gaba1.g_base = g_GABA_E
-    source_ie_gaba1.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
+    source_ie_gaba1 = MFSource('IE GABA 1', pop_e1, {
+        SP.GM: g_GABA_E,
+        SP.VE: -70. * mV,
+        SP.TAU_M: tau_GABA
+    }, from_pop=pop_i)
+    source_ie_gaba1.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA / units.second
 
-    source_ie_gaba2 = MFSource('IE GABA 2', pop_e2)
-    source_ie_gaba2.E_rev = -70.
-    source_ie_gaba2.g_base = g_GABA_E
-    source_ie_gaba2.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA
+    source_ie_gaba2 = MFSource('IE GABA 2', pop_e2, {
+        SP.GM: g_GABA_E,
+        SP.VE: -70. * mV,
+        SP.TAU_M: tau_GABA
+    }, from_pop=pop_i)
+    source_ie_gaba2.g_dyn = lambda: pop_i.n * pop_i.rate_ms * tau_GABA / units.second
 
     solver = MFSolverRatesVoltages(system)
     solver.run()
 
-    print(pop_e1.brian_v())
-    print(source_ee_ampa1.brian_link())
+    print(pop_e1.brian2_model())
+    print(source_ee_ampa1.brian2())
 
 
 def sim():

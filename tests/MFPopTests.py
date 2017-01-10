@@ -25,7 +25,7 @@ class MFPopTests(unittest.TestCase):
         pop = MFLinearPop("test", 1, params)
 
         assert_equations(
-            pop.brian_v(),
+            pop.brian2_model(),
             '''
             I = 0 : A
             dv/dt = (- (25. * nsiemens) * (v - (-70. * mvolt)) - I) / (0.5 * nfarad)  : V (unless refractory)
@@ -37,7 +37,7 @@ class MFPopTests(unittest.TestCase):
         source = MFSource('test', pop)
 
         assert_equations(
-            pop.brian_v(),
+            pop.brian2_model(),
             '''
             I0 = (0. * siemens) * (v - (0. * volt)) * s0 : A
             I = I0 : A
@@ -52,7 +52,7 @@ class MFPopTests(unittest.TestCase):
         source2 = MFSource('test2', pop)
 
         assert_equations(
-            pop.brian_v(),
+            pop.brian2_model(),
             '''
             I0 = (0. * siemens) * (v - (0. * volt)) * s0  : A
             I1 = (0. * siemens) * (v - (0. * volt)) * s1  : A
