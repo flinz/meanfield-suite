@@ -41,8 +41,8 @@ class MFParams(object):
         not_used = self.accesses.difference(self.underlying.keys())
         return len(not_used) == 0
 
-    def verify(self, expects):
-        for param, unit in expects.items():
+    def verify(self, expectations):
+        for param, unit in expectations.items():
 
             if param not in self.underlying:
                 raise MissingParameterError('parameter {} ({}) missing'.format(param, unit))
@@ -55,6 +55,16 @@ class MFParams(object):
                         unit
                     )
                 )
+
+        return self
+
+    def fill(self, defaults):
+        for param, value in defaults.items():
+
+            if param not in self.underlying:
+                self.underlying[param] = value
+
+        return self
 
     def __repr__(self):
         return self.underlying.__repr__()

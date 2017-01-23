@@ -58,7 +58,9 @@ class MFLinearPop(MFPop):
 
     def __init__(self, name, n, params):
         super().__init__(name, n, params)
-        expectation = {
+
+        defaults = {}
+        expectations = {
             NP.GM: units.siemens,
             NP.VL: units.volt,
             NP.CM: units.farad,
@@ -66,8 +68,10 @@ class MFLinearPop(MFPop):
             NP.VRES: units.volt,
             NP.TAU_RP: units.second
         }
-        params.verify(expectation)
-        self.params = params
+
+        self.params = MFParams(params)
+        self.params.fill(defaults)
+        self.params.verify(expectations)
 
     def brian2_model(self):
         eqs = Equations(
@@ -108,7 +112,6 @@ class MFLinearPop(MFPop):
         P.v = self.params[NP.VRES]
         return P
 
-    # TODO : when parameter, source, modelling, when to construct
 
     @property
     def total_cond(self):

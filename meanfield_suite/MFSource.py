@@ -1,63 +1,41 @@
-from brian2 import units, Equations, Synapses
+from abc import abstractmethod
+
+from brian2 import units, Equations, Synapses, PoissonInput
 
 from MFParams import MFParams
 from params import SP, NP
 
-
 class MFSource(object):
     """Source: a synapse coupled to pops"""
 
-    def __init__(self, name, pop, params, from_pop=None):
+    def __init__(self, name, pop, params):
 
         self.name = name
-        self.g_dyn = lambda: 0.  # this should be given as a function describing the synaptic conductance
         self.is_nmda = False
         self.g_base = 0.  # [nS]
         self.E_rev = 0.   # [mV] excitatory by default
         self.noise_tau = 0.   # [mV] excitatory by default
 
-        self.params = MFParams(params)
-        self.params.verify({
+        defaults = {}
+        expectations = {
             SP.GM: units.siemens,
             SP.VE: units.volt,
-            SP.TAU_M: units.second
-        })
+            SP.TAU_M: units.second,
+        }
+        # TODO : which is static/dynamic
 
+        self.params = MFParams(params)
+        self.params.fill(defaults)
+        self.params.verify(expectations)
+
+        # TODO : linearize with unit or not ?
         self.g_base = params[SP.GM] / units.siemens
         self.E_rev = params[SP.VE] / units.volt
         self.noise_tau = params[SP.TAU_M] / units.second
 
         # link to pop
-        pop.sources.append(self)
         self.pop = pop
-        self.from_pop = from_pop
-
-    def brian2_model(self, n):
-        current = 'I{}'.format(n)
-        return current, Equations(
-            '''
-            I = g * (v - ve) * s : amp
-            ds / dt = - s / tau : 1
-            ''',
-            s='s_{}'.format(self.name.replace(' ', '_')),
-            I='I_{}'.format(self.name.replace(' ', '_')),
-            g=self.params[SP.GM],
-            ve=self.params[SP.VE],
-            tau=self.params[SP.TAU_M]
-        )
-
-    @property
-    def brian2(self, mode='i != j'):
-        model = Equations('w : 1')
-        eqs_pre = '''
-        s_AMPA += w
-        s_NMDA += w
-        '''
-        C = Synapses(self.from_pop.brian2, self.pop.brian2, method='euler', model=model, on_pre=eqs_pre)
-        C.connect(mode)
-        C.w[:] = 1
-        return C
-
+        self.pop.sources.append(self) # TODO consistent
 
     @property
     def conductance(self):
@@ -85,3 +63,75 @@ class MFSource(object):
 
     def __repr__(self):
         return "MFSource [%s] <%s, nmda: %s, E_rev: %.1f>" % (id(self),self.name, self.is_nmda, self.E_rev)
+
+    @abstractmethod
+    def g_dyn(self):
+        pass
+
+    @abstractmethod
+    def brian2(self):
+        pass
+
+    def brian2_model(self, n):
+        current = 'I{}'.format(n)
+        return current, Equations(
+            '''
+            I = g * (v - ve) * s : amp
+            ds / dt = - s / tau : 1
+            ''',
+            s='s_{}'.format(self.name.replace(' ', '_')),
+            I='I_{}'.format(self.name.replace(' ', '_')),
+            g=self.params[SP.GM],
+            ve=self.params[SP.VE],
+            tau=self.params[SP.TAU_M]
+        )
+
+class MFStaticSource(MFSource):
+
+    def __init__(self, name, pop, params, rate, n):
+        super().__init__(name, pop, params)
+        self.rate = rate
+        self.n = n
+        # TODO real param
+
+    def g_dyn(self):
+        # TODO : unit return ?
+        return self.rate * self.n * self.params[SP.TAU_M] / units.second
+
+    @property
+    def brian2(self):
+        return None
+
+class MFDynamicSource(MFSource):
+
+    def __init__(self, name, pop, params, from_pop):
+        super().__init__(name, pop, params)
+        self.from_pop = from_pop
+
+        defaults = {
+            SP.W: 1.,
+            SP.FRAC: 1.
+        }
+        expectations = {
+            SP.W: 1, # unitless
+            SP.FRAC: 1
+        }
+        self.params.fill(defaults)
+        self.params.verify(expectations)
+
+    def g_dyn(self):
+        # TODO : unit return ?
+        return self.from_pop.n * self.from_pop.rate_ms * self.params[SP.W] * self.params[SP.FRAC] * self.params[SP.TAU_M] / units.second
+
+    @property
+    def brian2(self, mode='i != j'):
+        model = Equations('w : 1')
+        eqs_pre = '''
+        s_AMPA += w
+        s_NMDA += w
+        '''
+        C = Synapses(self.from_pop.brian2, self.pop.brian2, method='euler', model=model, on_pre=eqs_pre)
+        C.connect(mode)
+        C.w[:] = 1
+        return C
+
