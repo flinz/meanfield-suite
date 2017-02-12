@@ -37,3 +37,7 @@ class MFParamsTests(unittest.TestCase):
     def testDestructorCheck(self):
 
         params = MFParams()
+
+
+    def testMagic(self):
+        a = 1

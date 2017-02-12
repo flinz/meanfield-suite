@@ -86,6 +86,9 @@ class MFSource(object):
             tau=self.params[SP.TAU_M]
         )
 
+    # TODO store post-corresponding var s_{}
+
+
 class MFStaticSource(MFSource):
 
     def __init__(self, name, pop, params, rate, n):
@@ -101,6 +104,7 @@ class MFStaticSource(MFSource):
     @property
     def brian2(self):
         return None
+
 
 class MFDynamicSource(MFSource):
 

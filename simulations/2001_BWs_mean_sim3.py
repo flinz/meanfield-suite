@@ -278,22 +278,35 @@ def mean():
 
     print(pop_e1.brian2_model())
 
+    net = Network()
+    net.add(pop_e1.brian2)
+    net.add(pop_e2.brian2)
+    net.add(pop_i.brian2)
+
     for p in system.pops:
         for i, s in enumerate(p.sources):
             print(s.brian2)
-            __dict__['b2-{}'.format(i)] = s.brian2
+            if s.brian2:
+                net.add(s.brian2)
 
     n1 = PoissonInput(pop_e1.brian2, 's_E_noise1', C_ext, rate * units.Hz, 500)
     n2 = PoissonInput(pop_e2.brian2, 's_E_noise2', C_ext, rate * units.Hz, 500)
     n3 = PoissonInput(pop_i.brian2, 's_I_noise', C_ext, rate * units.Hz, 500)
-
+    net.add(n1)
+    net.add(n2)
+    net.add(n3)
 
     sp_E = SpikeMonitor(pop_e1.brian2[:40])
     sp_I = SpikeMonitor(pop_i.brian2[:40])
     r_E = PopulationRateMonitor(pop_e1.brian2)
     r_I = PopulationRateMonitor(pop_i.brian2)
 
-    run(3000 * ms, report='text', report_period=0.5 * second)
+    net.add(sp_E)
+    net.add(sp_I)
+    net.add(r_E)
+    net.add(r_I)
+
+    net.run(3000 * ms, report='text', report_period=0.5 * second)
 
     subplot(311)
     plot(r_E.t / ms, r_E.smooth_rate(width=25 * ms) / Hz, label='pyramidal neuron')
