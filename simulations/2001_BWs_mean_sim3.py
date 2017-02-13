@@ -277,6 +277,8 @@ def mean():
     solver.run()
 
     print(pop_e1.brian2_model())
+    print(pop_e2.brian2_model())
+    print(pop_i.brian2_model())
 
     net = Network()
     net.add(pop_e1.brian2)
@@ -290,6 +292,7 @@ def mean():
                 net.add(s.brian2)
 
     n1 = PoissonInput(pop_e1.brian2, 's_E_noise1', C_ext, rate * units.Hz, 500)
+    print(pop_e2.brian2.equations)
     n2 = PoissonInput(pop_e2.brian2, 's_E_noise2', C_ext, rate * units.Hz, 500)
     n3 = PoissonInput(pop_i.brian2, 's_I_noise', C_ext, rate * units.Hz, 500)
     net.add(n1)

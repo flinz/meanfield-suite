@@ -6,6 +6,7 @@ from brian2 import units, Equations, NeuronGroup
 from scipy.integrate import quad
 
 from MFParams import MFParams
+from Utils import lazy
 from params import NP
 
 
@@ -91,6 +92,7 @@ class MFLinearPop(MFPop):
             eqs += 'I = {} : amp'.format('+'.join(total))
         else:
             eqs += 'I = 0 : amp'
+
         return eqs
 
     def brian2_threshold(self):
@@ -99,7 +101,7 @@ class MFLinearPop(MFPop):
     def brian2_reset(self):
         return 'v = {}'.format(self.params[NP.VRES])
 
-    @property
+    @lazy
     def brian2(self, method='euler'):
         P = NeuronGroup(
             self.n,

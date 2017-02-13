@@ -1,9 +1,17 @@
 
+from itertools import count
+iid = count()
+
+
 def lazy(f):
-    def wrapper(*args, **kwargs):
-        if hasattr(wrapper, 'val'):
-            return wrapper.val
-        res = f(*args, **kwargs)
-        wrapper.val = res
-        return res
+    attr = '_lazy_' + f.__name__
+
+    @property
+    def wrapper(self):
+        if not hasattr(self, attr):
+            setattr(self, attr, f(self))
+        return getattr(self, attr)
     return wrapper
+
+
+

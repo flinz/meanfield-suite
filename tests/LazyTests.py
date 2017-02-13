@@ -3,27 +3,41 @@ import unittest
 from Utils import lazy
 
 
+class Counter(object):
+
+    def __init__(self):
+        self.n = 0
+
+    @lazy
+    def m1(self):
+        self.n += 1
+        return self.n
+
+    @lazy
+    def m2(self):
+        self.n += 1
+        return self.n
+
+
 class LazyTests(unittest.TestCase):
 
-    @lazy
-    def compute1(self):
-        self.counter += 1
-
-    @lazy
-    def compute2(self):
-        self.counter += 1
-
     def testLazyness(self):
-        self.counter = 0
-        self.compute1()
-        assert(self.counter == 1)
-        self.compute1()
-        assert(self.counter == 1)
-        self.compute1()
-        assert(self.counter == 1)
-        self.compute2()
-        assert(self.counter == 2)
-        self.compute2()
-        assert(self.counter == 2)
-        self.compute2()
-        assert(self.counter == 2)
+        c = Counter()
+        assert(c.n == 0)
+        assert(c.m1 == 1)
+        assert(c.n == 1)
+        assert(c.m1 == 1)
+        assert(c.n == 1)
+        assert(c.m2 == 2)
+        assert(c.n == 2)
+        assert(c.m2 == 2)
+        assert(c.n == 2)
+
+    def testSharedLazyStructure(self):
+        c1 = Counter()
+        c2 = Counter()
+        assert(c1.n == 0)
+        assert(c2.n == 0)
+        assert(c1.m1 == 1)
+        assert(c1.n == 1)
+        assert(c2.n == 0)

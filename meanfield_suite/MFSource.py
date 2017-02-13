@@ -3,6 +3,7 @@ from abc import abstractmethod
 from brian2 import units, Equations, Synapses, PoissonInput
 
 from MFParams import MFParams
+from Utils import lazy
 from params import SP, NP
 
 class MFSource(object):
@@ -101,7 +102,7 @@ class MFStaticSource(MFSource):
         # TODO : unit return ?
         return self.rate * self.n * self.params[SP.TAU_M] / units.second
 
-    @property
+    @lazy
     def brian2(self):
         return None
 
@@ -117,8 +118,8 @@ class MFDynamicSource(MFSource):
             SP.FRAC: 1.
         }
         expectations = {
-            SP.W: 1, # unitless
-            SP.FRAC: 1
+            SP.W: 1., # unitless
+            SP.FRAC: 1.
         }
         self.params.fill(defaults)
         self.params.verify(expectations)
@@ -127,7 +128,7 @@ class MFDynamicSource(MFSource):
         # TODO : unit return ?
         return self.from_pop.n * self.from_pop.rate_ms * self.params[SP.W] * self.params[SP.FRAC] * self.params[SP.TAU_M] / units.second
 
-    @property
+    @lazy
     def brian2(self, mode='i != j'):
         model = Equations('w : 1')
         eqs_pre = '''
