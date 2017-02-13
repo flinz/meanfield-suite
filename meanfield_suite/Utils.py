@@ -1,7 +1,6 @@
 
-from itertools import count
-iid = count()
-
+def name2identifier(name):
+    return name.replace(' ', '_')
 
 def lazy(f):
     attr = '_lazy_' + f.__name__

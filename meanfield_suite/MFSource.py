@@ -3,8 +3,9 @@ from abc import abstractmethod
 from brian2 import units, Equations, Synapses, PoissonInput
 
 from MFParams import MFParams
-from Utils import lazy
+from Utils import lazy, name2identifier
 from params import SP, NP
+
 
 class MFSource(object):
     """Source: a synapse coupled to pops"""
@@ -12,6 +13,7 @@ class MFSource(object):
     def __init__(self, name, pop, params):
 
         self.name = name
+        self.ref = name2identifier(name)
         self.is_nmda = False
         self.g_base = 0.  # [nS]
         self.E_rev = 0.   # [mV] excitatory by default
@@ -29,7 +31,7 @@ class MFSource(object):
         self.params.fill(defaults)
         self.params.verify(expectations)
 
-        # TODO : linearize with unit or not ?
+        # TODO : linearize with unit or not ? yes
         self.g_base = params[SP.GM] / units.siemens
         self.E_rev = params[SP.VE] / units.volt
         self.noise_tau = params[SP.TAU_M] / units.second
@@ -73,15 +75,22 @@ class MFSource(object):
     def brian2(self):
         pass
 
-    def brian2_model(self, n):
-        current = 'I{}'.format(n)
-        return current, Equations(
+    @property
+    def current_name(self):
+        return 'I_' + self.ref
+
+    @property
+    def post_variable_name(self):
+        return 's_' + self.ref
+
+    def brian2_model(self):
+        return Equations(
             '''
             I = g * (v - ve) * s : amp
             ds / dt = - s / tau : 1
             ''',
-            s='s_{}'.format(self.name.replace(' ', '_')),
-            I='I_{}'.format(self.name.replace(' ', '_')),
+            s=self.post_variable_name,
+            I=self.current_name,
             g=self.params[SP.GM],
             ve=self.params[SP.VE],
             tau=self.params[SP.TAU_M]
@@ -132,9 +141,8 @@ class MFDynamicSource(MFSource):
     def brian2(self, mode='i != j'):
         model = Equations('w : 1')
         eqs_pre = '''
-        s_AMPA += w
-        s_NMDA += w
-        '''
+        {} += w
+        '''.format(self.post_variable_name)
         C = Synapses(self.from_pop.brian2, self.pop.brian2, method='euler', model=model, on_pre=eqs_pre)
         C.connect(mode)
         C.w[:] = 1

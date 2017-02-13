@@ -84,22 +84,22 @@ class MFLinearPop(MFPop):
 
         total = []
         for i, s in enumerate(self.sources):
-            current, source_eqs = s.brian2_model(i)
-            eqs += source_eqs
-            total.append(current)
+            eqs += s.brian2_model()
+            total.append(s.current_name)
 
         if len(total):
-            eqs += 'I = {} : amp'.format('+'.join(total))
+            eqs += 'I = {} : amp'.format(' + '.join(total))
         else:
             eqs += 'I = 0 : amp'
 
         return eqs
 
     def brian2_threshold(self):
-        return 'v > {}'.format(self.params[NP.VTHR])
+        # TODO weirdness
+        return 'v > {} * mV'.format(self.params[NP.VTHR] / units.mV)
 
     def brian2_reset(self):
-        return 'v = {}'.format(self.params[NP.VRES])
+        return 'v = {} * mV'.format(self.params[NP.VRES] / units.mV)
 
     @lazy
     def brian2(self, method='euler'):
