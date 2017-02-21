@@ -51,16 +51,16 @@ g_AMPA_rec_I =  0 * 0.081 * 800. / N_E * nS
 tau_AMPA = 2. * ms
 
 # NMDA (excitatory)
-g_NMDA_E = 0.01 * 0.327 * 800. / N_E * nS
-g_NMDA_I = 0.01 * 0.258 * 800. / N_E * nS
+g_NMDA_E = 0 * 0.01 * 0.327 * 800. / N_E * nS
+g_NMDA_I = 0 * 0.01 * 0.258 * 800. / N_E * nS
 tau_NMDA_rise = 2. * ms
 tau_NMDA_decay = 100. * ms
 alpha = 0. # 0.5 / ms
 Mg2 = 0. # 1.
 
 # GABAergic (inhibitory)
-g_GABA_E = 0.5 * 1.25 * 200. / N_I * nS
-g_GABA_I = 0.1 * 0.973 * 200. / N_I * nS
+g_GABA_E = 0 * 0.5 * 1.25 * 200. / N_I * nS
+g_GABA_I = 0 * 0.1 * 0.973 * 200. / N_I * nS
 tau_GABA = 10. * ms
 
 # subpopulations
@@ -292,7 +292,6 @@ def mean():
                 net.add(s.brian2)
 
     n1 = PoissonInput(pop_e1.brian2, 's_E_noise1', C_ext, rate * units.Hz, 500)
-    print(pop_e2.brian2.equations)
     n2 = PoissonInput(pop_e2.brian2, 's_E_noise2', C_ext, rate * units.Hz, 500)
     n3 = PoissonInput(pop_i.brian2, 's_I_noise', C_ext, rate * units.Hz, 500)
     net.add(n1)

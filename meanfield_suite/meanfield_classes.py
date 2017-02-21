@@ -1,11 +1,13 @@
 from functools import partial
 
+from brian2.units import *
 from MFConstraint import MFConstraint
-from MFPop import MFOldPop
+from MFPop import MFOldPop, MFLinearPop
 from MFSolver import MFSolver
-from MFSource import MFSource
+from MFSource import MFSource, MFStaticSource, MFDynamicSource
 from MFState import MFState
 from MFSystem import MFSystem
+from params import NP, SP
 
 params_standard = {
     "NMDA": {
@@ -56,16 +58,37 @@ def setup_brunel99(w_plus_val=2.5):
     # brunel 1999 system, one up state pop
     ff = .1
     w_plus = w_plus_val
-    w_min = 1. - ff*(w_plus - 1.)/(1. - ff)
+    w_min = 1. - ff * (w_plus - 1.) / (1. - ff)
     initials = {'nu_plus': .025, 'nu_min': .0015, 'nu_i': .009}
 
     system = MFSystem("Brunel")
-    pop_e1 = MFOldPop("Eup", params_standard["E"])
-    pop_e1.n = 800
-    pop_e2 = MFOldPop("Edown", params_standard["E"])
-    pop_e2.n = 800
-    pop_i = MFOldPop("I", params_standard["I"])
-    pop_i.n = 200
+    pop_e1 = MFLinearPop("Eup", 800, {
+        NP.GM: 1 * siemens,
+        NP.VL: 1 * volt,
+        NP.CM: 1 * farad,
+        NP.VTHR: 1 * volt,
+        NP.VRES: 1 * volt,
+        NP.TAU_RP: 1 * second
+    })
+    #pop_e1.n = 800
+    pop_e2 = MFLinearPop("Edown", 800, {
+        NP.GM: 1 * siemens,
+        NP.VL: 1 * volt,
+        NP.CM: 1 * farad,
+        NP.VTHR: 0 * volt,
+        NP.VRES: 0 * volt,
+        NP.TAU_RP: 0 * second
+    })
+    #pop_e2.n = 800
+    pop_i = MFLinearPop("I", 200, {
+        NP.GM: 1 * siemens,
+        NP.VL: 1 * volt,
+        NP.CM: 1 * farad,
+        NP.VTHR: 1 * volt,
+        NP.VRES: 1 * volt,
+        NP.TAU_RP: 1 * second
+    })
+    #pop_i.n = 200
     pop_e1.rate_ms = initials["nu_plus"]
     pop_e1.v_mean = -51.
     pop_e2.rate_ms = initials["nu_min"]
@@ -76,22 +99,34 @@ def setup_brunel99(w_plus_val=2.5):
     system.pops += [pop_e1, pop_e2, pop_i]
 
     # noise pops
-    source_e_noise1 = MFSource("E_noise1", pop_e1)
-    source_e_noise1.g_base = params_standard["E"]["gAMPA"]
-    source_e_noise1.g_dyn = lambda: params_standard["E"]["nu_ext"] * params_standard["E"]["Cext"] * params_standard["E"]["tau_AMPA"]
-    source_e_noise1.noise_tau = params_standard["E"]["tau_AMPA"]
+    source_e_noise1 = MFStaticSource("E_noise1", pop_e1, {
+        SP.GM: params_standard["E"]["gAMPA"] * nsiemens,
+        SP.VE: 0 * mV,
+        SP.TAU_M: params_standard["E"]["tau_AMPA"] * ms,
+    }, params_standard["E"]["nu_ext"], params_standard["E"]["Cext"])
+    #source_e_noise1.g_base = params_standard["E"]["gAMPA"]
+    #source_e_noise1.g_dyn = lambda: params_standard["E"]["nu_ext"] * params_standard["E"]["Cext"] * params_standard["E"]["tau_AMPA"]
+    #source_e_noise1.noise_tau = params_standard["E"]["tau_AMPA"]
     pop_e1.noise = source_e_noise1
 
-    source_e_noise2 = MFSource("E_noise2", pop_e2)
-    source_e_noise2.g_base = params_standard["E"]["gAMPA"]
-    source_e_noise2.g_dyn = lambda: params_standard["E"]["nu_ext"] * params_standard["E"]["Cext"] * params_standard["E"]["tau_AMPA"]
-    source_e_noise2.noise_tau = params_standard["E"]["tau_AMPA"]
+    source_e_noise2 = MFStaticSource("E_noise2", pop_e2, {
+        SP.GM: params_standard["E"]["gAMPA"] * nsiemens,
+        SP.VE: 0 * mV,
+        SP.TAU_M: params_standard["E"]["tau_AMPA"] * ms,
+    }, params_standard["E"]["nu_ext"], params_standard["E"]["Cext"])
+    #source_e_noise2.g_base = params_standard["E"]["gAMPA"]
+    #source_e_noise2.g_dyn = lambda: params_standard["E"]["nu_ext"] * params_standard["E"]["Cext"] * params_standard["E"]["tau_AMPA"]
+    #source_e_noise2.noise_tau = params_standard["E"]["tau_AMPA"]
     pop_e2.noise = source_e_noise2
 
-    source_i_noise = MFSource("I_noise", pop_i)
-    source_i_noise.g_base = params_standard["I"]["gAMPA"]
-    source_i_noise.g_dyn = lambda: params_standard["I"]["nu_ext"] * params_standard["I"]["Cext"] * params_standard["I"]["tau_AMPA"]
-    source_i_noise.noise_tau = params_standard["I"]["tau_AMPA"]
+    source_i_noise = MFStaticSource("I_noise", pop_i, {
+        SP.GM: params_standard["I"]["gAMPA"] * nsiemens,
+        SP.VE: 0 * mV,
+        SP.TAU_M: params_standard["I"]["tau_AMPA"] * ms,
+    }, params_standard["I"]["nu_ext"],  params_standard["I"]["Cext"])
+    #source_i_noise.g_base = params_standard["I"]["gAMPA"]
+    #source_i_noise.g_dyn = lambda: params_standard["I"]["nu_ext"] * params_standard["I"]["Cext"] * params_standard["I"]["tau_AMPA"]
+    #source_i_noise.noise_tau = params_standard["I"]["tau_AMPA"]
     pop_i.noise = source_i_noise
 
     # E->E NMDA
@@ -102,30 +137,63 @@ def setup_brunel99(w_plus_val=2.5):
         "balance": .5,
         "tau_x": 150.,  # depressing
     }
-    syn_ee_nmda = Synapse(**syn_spec_nmda)
+    #syn_ee_nmda = Synapse(**syn_spec_nmda)
 
-    source_ee_nmda1 = MFSource('EE Nmda1', pop_e1)
-    source_ee_nmda1.g_base = params_standard["E"]["gNMDA"]
-    source_ee_nmda1.g_dyn = lambda: (
-            ff * w_plus * syn_ee_nmda(pop_e1.rate_ms) + (1. - ff) * w_min * syn_ee_nmda(pop_e2.rate_ms)
-        ) * pop_e1.n
-    source_ee_nmda1.is_nmda = True
+    source_ee_nmda1 = MFDynamicSource('EE Nmda1', pop_e1, {
+        SP.GM: params_standard["E"]["gNMDA"] * nsiemens,
+        SP.VE: 0 * mV,
+        SP.TAU_M: syn_spec_nmda["tau_syn_d1"] * ms,  # not sure
+        SP.FRAC: ff * w_plus
+    }, from_pop=pop_e1)
+    source_ee_nmda12 = MFDynamicSource('EE Nmda12', pop_e1, {
+        SP.GM: params_standard["E"]["gNMDA"] * nsiemens,
+        SP.VE: 0 * mV,
+        SP.TAU_M: syn_spec_nmda["tau_syn_d1"] * ms,  # not sure
+        SP.FRAC: ff * w_plus
+    }, from_pop=pop_e2)
+    #source_ee_nmda1.g_base = params_standard["E"]["gNMDA"]
+    #source_ee_nmda1.g_dyn = lambda: (
+    #        ff * w_plus * syn_ee_nmda(pop_e1.rate_ms) + (1. - ff) * w_min * syn_ee_nmda(pop_e2.rate_ms)
+    #    ) * pop_e1.n
+    #source_ee_nmda1.is_nmda = True
 
-    source_ee_nmda2 = MFSource('EE Nmda2', pop_e2)
-    source_ee_nmda2.g_base = params_standard["E"]["gNMDA"]
-    source_ee_nmda2.g_dyn = lambda: (
-            ff * w_min * syn_ee_nmda(pop_e1.rate_ms) + (ff * w_plus + (1. - 2.*ff) * w_min) * syn_ee_nmda(pop_e2.rate_ms)
-        ) * pop_e2.n
-    source_ee_nmda2.is_nmda = True
+    source_ee_nmda2 = MFDynamicSource('EE Nmda2', pop_e2, {
+        SP.GM: params_standard["E"]["gNMDA"] * nsiemens,
+        SP.VE: 0 * mV,
+        SP.TAU_M: syn_spec_nmda["tau_syn_d1"] * ms,  # not sure
+        SP.FRAC: ff * w_min
+    }, from_pop=pop_e1)
+    source_ee_nmda22 = MFDynamicSource('EE Nmda22', pop_e2, {
+        SP.GM: params_standard["E"]["gNMDA"] * nsiemens,
+        SP.VE: 0 * mV,
+        SP.TAU_M: syn_spec_nmda["tau_syn_d1"] * ms,  # not sure
+        SP.FRAC: (ff * w_plus + (1. - 2. * ff) * w_min)
+    }, from_pop=pop_e2)
+    #source_ee_nmda2.g_base = params_standard["E"]["gNMDA"]
+    #source_ee_nmda2.g_dyn = lambda: (
+    #        ff * w_min * syn_ee_nmda(pop_e1.rate_ms) + (ff * w_plus + (1. - 2.*ff) * w_min) * syn_ee_nmda(pop_e2.rate_ms)
+    #    ) * pop_e2.n
+    #source_ee_nmda2.is_nmda = True
 
     # E->I NMDA
     syn_ie_nmda = Synapse(**syn_spec_nmda)
-    source_ie_nmda = MFSource('IE Nmda', pop_i)
-    source_ie_nmda.g_base = params_standard["I"]["gNMDA"]
-    source_ie_nmda.g_dyn = lambda: (
-            ff * syn_ie_nmda(pop_e1.rate_ms) + (1. - ff) * syn_ie_nmda(pop_e2.rate_ms)
-        ) * pop_e1.n
-    source_ie_nmda.is_nmda = True
+    source_ie_nmda = MFDynamicSource('IE Nmda', pop_i, {
+        SP.GM: params_standard["I"]["gNMDA"] * nsiemens,
+        SP.VE: 0 * mV,
+        SP.TAU_M: syn_spec_nmda["tau_syn_d1"] * ms,  # not sure
+        SP.FRAC: ff
+    }, from_pop=pop_e1)
+    source_ie_nmda2 = MFDynamicSource('IE Nmda2', pop_i, {
+        SP.GM: params_standard["I"]["gNMDA"] * nsiemens,
+        SP.VE: 0 * mV,
+        SP.TAU_M: syn_spec_nmda["tau_syn_d1"] * ms,  # not sure
+        SP.FRAC: (1. - ff)
+    }, from_pop=pop_e2)
+    #source_ie_nmda.g_base = params_standard["I"]["gNMDA"]
+    #source_ie_nmda.g_dyn = lambda: (
+    #        ff * syn_ie_nmda(pop_e1.rate_ms) + (1. - ff) * syn_ie_nmda(pop_e2.rate_ms)
+    #    ) * pop_e1.n
+    #source_ie_nmda.is_nmda = True
 
     # I->I GABA
     syn_spec_gaba = {
@@ -134,27 +202,41 @@ def setup_brunel99(w_plus_val=2.5):
         "tau_syn_d2": 10.,
         "balance": .5,
     }
-    syn_ii_gaba = Synapse(**syn_spec_gaba)
-    source_ii_gaba = MFSource('II Gaba', pop_i)
-    source_ii_gaba.g_base = params_standard["I"]["gGABA"]
-    source_ii_gaba.g_dyn = lambda: syn_ii_gaba(pop_i.rate_ms) * pop_i.n
-    source_ii_gaba.E_rev = -70.
+    #syn_ii_gaba = Synapse(**syn_spec_gaba)
+
+    source_ii_gaba = MFDynamicSource('II Gaba', pop_i, {
+        SP.GM: params_standard["I"]["gGABA"] * nsiemens,
+        SP.VE: -70 * mV,
+        SP.TAU_M: syn_spec_gaba["tau_syn_d1"] * ms,  # not sure
+    }, from_pop=pop_i)
+    #source_ii_gaba.g_base = params_standard["I"]["gGABA"]
+    #source_ii_gaba.g_dyn = lambda: syn_ii_gaba(pop_i.rate_ms) * pop_i.n
+    #source_ii_gaba.E_rev = -70.
 
     # I->E GABA
-    syn_ei_gaba = Synapse(**syn_spec_gaba)
-    source_ei_gaba1 = MFSource('EI Gaba', pop_e1)
-    source_ei_gaba1.g_base = params_standard["E"]["gGABA"]
-    source_ei_gaba1.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
-    source_ei_gaba1.E_rev = -70.
-    source_ei_gaba2 = MFSource('EI Gaba', pop_e2)
-    source_ei_gaba2.g_base = params_standard["E"]["gGABA"]
-    source_ei_gaba2.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
-    source_ei_gaba2.E_rev = -70.
+    #syn_ei_gaba = Synapse(**syn_spec_gaba)
+    source_ei_gaba1 = MFDynamicSource('EI Gaba', pop_e1, {
+        SP.GM: params_standard["E"]["gGABA"] * nsiemens,
+        SP.VE: -70 * mV,
+        SP.TAU_M: syn_spec_gaba["tau_syn_d1"] * ms,  # not sure
+    }, from_pop=pop_i)
+    #source_ei_gaba1.g_base = params_standard["E"]["gGABA"]
+    #source_ei_gaba1.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
+    #source_ei_gaba1.E_rev = -70.
+
+    source_ei_gaba2 = MFDynamicSource('EI Gaba', pop_e2, {
+        SP.GM: params_standard["E"]["gGABA"] * nsiemens,
+        SP.VE: -70 * mV,
+        SP.TAU_M: syn_spec_gaba["tau_syn_d1"] * ms,  # not sure
+    }, from_pop=pop_i)
+    #source_ei_gaba2.g_base = params_standard["E"]["gGABA"]
+    #source_ei_gaba2.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
+    #source_ei_gaba2.E_rev = -70.
 
     return system
 
 
-def setup_EI(has_nmda=True):
+def setup_EI(has_nmda=False):
 
     # brunel 1999 system, one up state pop
     initials = {'nu_e': .003, 'nu_i': .009}
