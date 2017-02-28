@@ -155,9 +155,6 @@ def mean():
     }, from_pop=pop_e2)
     # source_ee_nmda1.is_nmda = True
 
-
-    # TODO     @check_units(width=second)
-
     # E->E NDMA 2.1
     source_ee_nmda21 = MFDynamicSource('EE NMDA 21', pop_e2, {
         SP.GM: g_NMDA_E,

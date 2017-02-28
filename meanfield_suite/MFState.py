@@ -1,4 +1,5 @@
 import numpy as np
+from brian2 import Quantity
 
 import OutOfBoundsError
 
@@ -30,13 +31,14 @@ class MFState(object):
 
     @property
     def state(self):
-        return [c.free for c in self.constraints]
+        return np.array([c.free for c in self.constraints])
 
     @state.setter
     def state(self, value):
-        assert (len(value) == len(self.constraints))
+        assert len(value) == len(self.constraints)
         for i, c in enumerate(self.constraints):
-            c.free = value[i]
+            dim = c.free.dimensions
+            c.free = Quantity(value[i], dim=dim)
         for f in self.dependent_functions:
             f()
 
@@ -101,4 +103,5 @@ class MFState(object):
     def __call__(self, value, fun=lambda x: x):
         self.state = value
         error = self.error_checked
+        print(error)
         return fun(error)

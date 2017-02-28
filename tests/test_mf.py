@@ -2,6 +2,7 @@ import unittest
 from functools import partial
 
 import numpy as np
+from brian2 import units
 
 from MFSolver import MFSolver, MFSolverRatesVoltages
 from MFState import MFState
@@ -28,10 +29,10 @@ class MFTestCase(unittest.TestCase):
 
     def testTaus(self):
         """Effective timeconstants equal old implementation"""
-        taus = np.array([p.tau_eff for p in self.system.pops])
-        taus_brunel = np.array([11.309393346834508, 10.259016117146679, 5.2504978292166333])
-        diff = (taus - taus_brunel)
-        assert all(diff < 1e-8), "Values not equal: %s" % diff
+        taus = [p.tau_eff for p in self.system.pops]
+        taus_brunel = [11.309393346834508, 10.259016117146679, 5.2504978292166333]
+        np.testing.assert_array_almost_equal(taus, taus_brunel, 5)
+        #assert np.allclose(taus, taus_brunel), "Values not equal: {} != {}".format(taus, taus_brunel)
 
     def testMus(self):
         """Mean input predictions equal old implementation"""
@@ -188,12 +189,18 @@ class MFTestCase(unittest.TestCase):
             ) for p in system.pops
         ]
 
+        print(constraints[0].error)
+
         state = MFState(constraints)
         solver = MFSolver(state)
         solver.run()
 
         for p in system.pops:
-            np.testing.assert_almost_equal(p.rate_prediction, p.rate_hz, 5)
+            print(p.rate_prediction)
+            print(p.rate_hz)
+            assert p.rate_prediction.has_same_dimensions(p.rate_hz)
+            assert np.isclose(np.array(p.rate_prediction), np.array(p.rate_hz)), "{} != {}".format(p.rate_prediction, p.rate_hz)
+            #np.testing.assert_almost_equal(p.rate_prediction, p.rate_hz, 5)
 
     def testConductanceMinimizationRatio(self):
         """Solve for NMDA & Gaba conductances with constrained firing rates & EI fixed ratio"""

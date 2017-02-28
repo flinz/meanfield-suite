@@ -41,7 +41,7 @@ C_I = N_I
 
 # AMPA (excitatory)
 g_AMPA_ext_E = 2.08 * nS
-g_AMPA_rec_E = 0.104 * nS  * 800. / N_E
+g_AMPA_rec_E = 0.104 * nS * 800. / N_E
 g_AMPA_ext_I = 1.62 * nS
 g_AMPA_rec_I = 0.081 * nS * 800. / N_E
 tau_AMPA = 2. * ms

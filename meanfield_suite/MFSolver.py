@@ -4,6 +4,7 @@ from functools import partial
 
 import matplotlib.pylab as plt
 import numpy as np
+from brian2 import units
 from scipy.optimize import root
 
 from MFConstraint import MFConstraint
@@ -34,6 +35,7 @@ def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
         fun = np.array(mfstate.error)
 
     return sol()
+
 
 class MFSolver(object):
 
@@ -95,6 +97,7 @@ class MFSolver(object):
             else:  # scipy solvers
                 sol = root(self.mfstate, p_0, jac=None, method=self.solver, tol=tol)
 
+            print(sol)
             # calculate the abs err, store minimal solution
             abs_err = max(abs(sol.fun))
             if abs_err < min_abs_err:
