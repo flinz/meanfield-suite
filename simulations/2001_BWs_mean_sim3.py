@@ -1,7 +1,7 @@
 from brian2 import units
 
 from MFParams import MFParams
-from MFPop import MFOldPop, MFLinearPop
+from MFPop import MFLinearPop
 from MFSolver import MFSolver, MFSolverRatesVoltages
 from MFSource import MFSource, MFDynamicSource, MFStaticSource
 from MFSystem import MFSystem
@@ -36,7 +36,7 @@ tau_rp_E = 2. * ms
 tau_rp_I = 1. * ms
 
 # external stimuli
-rate = 0.003
+rate = 0.003 * Hz
 C_ext = 800
 
 # synapses
@@ -91,11 +91,11 @@ def mean():
 
     pop_e1 = MFLinearPop("E", N_non, e_params)
     pop_e1.rate_ms = nu_e
-    pop_e1.v_mean = -52.
+    pop_e1.v_mean = -52. * mV
 
     pop_e2 = MFLinearPop("Edown", N_sub, e_params)
     pop_e2.rate_ms = nu_e
-    pop_e2.v_mean = -52.
+    pop_e2.v_mean = -52. * mV
 
     i_params = {
         NP.GAMMA: 0.280112,
@@ -110,7 +110,7 @@ def mean():
 
     pop_i = MFLinearPop("I", N_I, i_params)
     pop_i.rate_ms = nu_i
-    pop_i.v_mean = -52.
+    pop_i.v_mean = -52. * mV
 
     system.pops += [pop_e1, pop_e2, pop_i]
 
@@ -288,9 +288,9 @@ def mean():
             if s.brian2:
                 net.add(s.brian2)
 
-    n1 = PoissonInput(pop_e1.brian2, 's_E_noise1', C_ext, rate * units.Hz, 500)
-    n2 = PoissonInput(pop_e2.brian2, 's_E_noise2', C_ext, rate * units.Hz, 500)
-    n3 = PoissonInput(pop_i.brian2, 's_I_noise', C_ext, rate * units.Hz, 500)
+    n1 = PoissonInput(pop_e1.brian2, 's_E_noise1', C_ext, rate, 500)
+    n2 = PoissonInput(pop_e2.brian2, 's_E_noise2', C_ext, rate, 500)
+    n3 = PoissonInput(pop_i.brian2, 's_I_noise', C_ext, rate, 500)
     net.add(n1)
     net.add(n2)
     net.add(n3)

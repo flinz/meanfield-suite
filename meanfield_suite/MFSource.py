@@ -151,7 +151,7 @@ class MFDynamicSource(MFSource):
         #print('pop')
         #print(self.from_pop.rate_ms)
         #print(self.params[SP.W])
-        return self.from_pop.n * self.from_pop.rate_ms * self.params[SP.W] * self.params[SP.TAU_M]
+        return self.from_pop.n * self.from_pop.rate * self.params[SP.W] * self.params[SP.TAU_M]
 
     @lazy
     def brian2(self, mode='i != j'):

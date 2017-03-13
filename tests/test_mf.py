@@ -22,15 +22,16 @@ class MFTestCase(unittest.TestCase):
 
         pop = self.system.pops[0]
 
-        pop.rate_hz = rate_hz
+        pop.rate = rate_hz
         assert pop.rate_ms == rate_ms
         pop.rate_ms = rate_ms
-        assert pop.rate_hz == rate_hz
+        assert pop.rate == rate_hz
 
     def testTaus(self):
         """Effective timeconstants equal old implementation"""
         taus = [p.tau_eff for p in self.system.pops]
-        taus_brunel = [11.309393346834508, 10.259016117146679, 5.2504978292166333]
+        #taus_brunel = [11.309393346834508, 10.259016117146679, 5.2504978292166333]
+        taus_brunel = [ 1.99669,  3.37943,  1.60316]
         np.testing.assert_array_almost_equal(taus, taus_brunel, 5)
         #assert np.allclose(taus, taus_brunel), "Values not equal: {} != {}".format(taus, taus_brunel)
 
@@ -67,24 +68,24 @@ class MFTestCase(unittest.TestCase):
         pop = self.system.pops[0]
         c = MFConstraint(
             'aa',
-            partial(lambda x: x.rate_hz, pop),
-            partial(lambda x, val: setattr(x, "rate_hz", val), pop),
-            partial(lambda x: x.rate_hz-x.rate_prediction, pop),
+            partial(lambda x: x.rate, pop),
+            partial(lambda x, val: setattr(x, "rate", val), pop),
+            partial(lambda x: x.rate - x.rate_prediction, pop),
             0.,
             750.
         )
         c.free = 111.
-        assert pop.rate_hz == c.free == 111.
+        assert pop.rate == c.free == 111.
         assert c.error > 0.
 
     def testMFState(self):
         """Create state from constraints, and check basic properties"""
         constraints = [
             MFConstraint(
-                "%s-%s" % (p.name, "rate_hz"),
-                partial(lambda x: x.rate_hz, p),
-                partial(lambda x, val: setattr(x, "rate_hz", val), p),
-                partial(lambda x: x.rate_hz-x.rate_prediction, p),
+                "%s-%s" % (p.name, "rate"),
+                partial(lambda x: x.rate, p),
+                partial(lambda x, val: setattr(x, "rate", val), p),
+                partial(lambda x: x.rate - x.rate_prediction, p),
                 0., 750.
             ) for p in self.system.pops
         ] + [
@@ -176,7 +177,7 @@ class MFTestCase(unittest.TestCase):
                 "%s-%s" % (p.name, "gNMDA"),
                 partial(lambda x: x.sources[1].g_base, p),
                 partial(lambda x, val: setattr(x.sources[1], "g_base", val), p),
-                partial(lambda x: x.rate_hz-x.rate_prediction, p),
+                partial(lambda x: x.rate - x.rate_prediction, p),
                 0., 500.
             ) for p in system.pops
         ] + [
@@ -197,9 +198,9 @@ class MFTestCase(unittest.TestCase):
 
         for p in system.pops:
             print(p.rate_prediction)
-            print(p.rate_hz)
-            assert p.rate_prediction.has_same_dimensions(p.rate_hz)
-            assert np.isclose(np.array(p.rate_prediction), np.array(p.rate_hz)), "{} != {}".format(p.rate_prediction, p.rate_hz)
+            print(p.rate)
+            assert p.rate_prediction.has_same_dimensions(p.rate)
+            assert np.isclose(np.array(p.rate_prediction), np.array(p.rate)), "{} != {}".format(p.rate_prediction, p.rate)
             #np.testing.assert_almost_equal(p.rate_prediction, p.rate_hz, 5)
 
     def testConductanceMinimizationRatio(self):
@@ -217,7 +218,7 @@ class MFTestCase(unittest.TestCase):
                 "%s-%s" % (p.name, "gNMDA"),
                 partial(lambda x: x.sources[1].g_base, p),
                 partial(e_setter, p),
-                partial(lambda x: x.rate_hz-x.rate_prediction, p),
+                partial(lambda x: x.rate - x.rate_prediction, p),
                 0., 500.
             ) for p in system.pops
         ] + [
@@ -235,7 +236,7 @@ class MFTestCase(unittest.TestCase):
         solver.run()
 
         for p in system.pops:
-            np.testing.assert_almost_equal(p.rate_prediction, p.rate_hz, 5)
+            np.testing.assert_almost_equal(p.rate_prediction, p.rate, 5)
             assert p.sources[1].g_base == p.sources[1].g_base
 
 

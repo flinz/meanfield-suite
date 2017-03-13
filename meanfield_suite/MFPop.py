@@ -20,8 +20,8 @@ class MFPop(object):
         self.sources = []
         self.noise = None
         # base estimation
-        self.rate = 0. * units.Hz
-        self.v_mean = -60. * units.mV
+        self._rate = 0. * units.Hz
+        self._v_mean = -60. * units.mV
         # TODO : set units ?
 
     def add_noise(self, noise):
@@ -32,21 +32,23 @@ class MFPop(object):
 
     @property
     @check_units(result=units.Hz)
-    def rate_hz(self):
-        return self.rate
+    def rate(self):
+        return self._rate
 
-    @rate_hz.setter
+    @rate.setter
     @check_units(value=units.Hz)
-    def rate_hz(self, value):
-        self.rate = value
+    def rate(self, value):
+        self._rate = value
 
     @property
-    def rate_ms(self):
-        return self.rate / 1e3
+    @check_units(result=units.volt)
+    def v_mean(self):
+        return self._v_mean
 
-    @rate_ms.setter
-    def rate_ms(self, value):
-        self.rate = value * 1e3
+    @v_mean.setter
+    @check_units(value=units.volt)
+    def v_mean(self, value):
+        self._v_mean = value
 
     @abstractproperty
     def rate_prediction(self):
@@ -127,7 +129,7 @@ class MFLinearPop(MFPop):
         """
         #for s in self.sources:
         #    print(s,s.conductance)
-        print(np.sum(s.conductance for s in self.sources))
+        #print(np.sum(s.conductance for s in self.sources))
         return self.params[NP.GM] + np.sum(s.conductance for s in self.sources)
 
     @property
@@ -192,11 +194,11 @@ class MFLinearPop(MFPop):
         """
         Volt
         """
-        return self.params[NP.VL] + self.mu - (self.params[NP.VTHR] - self.params[NP.VRES]) * self.rate_ms * self.tau_eff
+        return self.params[NP.VL] + self.mu - (self.params[NP.VTHR] - self.params[NP.VRES]) * self.rate * self.tau_eff
 
     def __repr__(self):
         return "MFpop [%s] <%s (%i sources, n: %i, rate: %.4f, v_mean: %.4f)>" % \
-               (id(self), self.name, len(self.sources), self.n, self.rate_hz, self.v_mean)
+               (id(self), self.name, len(self.sources), self.n, self.rate, self.v_mean)
 
     def print_sys(self, mf=False):
         print("\t%s - tau_eff: %.1fms, mu: %.4f, sig^2: %.4f, rate_pred: %.4f, v_mean_pred: %.4f" % (

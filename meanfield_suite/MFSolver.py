@@ -97,7 +97,6 @@ class MFSolver(object):
             else:  # scipy solvers
                 sol = root(self.mfstate, p_0, jac=None, method=self.solver, tol=tol)
 
-            print(sol)
             # calculate the abs err, store minimal solution
             abs_err = max(abs(sol.fun))
             if abs_err < min_abs_err:
@@ -140,10 +139,10 @@ class MFSolverRatesVoltages(MFSolver):
 
             constraints.append(
                 MFConstraint(
-                    "%s-%s" % (p.name, "rate_hz"),
-                    partial(lambda x: x.rate_hz, p),
-                    partial(lambda x, val: setattr(x, "rate_hz", val), p),
-                    partial(lambda x: x.rate_hz-x.rate_prediction, p),
+                    "%s-%s" % (p.name, "rate"),
+                    partial(lambda x: x.rate, p),
+                    partial(lambda x, val: setattr(x, "rate", val), p),
+                    partial(lambda x: x.rate - x.rate_prediction, p),
                     0., 750.
                 )
             )

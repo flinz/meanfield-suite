@@ -85,11 +85,11 @@ def setup_brunel99(w_plus_val=2.5):
         NP.TAU_RP: params_standard['I']['tau_AMPA'] * ms
     })
     #pop_i.n = 200
-    pop_e1.rate_ms = initials['nu_plus']
+    pop_e1.rate = initials['nu_plus']
     pop_e1.v_mean = -51.
-    pop_e2.rate_ms = initials['nu_min']
+    pop_e2.rate = initials['nu_min']
     pop_e2.v_mean = -55.
-    pop_i.rate_ms = initials['nu_i']
+    pop_i.rate = initials['nu_i']
     pop_i.v_mean = -55.
 
     system.pops += [pop_e1, pop_e2, pop_i]
@@ -261,9 +261,9 @@ def setup_EI(has_nmda=False):
         NP.TAU_RP: params_standard['I']['tau_AMPA'] * ms
     })
     #pop_i.n = 200
-    pop_e.rate_ms = initials['nu_e'] * Hz
+    pop_e.rate = initials['nu_e'] * Hz
     pop_e.v_mean = -51. * mV
-    pop_i.rate_ms = initials['nu_i'] * Hz
+    pop_i.rate = initials['nu_i'] * Hz
     pop_i.v_mean = -55. * mV
 
     system.pops += [pop_e, pop_i]

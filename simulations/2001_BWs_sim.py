@@ -6,7 +6,7 @@ Journal of Computational Neuroscience 11, 63-85, 2001.
 
 import pandas as pd
 from brian2 import *
-BrianLogger.log_level_info()
+BrianLogger.log_level_debug()
 
 # neurons
 N = 1000 / 4
