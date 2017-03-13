@@ -2,7 +2,6 @@ import copy
 
 from brian2 import in_unit, have_same_dimensions, DimensionMismatchError, get_dimensions
 
-
 class MFParams2(object):
 
     def __init__(self, **kwargs):
@@ -33,13 +32,11 @@ class MFParams(object):
         self.accesses = set()
 
     def __getitem__(self, key):
-        value = self.underlying[key]
         self.accesses.add(key)
-        return value
+        return self.underlying[key]
 
     def all_keys_consumed(self):
-        not_used = self.accesses.difference(self.underlying.keys())
-        return len(not_used) == 0
+        return self.accesses == set(self.underlying.keys())
 
     def verify(self, expectations):
         for param, unit in expectations.items():
