@@ -186,7 +186,7 @@ class MFLinearPop(MFPop):
     @property
     @check_units(result=units.Hz)
     def rate_prediction(self):
-        return 1e3 * self.phi_firing_func()
+        return self.phi_firing_func()
 
     @property
     @check_units(result=units.volt)

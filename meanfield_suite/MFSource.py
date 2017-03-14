@@ -56,6 +56,7 @@ class MFSource(object):
     def voltage_conductance(self):
         cond = self.g_dyn() * self.g_base
         tmp = cond * (self.E_rev - self.pop.params[NP.VL])
+        # TODO should get order 1 nA
         #if self.is_nmda:
         #    J_ = 1. / self.pop.J
         #    return J_ * (
@@ -121,10 +122,10 @@ class MFStaticSource(MFSource):
 
 class MFDynamicSource(MFSource):
 
-    def __init__(self, name, pop, params, from_pop):
+    def __init__(self, name, pop, params, from_pop, synapse=None):
         super().__init__(name, pop, params)
         self.from_pop = from_pop
-
+        self.synapse = synapse
         defaults = {
             SP.W: 1.,
             SP.FRAC: 1.
@@ -138,20 +139,8 @@ class MFDynamicSource(MFSource):
 
     @check_units(result=1)
     def g_dyn(self):
-        syn_spec_nmda = {
-            "tau_syn_rise": 1.,
-            "tau_syn_d1": 100.,
-            "tau_syn_d2": 100.,
-            "balance": .5,
-            "tau_x": 150.,  # depressing
-        }
-        syn_ee_nmda = Synapse(**syn_spec_nmda)
-        #syn_ee_nmda(self.from_pop.rate / units.mhertz) * units.Hz
-        #print(self.from_pop.rate * self.params[SP.TAU_M])
-        #print('pop')
-        #print(self.from_pop.rate_ms)
-        #print(self.params[SP.W])
-        return self.from_pop.n * self.from_pop.rate * self.params[SP.W] * self.params[SP.TAU_M]
+        activation = self.synapse(self.from_pop.rate) if self.synapse else self.from_pop.rate * self.params[SP.TAU_M]
+        return self.from_pop.n * activation * self.params[SP.W]
 
     @lazy
     def brian2(self, mode='i != j'):
@@ -170,14 +159,15 @@ class MFDynamicSource(MFSource):
 
 
 
-
-def stp_dgl_u(U, tau_f, tau_x, rate_ms):
+@check_units(result=1)
+def stp_dgl_u(U, tau_f, tau_x, rate):
     """ Differential equation equilibrium solution of short-term pltastic synaptic input: facilitation variable u."""
-    return float(U) * (1. + rate_ms * tau_f) * (1. + float(U) * rate_ms * tau_f) ** (-1.)
+    return float(U) * (1. + rate * tau_f) * (1. + float(U) * rate * tau_f) ** (-1.)
 
-def stp_dgl_x(U, tau_f, tau_x, rate_ms):
+@check_units(result=1)
+def stp_dgl_x(U, tau_f, tau_x, rate):
     """ Differential equation equilibrium solution of short-term pltastic synaptic input: depression variable x."""
-    return (1. + float(U) * rate_ms * tau_f) * (1. + float(U) * rate_ms * (tau_f + tau_x + rate_ms * tau_f * tau_x)) ** (-1.)
+    return (1. + float(U) * rate * tau_f) * (1. + float(U) * rate * (tau_f + tau_x + rate * tau_f * tau_x)) ** (-1.)
 
 
 class Synapse(object):
@@ -186,7 +176,8 @@ class Synapse(object):
     """
     fun = None
 
-    def __init__(self, tau_syn_rise=1., tau_syn_d1=100., tau_syn_d2=100., balance=.5, U=1., tau_f=1000., tau_x=0.):
+    @check_units(tau_syn_rise=units.second, tau_syn_d1=units.second, tau_syn_d2=units.second, tau_f=units.second, tau_x=units.second)
+    def __init__(self, tau_syn_rise=1. * units.ms, tau_syn_d1=100. * units.ms, tau_syn_d2=100. * units.ms, balance=.5, U=1., tau_f=1000. * units.ms, tau_x=0. * units.ms):
 
         # facilitation & depression parameters
         self.tau_f = tau_f
@@ -200,25 +191,29 @@ class Synapse(object):
         self.balance = balance
 
     @property
+    @check_units(result=units.second)
     def taus(self):
-        return np.array([
+        return [
             self.balance * self.tau_syn_d1,
             (1.-self.balance) * self.tau_syn_d2,
             - self.balance * self.tau_syn_d1 * self.tau_syn_rise / (self.tau_syn_d1 + self.tau_syn_rise),
             - (1.-self.balance) * self.tau_syn_d2 * self.tau_syn_rise / (self.tau_syn_d2 + self.tau_syn_rise)
-        ])
+        ]
 
     def __call__(self, x):
         if self.fun is None:
             self.fun = self.make_fun()
         return self.fun(x)
 
+    @check_units(result=1)
     def stp_u(self, x):
         return stp_dgl_u(self.U, self.tau_f, self.tau_x, x)
 
+    @check_units(result=1)
     def stp_x(self, x):
         return stp_dgl_x(self.U, self.tau_f, self.tau_x, x)
 
+    @check_units(result=1)
     def stp_ur(self, x):
         return self.stp_x(x) * self.stp_u(x)
 
@@ -237,5 +232,5 @@ class Synapse(object):
         plt.ylabel('Channel activation [1]')
 
     def make_fun(self):
-        return lambda x: np.sum(self.taus) * x * self.stp_ur(x)
+        return check_units(result=1)(lambda x: sum(self.taus) * x * self.stp_ur(x))
 

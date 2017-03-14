@@ -86,11 +86,11 @@ def setup_brunel99(w_plus_val=2.5):
     })
     #pop_i.n = 200
     pop_e1.rate = initials['nu_plus']
-    pop_e1.v_mean = -51.
+    pop_e1.v_mean = -51. * mV
     pop_e2.rate = initials['nu_min']
-    pop_e2.v_mean = -55.
+    pop_e2.v_mean = -55. * mV
     pop_i.rate = initials['nu_i']
-    pop_i.v_mean = -55.
+    pop_i.v_mean = -55. * mV
 
     system.pops += [pop_e1, pop_e2, pop_i]
 
@@ -128,26 +128,26 @@ def setup_brunel99(w_plus_val=2.5):
 
     # E->E NMDA
     syn_spec_nmda = {
-        'tau_syn_rise': 1.,
-        'tau_syn_d1': 100.,
-        'tau_syn_d2': 100.,
+        'tau_syn_rise': 1. * ms,
+        'tau_syn_d1': 100. * ms,
+        'tau_syn_d2': 100. * ms,
         'balance': .5,
-        'tau_x': 150.,  # depressing
+        'tau_x': 150. * ms,  # depressing
     }
-    #syn_ee_nmda = Synapse(**syn_spec_nmda)
+    syn_ee_nmda = Synapse(**syn_spec_nmda)
 
     source_ee_nmda1 = MFDynamicSource('EE Nmda1', pop_e1, {
         SP.GM: params_standard['E']['gNMDA'] * nsiemens,
         SP.VE: 0 * mV,
-        SP.TAU_M: syn_spec_nmda['tau_syn_d1'] * ms,  # not sure
+        SP.TAU_M: syn_spec_nmda['tau_syn_d1'],
         SP.W: w_plus
-    }, from_pop=pop_e1)
+    }, from_pop=pop_e1, synapse=syn_ee_nmda)
     source_ee_nmda12 = MFDynamicSource('EE Nmda12', pop_e1, {
         SP.GM: params_standard['E']['gNMDA'] * nsiemens,
         SP.VE: 0 * mV,
-        SP.TAU_M: syn_spec_nmda['tau_syn_d1'] * ms,  # not sure
+        SP.TAU_M: syn_spec_nmda['tau_syn_d1'],
         SP.W: w_min
-    }, from_pop=pop_e2)
+    }, from_pop=pop_e2, synapse=syn_ee_nmda)
     #source_ee_nmda1.g_base = params_standard['E']['gNMDA']
     #source_ee_nmda1.g_dyn = lambda: (
     #        ff * w_plus * syn_ee_nmda(pop_e1.rate_ms) + (1. - ff) * w_min * syn_ee_nmda(pop_e2.rate_ms)
@@ -157,15 +157,15 @@ def setup_brunel99(w_plus_val=2.5):
     source_ee_nmda2 = MFDynamicSource('EE Nmda2', pop_e2, {
         SP.GM: params_standard['E']['gNMDA'] * nsiemens,
         SP.VE: 0 * mV,
-        SP.TAU_M: syn_spec_nmda['tau_syn_d1'] * ms,  # not sure
+        SP.TAU_M: syn_spec_nmda['tau_syn_d1'],
         SP.W: w_min
-    }, from_pop=pop_e1)
+    }, from_pop=pop_e1, synapse=syn_ee_nmda)
     source_ee_nmda22 = MFDynamicSource('EE Nmda22', pop_e2, {
         SP.GM: params_standard['E']['gNMDA'] * nsiemens,
         SP.VE: 0 * mV,
-        SP.TAU_M: syn_spec_nmda['tau_syn_d1'] * ms,  # not sure
+        SP.TAU_M: syn_spec_nmda['tau_syn_d1'],
         SP.W: (w_plus * ff + (1. - 2. * ff) * w_min) / (1 - ff)
-    }, from_pop=pop_e2)
+    }, from_pop=pop_e2, synapse=syn_ee_nmda)
     #source_ee_nmda2.g_base = params_standard['E']['gNMDA']
     #source_ee_nmda2.g_dyn = lambda: (
     #        ff * w_min * syn_ee_nmda(pop_e1.rate_ms) + (ff * w_plus + (1. - 2.*ff) * w_min) * syn_ee_nmda(pop_e2.rate_ms)
@@ -177,15 +177,15 @@ def setup_brunel99(w_plus_val=2.5):
     source_ie_nmda = MFDynamicSource('IE Nmda', pop_i, {
         SP.GM: params_standard['I']['gNMDA'] * nsiemens,
         SP.VE: 0 * mV,
-        SP.TAU_M: syn_spec_nmda['tau_syn_d1'] * ms,  # not sure
+        SP.TAU_M: syn_spec_nmda['tau_syn_d1'],
         SP.W: 1
-    }, from_pop=pop_e1)
+    }, from_pop=pop_e1, synapse=syn_ie_nmda)
     source_ie_nmda2 = MFDynamicSource('IE Nmda2', pop_i, {
         SP.GM: params_standard['I']['gNMDA'] * nsiemens,
         SP.VE: 0 * mV,
-        SP.TAU_M: syn_spec_nmda['tau_syn_d1'] * ms,  # not sure
+        SP.TAU_M: syn_spec_nmda['tau_syn_d1'],
         SP.W: 1
-    }, from_pop=pop_e2)
+    }, from_pop=pop_e2, synapse=syn_ie_nmda)
     #source_ie_nmda.g_base = params_standard['I']['gNMDA']
     #source_ie_nmda.g_dyn = lambda: (
     #        ff * syn_ie_nmda(pop_e1.rate_ms) + (1. - ff) * syn_ie_nmda(pop_e2.rate_ms)
@@ -194,29 +194,29 @@ def setup_brunel99(w_plus_val=2.5):
 
     # I->I GABA
     syn_spec_gaba = {
-        'tau_syn_rise': 0.,
-        'tau_syn_d1': 10.,
-        'tau_syn_d2': 10.,
+        'tau_syn_rise': 0. * ms,
+        'tau_syn_d1': 10. * ms,
+        'tau_syn_d2': 10. * ms,
         'balance': .5,
     }
-    #syn_ii_gaba = Synapse(**syn_spec_gaba)
+    syn_ii_gaba = Synapse(**syn_spec_gaba)
 
     source_ii_gaba = MFDynamicSource('II Gaba', pop_i, {
         SP.GM: params_standard['I']['gGABA'] * nsiemens,
         SP.VE: -70 * mV,
-        SP.TAU_M: syn_spec_gaba['tau_syn_d1'] * ms,  # not sure
-    }, from_pop=pop_i)
+        SP.TAU_M: syn_spec_gaba['tau_syn_d1'],
+    }, from_pop=pop_i, synapse=syn_ii_gaba)
     #source_ii_gaba.g_base = params_standard['I']['gGABA']
     #source_ii_gaba.g_dyn = lambda: syn_ii_gaba(pop_i.rate_ms) * pop_i.n
     #source_ii_gaba.E_rev = -70.
 
     # I->E GABA
-    #syn_ei_gaba = Synapse(**syn_spec_gaba)
+    syn_ei_gaba = Synapse(**syn_spec_gaba)
     source_ei_gaba1 = MFDynamicSource('EI Gaba', pop_e1, {
         SP.GM: params_standard['E']['gGABA'] * nsiemens,
         SP.VE: -70 * mV,
-        SP.TAU_M: syn_spec_gaba['tau_syn_d1'] * ms,  # not sure
-    }, from_pop=pop_i)
+        SP.TAU_M: syn_spec_gaba['tau_syn_d1'],
+    }, from_pop=pop_i, synapse=syn_ei_gaba)
     #source_ei_gaba1.g_base = params_standard['E']['gGABA']
     #source_ei_gaba1.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
     #source_ei_gaba1.E_rev = -70.
@@ -224,8 +224,8 @@ def setup_brunel99(w_plus_val=2.5):
     source_ei_gaba2 = MFDynamicSource('EI Gaba', pop_e2, {
         SP.GM: params_standard['E']['gGABA'] * nsiemens,
         SP.VE: -70 * mV,
-        SP.TAU_M: syn_spec_gaba['tau_syn_d1'] * ms,  # not sure
-    }, from_pop=pop_i)
+        SP.TAU_M: syn_spec_gaba['tau_syn_d1'],
+    }, from_pop=pop_i, synapse=syn_ei_gaba)
     #source_ei_gaba2.g_base = params_standard['E']['gGABA']
     #source_ei_gaba2.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
     #source_ei_gaba2.E_rev = -70.
@@ -291,11 +291,11 @@ def setup_EI(has_nmda=False):
 
     # E->E NMDA
     syn_spec_nmda = {
-        'tau_syn_rise': 1.,
-        'tau_syn_d1': 100.,
-        'tau_syn_d2': 100.,
+        'tau_syn_rise': 1. * ms,
+        'tau_syn_d1': 100. * ms,
+        'tau_syn_d2': 100. * ms,
         'balance': .5,
-        'tau_x': 150.,  # depressing
+        'tau_x': 150. * ms,  # depressing
     }
     syn_ee_nmda = Synapse(**syn_spec_nmda)
 
@@ -321,9 +321,9 @@ def setup_EI(has_nmda=False):
 
     # I->I GABA
     syn_spec_gaba = {
-        'tau_syn_rise': 0.,
-        'tau_syn_d1': 10.,
-        'tau_syn_d2': 10.,
+        'tau_syn_rise': 0. * ms,
+        'tau_syn_d1': 10. * ms,
+        'tau_syn_d2': 10. * ms,
         'balance': .5,
     }
     #syn_ii_gaba = Synapse(**syn_spec_gaba)

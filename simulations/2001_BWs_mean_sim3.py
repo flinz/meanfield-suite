@@ -36,7 +36,7 @@ tau_rp_E = 2. * ms
 tau_rp_I = 1. * ms
 
 # external stimuli
-rate = 0.003 * Hz
+rate = 3 * Hz
 C_ext = 800
 
 # synapses
@@ -73,8 +73,8 @@ w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
 def mean():
 
-    nu_e = 0.01
-    nu_i = 0.01
+    nu_e = 10. * Hz
+    nu_i = 10. * Hz
 
     system = MFSystem("Brunel Wang simplified")
 
@@ -90,11 +90,11 @@ def mean():
     }
 
     pop_e1 = MFLinearPop("E", N_non, e_params)
-    pop_e1.rate_ms = nu_e
+    pop_e1.rate = nu_e
     pop_e1.v_mean = -52. * mV
 
     pop_e2 = MFLinearPop("Edown", N_sub, e_params)
-    pop_e2.rate_ms = nu_e
+    pop_e2.rate = nu_e
     pop_e2.v_mean = -52. * mV
 
     i_params = {
@@ -109,7 +109,7 @@ def mean():
     }
 
     pop_i = MFLinearPop("I", N_I, i_params)
-    pop_i.rate_ms = nu_i
+    pop_i.rate = nu_i
     pop_i.v_mean = -52. * mV
 
     system.pops += [pop_e1, pop_e2, pop_i]
@@ -270,7 +270,7 @@ def mean():
         SP.FRAC: 1
     }, from_pop=pop_i)
 
-    solver = MFSolverRatesVoltages(system)
+    solver = MFSolverRatesVoltages(system, solver='mse')
     solver.run()
 
     print(pop_e1.brian2_model())
@@ -288,9 +288,9 @@ def mean():
             if s.brian2:
                 net.add(s.brian2)
 
-    n1 = PoissonInput(pop_e1.brian2, 's_E_noise1', C_ext, rate, 500)
-    n2 = PoissonInput(pop_e2.brian2, 's_E_noise2', C_ext, rate, 500)
-    n3 = PoissonInput(pop_i.brian2, 's_I_noise', C_ext, rate, 500)
+    n1 = PoissonInput(pop_e1.brian2, 's_E_noise1', C_ext, rate, 1)
+    n2 = PoissonInput(pop_e2.brian2, 's_E_noise2', C_ext, rate, 1)
+    n3 = PoissonInput(pop_i.brian2, 's_I_noise', C_ext, rate, 1)
     net.add(n1)
     net.add(n2)
     net.add(n3)
@@ -320,113 +320,113 @@ def mean():
 
     show()
 
-def sim():
-
-    eqs_E = '''
-    dv / dt = (- g_m_E * nS * (v - V_L * mV) - I_syn) / (C_m_E * nF) : volt (unless refractory)
-
-    I_syn = I_AMPA_ext + I_AMPA_rec + I_NMDA_rec + I_GABA_rec : amp
-
-    I_AMPA_ext = g_AMPA_ext_E * nS * (v - V_E * mV) * s_AMPA_ext : amp
-    I_AMPA_rec = g_AMPA_rec_E * nS * (v - V_E * mV) * s_AMPA : amp
-    ds_AMPA_ext / dt = - s_AMPA_ext / (tau_AMPA * ms) : 1
-    ds_AMPA / dt = - s_AMPA / (tau_AMPA * ms) : 1
-
-    I_NMDA_rec = g_NMDA_E * nS * (v - V_E * mV) * s_NMDA : amp
-    ds_NMDA / dt = - s_NMDA / (tau_NMDA_decay * ms) : 1
-
-    I_GABA_rec = g_GABA_E * nS * (v - V_I * mV) * s_GABA : amp
-    ds_GABA / dt = - s_GABA / (tau_GABA * ms) : 1
-    '''
-
-    eqs_I = '''
-    dv / dt = (- g_m_I * nS * (v - V_L * mV) - I_syn) / (C_m_I * nF) : volt (unless refractory)
-
-    I_syn = I_AMPA_ext + I_AMPA_rec + I_NMDA_rec + I_GABA_rec : amp
-
-    I_AMPA_ext = g_AMPA_ext_I * nS * (v - V_E * mV) * s_AMPA_ext : amp
-    I_AMPA_rec = g_AMPA_rec_I * nS * (v - V_E * mV) * s_AMPA : amp
-    ds_AMPA_ext / dt = - s_AMPA_ext / (tau_AMPA * ms) : 1
-    ds_AMPA / dt = - s_AMPA / (tau_AMPA * ms) : 1
-
-    I_NMDA_rec = g_NMDA_I * nS * (v - V_E * mV) * s_NMDA : amp
-    ds_NMDA / dt = - s_NMDA / (tau_NMDA_decay * ms) : 1
-
-    I_GABA_rec = g_GABA_I * nS * (v - V_I * mV) * s_GABA : amp
-    ds_GABA / dt = - s_GABA / (tau_GABA * ms) : 1
-    '''
-
-    P_E = NeuronGroup(N_E, eqs_E, method='euler', threshold='v > V_thr * mV', reset='v = V_reset * mV', refractory=tau_rp_E * ms)
-    P_E.v = V_L * mV
-    P_I = NeuronGroup(N_I, eqs_I, method='euler', threshold='v > V_thr * mV', reset='v = V_reset * mV', refractory=tau_rp_I * ms)
-    P_I.v = V_L * mV
-
-    eqs_glut = '''
-    w : 1
-    '''
-
-    eqs_pre_glut = '''
-    s_AMPA += w
-    s_NMDA += w
-    '''
-
-    eqs_pre_gaba = '''
-    s_GABA += 1
-    '''
-
-    eqs_pre_ext = '''
-    s_AMPA_ext += 1
-    '''
-
-    # recurrent E to E
-    C_E_E = Synapses(P_E, P_E, method='euler', model=eqs_glut, on_pre=eqs_pre_glut)
-    C_E_E.connect('i != j')
-    C_E_E.w[:] = 1
-
-    for pi in range(N_non, N_non + p * N_sub, N_sub):
-
-        # internal other subpopulation to current nonselective
-        C_E_E.w[C_E_E.indices[:, pi:pi + N_sub]] = w_minus
-
-        # internal current subpopulation to current subpopulation
-        C_E_E.w[C_E_E.indices[pi:pi + N_sub, pi:pi + N_sub]] = w_plus
-
-    # E to I
-    C_E_I = Synapses(P_E, P_I, method='euler', model=eqs_glut, on_pre=eqs_pre_glut)
-    C_E_I.connect()
-    C_E_I.w[:] = 1
-
-    # recurrent I to I
-    C_I_I = Synapses(P_I, P_I, on_pre=eqs_pre_gaba)
-    C_I_I.connect('i != j')
-
-    # I to E
-    C_I_E = Synapses(P_I, P_E, on_pre=eqs_pre_gaba)
-    C_I_E.connect()
-
-    # external
-    C_P_E = PoissonInput(P_E, 's_AMPA_ext', C_ext, rate * Hz, 500)
-    C_P_I = PoissonInput(P_I, 's_AMPA_ext', C_ext, rate * Hz, 500)
-
-    # monitors
-    sp_E = SpikeMonitor(P_E[:40])
-    sp_I = SpikeMonitor(P_I[:40])
-    r_E = PopulationRateMonitor(P_E)
-    r_I = PopulationRateMonitor(P_I)
-
-    run(3000 * ms, report='text', report_period=0.5 * second)
-
-    subplot(311)
-    #plot(r_E.t / ms, r_E.smooth_rate(width=25 * ms) / Hz, label='pyramidal neuron')
-    #plot(r_I.t / ms, r_I.smooth_rate(width=25 * ms) / Hz, label='interneuron')
-    legend()
-
-    subplot(312)
-    plot(sp_E.t / ms, sp_E.i, '.', markersize=5, label='nonselective')
-
-    subplot(313)
-    plot(sp_I.t / ms, sp_I.i, '.', markersize=5)
-
-    show()
+# def sim():
+#
+#     eqs_E = '''
+#     dv / dt = (- g_m_E * nS * (v - V_L * mV) - I_syn) / (C_m_E * nF) : volt (unless refractory)
+#
+#     I_syn = I_AMPA_ext + I_AMPA_rec + I_NMDA_rec + I_GABA_rec : amp
+#
+#     I_AMPA_ext = g_AMPA_ext_E * nS * (v - V_E * mV) * s_AMPA_ext : amp
+#     I_AMPA_rec = g_AMPA_rec_E * nS * (v - V_E * mV) * s_AMPA : amp
+#     ds_AMPA_ext / dt = - s_AMPA_ext / (tau_AMPA * ms) : 1
+#     ds_AMPA / dt = - s_AMPA / (tau_AMPA * ms) : 1
+#
+#     I_NMDA_rec = g_NMDA_E * nS * (v - V_E * mV) * s_NMDA : amp
+#     ds_NMDA / dt = - s_NMDA / (tau_NMDA_decay * ms) : 1
+#
+#     I_GABA_rec = g_GABA_E * nS * (v - V_I * mV) * s_GABA : amp
+#     ds_GABA / dt = - s_GABA / (tau_GABA * ms) : 1
+#     '''
+#
+#     eqs_I = '''
+#     dv / dt = (- g_m_I * nS * (v - V_L * mV) - I_syn) / (C_m_I * nF) : volt (unless refractory)
+#
+#     I_syn = I_AMPA_ext + I_AMPA_rec + I_NMDA_rec + I_GABA_rec : amp
+#
+#     I_AMPA_ext = g_AMPA_ext_I * nS * (v - V_E * mV) * s_AMPA_ext : amp
+#     I_AMPA_rec = g_AMPA_rec_I * nS * (v - V_E * mV) * s_AMPA : amp
+#     ds_AMPA_ext / dt = - s_AMPA_ext / (tau_AMPA * ms) : 1
+#     ds_AMPA / dt = - s_AMPA / (tau_AMPA * ms) : 1
+#
+#     I_NMDA_rec = g_NMDA_I * nS * (v - V_E * mV) * s_NMDA : amp
+#     ds_NMDA / dt = - s_NMDA / (tau_NMDA_decay * ms) : 1
+#
+#     I_GABA_rec = g_GABA_I * nS * (v - V_I * mV) * s_GABA : amp
+#     ds_GABA / dt = - s_GABA / (tau_GABA * ms) : 1
+#     '''
+#
+#     P_E = NeuronGroup(N_E, eqs_E, method='euler', threshold='v > V_thr * mV', reset='v = V_reset * mV', refractory=tau_rp_E * ms)
+#     P_E.v = V_L * mV
+#     P_I = NeuronGroup(N_I, eqs_I, method='euler', threshold='v > V_thr * mV', reset='v = V_reset * mV', refractory=tau_rp_I * ms)
+#     P_I.v = V_L * mV
+#
+#     eqs_glut = '''
+#     w : 1
+#     '''
+#
+#     eqs_pre_glut = '''
+#     s_AMPA += w
+#     s_NMDA += w
+#     '''
+#
+#     eqs_pre_gaba = '''
+#     s_GABA += 1
+#     '''
+#
+#     eqs_pre_ext = '''
+#     s_AMPA_ext += 1
+#     '''
+#
+#     # recurrent E to E
+#     C_E_E = Synapses(P_E, P_E, method='euler', model=eqs_glut, on_pre=eqs_pre_glut)
+#     C_E_E.connect('i != j')
+#     C_E_E.w[:] = 1
+#
+#     for pi in range(N_non, N_non + p * N_sub, N_sub):
+#
+#         # internal other subpopulation to current nonselective
+#         C_E_E.w[C_E_E.indices[:, pi:pi + N_sub]] = w_minus
+#
+#         # internal current subpopulation to current subpopulation
+#         C_E_E.w[C_E_E.indices[pi:pi + N_sub, pi:pi + N_sub]] = w_plus
+#
+#     # E to I
+#     C_E_I = Synapses(P_E, P_I, method='euler', model=eqs_glut, on_pre=eqs_pre_glut)
+#     C_E_I.connect()
+#     C_E_I.w[:] = 1
+#
+#     # recurrent I to I
+#     C_I_I = Synapses(P_I, P_I, on_pre=eqs_pre_gaba)
+#     C_I_I.connect('i != j')
+#
+#     # I to E
+#     C_I_E = Synapses(P_I, P_E, on_pre=eqs_pre_gaba)
+#     C_I_E.connect()
+#
+#     # external
+#     C_P_E = PoissonInput(P_E, 's_AMPA_ext', C_ext, rate * Hz, 500)
+#     C_P_I = PoissonInput(P_I, 's_AMPA_ext', C_ext, rate * Hz, 500)
+#
+#     # monitors
+#     sp_E = SpikeMonitor(P_E[:40])
+#     sp_I = SpikeMonitor(P_I[:40])
+#     r_E = PopulationRateMonitor(P_E)
+#     r_I = PopulationRateMonitor(P_I)
+#
+#     run(3000 * ms, report='text', report_period=0.5 * second)
+#
+#     subplot(311)
+#     #plot(r_E.t / ms, r_E.smooth_rate(width=25 * ms) / Hz, label='pyramidal neuron')
+#     #plot(r_I.t / ms, r_I.smooth_rate(width=25 * ms) / Hz, label='interneuron')
+#     legend()
+#
+#     subplot(312)
+#     plot(sp_E.t / ms, sp_E.i, '.', markersize=5, label='nonselective')
+#
+#     subplot(313)
+#     plot(sp_I.t / ms, sp_I.i, '.', markersize=5)
+#
+#     show()
 
 mean()

@@ -5,7 +5,7 @@ from functools import partial
 import matplotlib.pylab as plt
 import numpy as np
 from brian2 import units
-from scipy.optimize import root
+from scipy.optimize import root, minimize
 
 from MFConstraint import MFConstraint
 from MFState import MFState
@@ -13,12 +13,18 @@ from MFState import MFState
 def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
     """Simple gradient descent along the error."""
 
+    print('__')
+    print(p_0)
+
     t = 0.
     state = np.array(p_0)
     states = [state]
 
     while t < tmax:
-        state -= dt * np.array(mfstate(state))
+        print(mfstate(state))
+        state -= [dt * v for v in mfstate(state)]
+        print(state)
+        print('_')
         t += dt
         states.append(list(state))
 
@@ -31,8 +37,8 @@ def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
 
     # minimal solution object to return
     class sol:
-        x = np.array(state)
-        fun = np.array(mfstate.error)
+        x = state
+        fun = mfstate.error
 
     return sol()
 
@@ -86,19 +92,27 @@ class MFSolver(object):
 
             # get stochastic initial state
             up_dist = [c.bound_up - state_0[i] for i, c in enumerate(self.mfstate.constraints)]
-            down_dist = [state_0[i] - c.bound_low for i, c in enumerate(self.mfstate.constraints)]
+            down_dist = [c.bound_up - state_0[i] for i, c in enumerate(self.mfstate.constraints)]
             max_dist = [min(up_dist[i], down_dist[i]) for i in range(len(self.mfstate.constraints))]
 
-            p_0 = state_0 + (2. * np.random.rand(len(state_0)) - 1.) * np.array(max_dist) * noise_percent
+            p_0 = state_0
+
+            bounds = [[c.bound_down, c.bound_up] for c in self.mfstate.constraints]
 
             # solve
             if self.solver == "gradient":  # own implementation
                 sol = gradient_solver(self.mfstate, p_0)
+                abs_err = max(abs(sol.fun))
+            elif self.solver == "mse":
+                sq = lambda y: np.sum(np.array(y) ** 2)
+                f = lambda x: self.mfstate(x, fun=sq)
+                sol = minimize(f, p_0, bounds=bounds, method='L-BFGS-B')
+                abs_err = np.sqrt(sol.fun)
             else:  # scipy solvers
                 sol = root(self.mfstate, p_0, jac=None, method=self.solver, tol=tol)
+                abs_err = max(abs(sol.fun))
 
             # calculate the abs err, store minimal solution
-            abs_err = max(abs(sol.fun))
             if abs_err < min_abs_err:
                 min_abs_err = abs_err
                 min_sol = sol
@@ -143,7 +157,7 @@ class MFSolverRatesVoltages(MFSolver):
                     partial(lambda x: x.rate, p),
                     partial(lambda x, val: setattr(x, "rate", val), p),
                     partial(lambda x: x.rate - x.rate_prediction, p),
-                    0., 750.
+                    0. * units.Hz, 750. * units.Hz
                 )
             )
 
@@ -155,7 +169,7 @@ class MFSolverRatesVoltages(MFSolver):
                         partial(lambda x: x.v_mean, p),
                         partial(lambda x, val: setattr(x, "v_mean", val), p),
                         partial(lambda x: x.v_mean-x.v_mean_prediction, p),
-                        -80., 50.
+                        -80. * units.mV, 50. * units.mV
                     )
                 )
             else:

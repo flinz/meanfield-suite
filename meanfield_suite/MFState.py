@@ -5,7 +5,7 @@ import OutOfBoundsError
 
 class MFState(object):
 
-    def __init__(self, constraints, dependent_functions=None, bounds_check=True, bounds_correct=False, bounds_escalate=True, bounds_interrupt=False):
+    def __init__(self, constraints, dependent_functions=None, bounds_check=False, bounds_correct=False, bounds_escalate=True, bounds_interrupt=False):
 
         if dependent_functions is None:
             dependent_functions = []
@@ -31,7 +31,7 @@ class MFState(object):
 
     @property
     def state(self):
-        return np.array([c.free for c in self.constraints])
+        return [c.free for c in self.constraints]
 
     @state.setter
     def state(self, value):
@@ -59,7 +59,7 @@ class MFState(object):
                 if self.bounds_correct:
                     self.state = bstate
                 if self.bounds_escalate:
-                    return err_states* 1e5  # return more detailed error to solver, i.e. which direction was wrong.
+                    return err_states * 1e5  # return more detailed error to solver, i.e. which direction was wrong.
 
         return self.error
 
@@ -79,11 +79,11 @@ class MFState(object):
             s = self.state[i]
 
             # lower bound check
-            if s < c.bound_low:
+            if s < c.bound_down:
                 if not c.bound_hard:  # reflect at bound
-                    bstate[i] = 2 * c.bound_low - s
+                    bstate[i] = 2 * c.bound_down - s
                 else:  # set hard bound
-                    bstate[i] = c.bound_low
+                    bstate[i] = c.bound_down
                 err_states[i] = 1
 
             # same for upper bound
