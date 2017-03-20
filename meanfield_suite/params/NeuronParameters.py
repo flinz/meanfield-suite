@@ -36,7 +36,7 @@ class SynapseParameters(object):
     TAU_GABA = 'tau_GABA'
     TAU_AMPA = 'tau_AMPA'
     TAU_RP = 'tau_rp'
-    TAU_M = 'tau_m'
+    TAU = 'tau_m'
     CM = 'Cm'
     GM = 'gm'
     C_E = 'CE'
@@ -49,4 +49,3 @@ class SynapseParameters(object):
     
     FRAC = 'frac'
     W = 'weight'
-    

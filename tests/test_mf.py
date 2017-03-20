@@ -34,7 +34,6 @@ class MFTestCase(unittest.TestCase):
         #assert all(diff < 1e-8), "Values not equal: %s" % diff
         np.testing.assert_array_almost_equal(mus, mus_brunel)
 
-
     def testSigmaSquare(self):
         """Sigma square predictions equal old implementation"""
         sigma_square = [p.sigma_square for p in self.system.pops]
@@ -47,7 +46,6 @@ class MFTestCase(unittest.TestCase):
         #print(diff < 1e-8)
         #assert all(diff < 1e-8), "Values not equal: %s" % diff
         np.testing.assert_array_almost_equal(sigma_square, sigma_square_brunel)
-
 
     def testFiringRate(self):
         """Mean firing rate predictions equal old implementation"""
@@ -86,7 +84,7 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.rate, p),
                 partial(lambda x, val: setattr(x, "rate", val), p),
                 partial(lambda x: x.rate - x.rate_prediction, p),
-                0., 750.
+                0. * units.Hz, 750. * units.Hz
             ) for p in self.system.pops
         ] + [
             MFConstraint(
@@ -94,7 +92,7 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.v_mean, p),
                 partial(lambda x, val: setattr(x, "v_mean", val), p),
                 partial(lambda x: x.v_mean-x.v_mean_prediction, p),
-                -80., 50.
+                -80. * units.mV, 50. * units.mV
             ) for p in self.system.pops
         ]
 
@@ -115,11 +113,11 @@ class MFTestCase(unittest.TestCase):
 
         # take old implementation and compare
         state = self.testMFState()
-        solver = MFSolver(state)
+        solver = MFSolver(state, solver='mse')
         r2 = solver.run()
 
         for key in r1.names:
-            np.testing.assert_almost_equal(r1[key], r2[key], 5)
+            np.testing.assert_almost_equal(r1[key], r2[key])
 
     def testMFState_DictionarylikeAccess(self):
         """Dictionarylike access to MFState"""
@@ -148,7 +146,7 @@ class MFTestCase(unittest.TestCase):
 
         # test rates
         for key in r1.names:
-            np.testing.assert_almost_equal(r1[key], r2[key], 5)
+            np.testing.assert_almost_equal(r1[key], r2[key])
 
         # test voltages. these are set implicitly in r1 by the dependent_function
         for key in [("E", "E-v_mean"), ("I", "I-v_mean")]:
@@ -179,7 +177,7 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.sources[1].g_base, p),
                 partial(lambda x, val: setattr(x.sources[1], "g_base", val), p),
                 partial(lambda x: x.rate - x.rate_prediction, p),
-                0., 500.
+                0. * units.nsiemens, 500. * units.nsiemens
             ) for p in system.pops
         ] + [
             MFConstraint(
@@ -187,14 +185,14 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.v_mean, p),
                 partial(lambda x, val: setattr(x, "v_mean", val), p),
                 partial(lambda x: x.v_mean-x.v_mean_prediction, p),
-                -80., 50.
+                -80. * units.mV, 50. * units.mV
             ) for p in system.pops
         ]
 
         print(constraints[0].error)
 
         state = MFState(constraints)
-        solver = MFSolver(state)
+        solver = MFSolver(state, solver='gradient')
         solver.run()
 
         for p in system.pops:
@@ -220,7 +218,7 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.sources[1].g_base, p),
                 partial(e_setter, p),
                 partial(lambda x: x.rate - x.rate_prediction, p),
-                0., 500.
+                0. * units.nsiemens, 500. * units.nsiemens
             ) for p in system.pops
         ] + [
             MFConstraint(
@@ -228,7 +226,7 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.v_mean, p),
                 partial(lambda x, val: setattr(x, "v_mean", val), p),
                 partial(lambda x: x.v_mean-x.v_mean_prediction, p),
-                -80., 50.
+                -80. * units.mV, 50. * units.mV
             ) for p in system.pops
         ]
 

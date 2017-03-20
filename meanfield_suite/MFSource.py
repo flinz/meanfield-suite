@@ -24,7 +24,7 @@ class MFSource(object):
         expectations = {
             SP.GM: units.siemens,
             SP.VE: units.volt,
-            SP.TAU_M: units.second,
+            SP.TAU: units.second,
         }
         # TODO : which is static/dynamic
 
@@ -34,7 +34,7 @@ class MFSource(object):
 
         self.g_base = params[SP.GM]
         self.E_rev = params[SP.VE]
-        self.noise_tau = params[SP.TAU_M]
+        self.noise_tau = params[SP.TAU]
 
         # link to pop
         self.pop = pop
@@ -44,7 +44,6 @@ class MFSource(object):
     @check_units(result=units.siemens)
     def conductance(self):
         tmp = self.g_dyn() * self.g_base
-        # print('__')
         #if self.is_nmda:
         #    J_ = 1./self.pop.J
         #    return tmp * J_ * (
@@ -56,7 +55,6 @@ class MFSource(object):
     def voltage_conductance(self):
         cond = self.g_dyn() * self.g_base
         tmp = cond * (self.E_rev - self.pop.params[NP.VL])
-        # TODO should get order 1 nA
         #if self.is_nmda:
         #    J_ = 1. / self.pop.J
         #    return J_ * (
@@ -96,7 +94,7 @@ class MFSource(object):
             I=self.current_name,
             g=self.params[SP.GM],
             ve=self.params[SP.VE],
-            tau=self.params[SP.TAU_M]
+            tau=self.params[SP.TAU]
         )
 
         # TODO store post-corresponding var s_{}
@@ -113,7 +111,7 @@ class MFStaticSource(MFSource):
 
     @check_units(result=1)
     def g_dyn(self):
-        return self.rate * self.n * self.params[SP.TAU_M]
+        return self.rate * self.n * self.params[SP.TAU]
 
     @lazy
     def brian2(self):
@@ -139,7 +137,7 @@ class MFDynamicSource(MFSource):
 
     @check_units(result=1)
     def g_dyn(self):
-        activation = self.synapse(self.from_pop.rate) if self.synapse else self.from_pop.rate * self.params[SP.TAU_M]
+        activation = self.synapse(self.from_pop.rate) if self.synapse else self.from_pop.rate * self.params[SP.TAU]
         return self.from_pop.n * activation * self.params[SP.W]
 
     @lazy

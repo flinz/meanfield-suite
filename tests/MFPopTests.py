@@ -22,7 +22,7 @@ params_pop = {
 params_source = {
     SP.GM: 0 * siemens,
     SP.VE: 0 * volt,
-    SP.TAU_M: 10 * ms,
+    SP.TAU: 10 * ms,
 }
 
 class MFPopTests(unittest.TestCase):

@@ -13,18 +13,12 @@ from MFState import MFState
 def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
     """Simple gradient descent along the error."""
 
-    print('__')
-    print(p_0)
-
     t = 0.
     state = np.array(p_0)
     states = [state]
 
     while t < tmax:
-        print(mfstate(state))
         state -= [dt * v for v in mfstate(state)]
-        print(state)
-        print('_')
         t += dt
         states.append(list(state))
 
@@ -102,7 +96,7 @@ class MFSolver(object):
             # solve
             if self.solver == "gradient":  # own implementation
                 sol = gradient_solver(self.mfstate, p_0)
-                abs_err = max(abs(sol.fun))
+                abs_err = max(np.abs(sol.fun))
             elif self.solver == "mse":
                 sq = lambda y: np.sum(np.array(y) ** 2)
                 f = lambda x: self.mfstate(x, fun=sq)
@@ -168,7 +162,7 @@ class MFSolverRatesVoltages(MFSolver):
                         "%s-%s" % (p.name, "v_mean"),
                         partial(lambda x: x.v_mean, p),
                         partial(lambda x, val: setattr(x, "v_mean", val), p),
-                        partial(lambda x: x.v_mean-x.v_mean_prediction, p),
+                        partial(lambda x: x.v_mean - x.v_mean_prediction, p),
                         -80. * units.mV, 50. * units.mV
                     )
                 )

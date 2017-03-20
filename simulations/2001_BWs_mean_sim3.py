@@ -118,21 +118,21 @@ def mean():
     source_e_noise1 = MFStaticSource("E_noise1", pop_e1, {
         SP.GM: g_AMPA_ext_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_AMPA
+        SP.TAU: tau_AMPA
     }, rate, C_ext)
     pop_e1.noise = source_e_noise1
 
     source_e_noise2 = MFStaticSource("E_noise2", pop_e2, {
         SP.GM: g_AMPA_ext_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_AMPA
+        SP.TAU: tau_AMPA
     }, rate, C_ext)
     pop_e2.noise = source_e_noise2
 
     source_i_noise = MFStaticSource("I_noise", pop_i, {
         SP.GM: g_AMPA_ext_I,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_AMPA
+        SP.TAU: tau_AMPA
     }, rate, C_ext)
     pop_i.noise = source_i_noise
 
@@ -140,7 +140,7 @@ def mean():
     source_ee_nmda11 = MFDynamicSource('EE NMDA 11', pop_e1, {
         SP.GM: g_NMDA_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_NMDA_decay,
+        SP.TAU: tau_NMDA_decay,
         SP.W: w_plus,
         SP.FRAC: f
     }, from_pop=pop_e1)
@@ -149,7 +149,7 @@ def mean():
     source_ee_nmda12 = MFDynamicSource('EE NMDA 12', pop_e1, {
         SP.GM: g_NMDA_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_NMDA_decay,
+        SP.TAU: tau_NMDA_decay,
         SP.W: w_minus,
         SP.FRAC: 1 - f
     }, from_pop=pop_e2)
@@ -159,7 +159,7 @@ def mean():
     source_ee_nmda21 = MFDynamicSource('EE NMDA 21', pop_e2, {
         SP.GM: g_NMDA_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_NMDA_decay,
+        SP.TAU: tau_NMDA_decay,
         SP.W: w_minus,
         SP.FRAC: f
     }, from_pop=pop_e1)
@@ -168,7 +168,7 @@ def mean():
     source_ee_nmda22 = MFDynamicSource('EE NMDA 22', pop_e2, {
         SP.GM: g_NMDA_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_NMDA_decay,
+        SP.TAU: tau_NMDA_decay,
         SP.W: w_plus,
         SP.FRAC: 1 - f
     }, from_pop=pop_e2)
@@ -178,7 +178,7 @@ def mean():
     source_ee_ampa11 = MFDynamicSource('EE AMPA 11', pop_e1, {
         SP.GM: g_AMPA_rec_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_AMPA,
+        SP.TAU: tau_AMPA,
         SP.W: w_plus,
         SP.FRAC: f
     }, from_pop=pop_e1)
@@ -187,7 +187,7 @@ def mean():
     source_ee_ampa12 = MFDynamicSource('EE AMPA 12', pop_e1, {
         SP.GM: g_AMPA_rec_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_AMPA,
+        SP.TAU: tau_AMPA,
         SP.W: w_minus,
         SP.FRAC: 1 - f
     }, from_pop=pop_e2)
@@ -197,14 +197,14 @@ def mean():
     source_ee_ampa21 = MFDynamicSource('EE AMPA 21', pop_e2, {
         SP.GM: g_AMPA_rec_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_AMPA,
+        SP.TAU: tau_AMPA,
         SP.W: w_minus,
         SP.FRAC: f
     }, from_pop=pop_e1)
     source_ee_ampa22 = MFDynamicSource('EE AMPA 22', pop_e2, {
         SP.GM: g_AMPA_rec_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_AMPA,
+        SP.TAU: tau_AMPA,
         SP.W: w_plus,
         SP.FRAC: 1 - f
     }, from_pop=pop_e2)
@@ -213,7 +213,7 @@ def mean():
     source_ie_nmda1 = MFDynamicSource('EI NMDA 1', pop_i, {
         SP.GM: g_NMDA_I,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_NMDA_decay,
+        SP.TAU: tau_NMDA_decay,
         SP.W: 1,
         SP.FRAC: f
     }, from_pop=pop_e1)
@@ -222,7 +222,7 @@ def mean():
     source_ie_nmda2 = MFDynamicSource('EI NMDA 2', pop_i, {
         SP.GM: g_NMDA_I,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_NMDA_decay,
+        SP.TAU: tau_NMDA_decay,
         SP.W: 1,
         SP.FRAC: 1 - f
     }, from_pop=pop_e2)
@@ -232,14 +232,14 @@ def mean():
     source_ie_ampa1 = MFDynamicSource('EI AMPA 1', pop_i, {
         SP.GM: g_AMPA_rec_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_AMPA,
+        SP.TAU: tau_AMPA,
         SP.W: 1,
         SP.FRAC: f
     }, from_pop=pop_e1)
     source_ie_ampa2 = MFDynamicSource('EI AMPA 2', pop_i, {
         SP.GM: g_AMPA_rec_E,
         SP.VE: 0. * mV,
-        SP.TAU_M: tau_AMPA,
+        SP.TAU: tau_AMPA,
         SP.W: 1,
         SP.FRAC: 1 - f
     }, from_pop=pop_e2)
@@ -248,7 +248,7 @@ def mean():
     source_ii_gaba = MFDynamicSource('II GABA', pop_i, {
         SP.GM: g_GABA_I,
         SP.VE: -70. * mV,
-        SP.TAU_M: tau_GABA,
+        SP.TAU: tau_GABA,
         SP.W: 1,
         SP.FRAC: 1
     }, from_pop=pop_i)
@@ -257,7 +257,7 @@ def mean():
     source_ie_gaba1 = MFDynamicSource('IE GABA 1', pop_e1, {
         SP.GM: g_GABA_E,
         SP.VE: -70. * mV,
-        SP.TAU_M: tau_GABA,
+        SP.TAU: tau_GABA,
         SP.W: 1,
         SP.FRAC: 1
     }, from_pop=pop_i)
@@ -265,7 +265,7 @@ def mean():
     source_ie_gaba2 = MFDynamicSource('IE GABA 2', pop_e2, {
         SP.GM: g_GABA_E,
         SP.VE: -70. * mV,
-        SP.TAU_M: tau_GABA,
+        SP.TAU: tau_GABA,
         SP.W: 1,
         SP.FRAC: 1
     }, from_pop=pop_i)

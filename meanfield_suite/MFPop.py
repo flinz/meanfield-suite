@@ -127,9 +127,6 @@ class MFLinearPop(MFPop):
         Gm * SE in [1]
         Units of S
         """
-        #for s in self.sources:
-        #    print(s,s.conductance)
-        #print(np.sum(s.conductance for s in self.sources))
         return self.params[NP.GM] + np.sum(s.conductance for s in self.sources)
 
     @property
@@ -138,10 +135,6 @@ class MFLinearPop(MFPop):
         """
         Seconds
         """
-        #print(self.params[NP.CM])
-        #print(self.total_cond)
-        #print('==')
-
         return self.params[NP.CM] / self.total_cond
 
     @property
@@ -186,6 +179,7 @@ class MFLinearPop(MFPop):
     @property
     @check_units(result=units.Hz)
     def rate_prediction(self):
+        print(self.phi_firing_func())
         return self.phi_firing_func()
 
     @property
