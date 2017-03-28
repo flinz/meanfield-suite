@@ -16,9 +16,9 @@ class MFSource(object):
         self.name = name
         self.ref = name2identifier(name)
         self.is_nmda = False
-        self.g_base = 0.  # [nS]
-        self.E_rev = 0.   # [mV] excitatory by default
-        self.noise_tau = 0.   # [mV] excitatory by default
+        self.g_base = 0. * units.siemens  # [nS]
+        self.E_rev = 0. * units.volt   # [mV] excitatory by default
+        self.noise_tau = 0. * units.volt   # [mV] excitatory by default
 
         defaults = {}
         expectations = {
@@ -44,29 +44,29 @@ class MFSource(object):
     @check_units(result=units.siemens)
     def conductance(self):
         tmp = self.g_dyn() * self.g_base
-        #if self.is_nmda:
-        #    J_ = 1./self.pop.J
-        #    return tmp * J_ * (
-        #        1. + (1.-J_) * self.pop.params[NP.BETA] * (self.pop.v_mean - self.E_rev)
-        #    )
+        if self.is_nmda:
+            J_ = 1./self.pop.J
+            return tmp * J_ * (
+                1. + (1.-J_) * self.pop.params[NP.BETA] * (self.pop.v_mean - self.E_rev)
+            )
         return tmp
 
     @property
     def voltage_conductance(self):
         cond = self.g_dyn() * self.g_base
         tmp = cond * (self.E_rev - self.pop.params[NP.VL])
-        #if self.is_nmda:
-        #    J_ = 1. / self.pop.J
-        #    return J_ * (
-        #        tmp + (1.-J_) * cond * self.pop.params[NP.BETA] * (self.pop.v_mean - self.E_rev) * (self.pop.v_mean - self.pop.params["E_L"])
-        #    )
+        if self.is_nmda:
+            J_ = 1. / self.pop.J
+            return J_ * (
+                tmp + (1.-J_) * cond * self.pop.params[NP.BETA] * (self.pop.v_mean - self.E_rev) * (self.pop.v_mean - self.pop.params[NP.VL])
+            )
         return tmp
 
     def print_sys(self):
-        print("%s: %f" % (self, self.conductance))
+        print("{}: {}".format(self, self.conductance))
 
     def __repr__(self):
-        return "MFSource [%s] <%s, nmda: %s, E_rev: %.1f>" % (id(self),self.name, self.is_nmda, self.E_rev)
+        return "MFSource [{}] <{}, nmda: {}, E_rev: {}>".format(id(self),self.name, self.is_nmda, self.E_rev)
 
     @abstractmethod
     def g_dyn(self):

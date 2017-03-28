@@ -277,6 +277,9 @@ def mean():
     print(pop_e2.brian2_model())
     print(pop_i.brian2_model())
 
+    # TODO integrate NMDA
+    # TODO
+
     net = Network()
     net.add(pop_e1.brian2)
     net.add(pop_e2.brian2)

@@ -20,7 +20,7 @@ params_standard = {
         'V_reset': -60. * mV,
         'tau_AMPA': 2. * ms,
         't_ref': 2. * ms,
-        'C_m': 500. * nF,
+        'C_m': 500. * pF,
         'g_L': 25. * nsiemens,
         'Cext': 1000,
         'nu_ext': 2.4 * Hz,
@@ -32,13 +32,13 @@ params_standard = {
         'gamma': 0.280112,
         'beta': 0.062,
         'VE': 0.,
-        'E_L': -70.,
+        'E_L': -70., # TODO INLINEd
         'VI': -70. * mV,
         'V_th': -50. * mV,
         'V_reset': -60. * mV,
         'tau_AMPA': 2. * ms,
         't_ref': 1. * ms,
-        'C_m': 200. * nF,
+        'C_m': 200. * pF,
         'g_L': 20. * nsiemens,
         'Cext': 1000,
         'nu_ext': 2.4 * Hz,
@@ -236,7 +236,7 @@ def setup_brunel99(w_plus_val=2.5):
 def setup_EI(has_nmda=False):
 
     # brunel 1999 system, one up state pop
-    initials = {'nu_e': .003 * Hz, 'nu_i': .009 * Hz}
+    initials = {'nu_e': 3 * Hz, 'nu_i': 9 * Hz}
 
     mult = 0.25
     if has_nmda:
@@ -262,7 +262,7 @@ def setup_EI(has_nmda=False):
     })
     #pop_i.n = 200
     pop_e.rate = initials['nu_e']
-    pop_e.v_mean = -51. * mV
+    pop_e.v_mean = -55. * mV
     pop_i.rate = initials['nu_i']
     pop_i.v_mean = -55. * mV
 
@@ -329,7 +329,7 @@ def setup_EI(has_nmda=False):
     syn_ii_gaba = Synapse(**syn_spec_gaba)
     source_ii_gaba = MFDynamicSource('II Gaba', pop_i, {
         SP.GM: params_standard['I']['gGABA'],
-        SP.VE: 0 * mV,
+        SP.VE: -70 * mV,
         SP.TAU: syn_spec_gaba['tau_syn_d1'],  # not sure
     }, from_pop=pop_i, synapse=syn_ii_gaba)
     #source_ii_gaba.g_base = params_standard['I']['gGABA']
@@ -340,7 +340,7 @@ def setup_EI(has_nmda=False):
     syn_ei_gaba = Synapse(**syn_spec_gaba)
     source_ei_gaba = MFDynamicSource('EI Gaba', pop_e, {
         SP.GM: params_standard['E']['gGABA'],
-        SP.VE: 0 * mV,
+        SP.VE: -70 * mV,
         SP.TAU: syn_spec_gaba['tau_syn_d1'],  # not sure
     }, from_pop=pop_i, synapse=syn_ei_gaba)
     #source_ei_gaba.g_base = params_standard['E']['gGABA']

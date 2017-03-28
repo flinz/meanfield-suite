@@ -37,7 +37,7 @@ class MFTestCase(unittest.TestCase):
     def testSigmaSquare(self):
         """Sigma square predictions equal old implementation"""
         sigma_square = [p.sigma_square for p in self.system.pops]
-        print(sigma_square)
+        print(sigma_square / (units.mV ** 2))
         sigma_square_brunel = np.array([4.8869461761143898, 5.1557159873625888, 10.003849121175195])
         diff = (sigma_square - sigma_square_brunel)
         #print(sigma_square)
@@ -171,6 +171,8 @@ class MFTestCase(unittest.TestCase):
 
         system = setup_EI()
 
+        system.print_sys()
+
         constraints = [
             MFConstraint(
                 "%s-%s" % (p.name, "gNMDA"),
@@ -184,15 +186,17 @@ class MFTestCase(unittest.TestCase):
                 "%s-%s" % (p.name, "v_mean"),
                 partial(lambda x: x.v_mean, p),
                 partial(lambda x, val: setattr(x, "v_mean", val), p),
-                partial(lambda x: x.v_mean-x.v_mean_prediction, p),
-                -80. * units.mV, 50. * units.mV
+                partial(lambda x: x.v_mean - x.v_mean_prediction, p),
+                -80. * units.mV, -50. * units.mV
             ) for p in system.pops
         ]
 
+        functions = [partial(lambda x: setattr(x, "v_mean", x.v_mean_prediction), p) for p in system.pops]
+
         print(constraints[0].error)
 
-        state = MFState(constraints)
-        solver = MFSolver(state, solver='gradient')
+        state = MFState(constraints, bounds_check=True)
+        solver = MFSolver(state, solver='hybr')
         solver.run()
 
         for p in system.pops:
