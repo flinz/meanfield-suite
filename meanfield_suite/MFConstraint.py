@@ -20,7 +20,6 @@ class MFConstraint(object):
 
     @property
     def error(self):
-        print(self, self.free_get(), self.error_fun())
         return self.error_fun()
 
     def __repr__(self):

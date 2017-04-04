@@ -29,7 +29,7 @@ class MFTestCase(unittest.TestCase):
         print(mus)
         #mus_brunel = [18.868912317468116, 16.462020986464438, 16.524683021279241] # NMDA
         #mus_brunel = [41.174904,  36.042538,  36.576346]
-        mus_brunel = [0.041175,  0.036043,  0.036576] # TODO ORDER
+        mus_brunel = [0.041175,  0.036043,  0.036576]
         #diff = (mus - mus_brunel)
         #assert all(diff < 1e-8), "Values not equal: %s" % diff
         np.testing.assert_array_almost_equal(mus, mus_brunel)
@@ -171,8 +171,6 @@ class MFTestCase(unittest.TestCase):
 
         system = setup_EI()
 
-        system.print_sys()
-
         constraints = [
             MFConstraint(
                 "%s-%s" % (p.name, "gNMDA"),
@@ -191,26 +189,22 @@ class MFTestCase(unittest.TestCase):
             ) for p in system.pops
         ]
 
-        functions = [partial(lambda x: setattr(x, "v_mean", x.v_mean_prediction), p) for p in system.pops]
-
-        print(constraints[0].error)
-
         state = MFState(constraints, bounds_check=True)
         solver = MFSolver(state, solver='hybr')
         solver.run()
 
         for p in system.pops:
-            print(p.rate_prediction)
-            print(p.rate)
             assert p.rate_prediction.has_same_dimensions(p.rate)
-            assert np.isclose(np.array(p.rate_prediction), np.array(p.rate)), "{} != {}".format(p.rate_prediction, p.rate)
-            #np.testing.assert_almost_equal(p.rate_prediction, p.rate_hz, 5)
+            np.testing.assert_almost_equal(np.array(p.rate_prediction), np.array(p.rate))
 
     def testConductanceMinimizationRatio(self):
         """Solve for NMDA & Gaba conductances with constrained firing rates & EI fixed ratio"""
 
+        print('start', flush=True)
         system = setup_EI()
         ratio = 4.
+
+        print('setup', flush=True)
 
         def e_setter(p, val):
             setattr(p.sources[1], "g_base", val)
@@ -234,12 +228,16 @@ class MFTestCase(unittest.TestCase):
             ) for p in system.pops
         ]
 
+        print('state', flush=True)
         state = MFState(constraints)
+        print('solve', flush=True)
+
         solver = MFSolver(state)
         solver.run()
 
         for p in system.pops:
-            np.testing.assert_almost_equal(p.rate_prediction, p.rate)
+            assert p.rate_prediction.has_same_dimensions(p.rate)
+            np.testing.assert_almost_equal(np.array(p.rate_prediction), np.array(p.rate))
             assert p.sources[1].g_base == p.sources[1].g_base
 
 

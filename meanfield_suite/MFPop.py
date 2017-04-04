@@ -1,4 +1,4 @@
-from abc import abstractproperty
+from abc import abstractproperty, abstractmethod
 from math import erf
 
 import numpy as np
@@ -7,7 +7,7 @@ from scipy.integrate import quad
 
 from MFParams import MFParams
 from Utils import lazy
-from params import NP
+from params import NP, SP
 
 
 class MFPop(object):
@@ -22,7 +22,6 @@ class MFPop(object):
         # base estimation
         self._rate = 0. * units.Hz
         self._v_mean = -60. * units.mV
-        # TODO : set units ?
 
     def add_noise(self, noise):
         self.noise = noise
@@ -50,11 +49,13 @@ class MFPop(object):
     def v_mean(self, value):
         self._v_mean = value
 
-    @abstractproperty
+    @abstractmethod
+    @property
     def rate_prediction(self):
         pass
 
-    @abstractproperty
+    @abstractmethod
+    @property
     def v_mean_prediction(self):
         pass
 
@@ -75,7 +76,6 @@ class MFLinearPop(MFPop):
             NP.TAU_RP: units.second
         }
 
-        self.params = MFParams(params)
         self.params.fill(defaults)
         self.params.verify(expectations)
 
@@ -100,7 +100,6 @@ class MFLinearPop(MFPop):
         return eqs
 
     def brian2_threshold(self):
-        # TODO weirdness
         return 'v > {} * mV'.format(self.params[NP.VTHR] / units.mV)
 
     def brian2_reset(self):
@@ -153,7 +152,7 @@ class MFLinearPop(MFPop):
         """
         if not self.noise:
             return 0. * units.volt
-        return (self.noise.g_base / self.params[NP.CM] * (self.v_mean - self.noise.E_rev)) ** 2 * self.tau_eff * self.noise.g_dyn() * self.noise.noise_tau
+        return (self.noise.g_base / self.params[NP.CM] * (self.v_mean - self.noise.param[SP.VE])) ** 2 * self.tau_eff * self.noise.g_dyn() * self.noise.params[SP.TAU]
 
     def phi_firing_func(self):
 
@@ -161,10 +160,10 @@ class MFLinearPop(MFPop):
         tau_eff = self.tau_eff
 
         beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma
-        alpha = -0.5 * self.noise.noise_tau / tau_eff \
-                + 1.03 * np.sqrt(self.noise.noise_tau / tau_eff) \
+        alpha = -0.5 * self.noise.params[SP.TAU] / tau_eff \
+                + 1.03 * np.sqrt(self.noise.params[SP.TAU] / tau_eff) \
                 + (-self.mu - self.params[NP.VL] + self.params[NP.VTHR]) * (
-                1. + (0.5 * self.noise.noise_tau / tau_eff)) / sigma
+                1. + (0.5 * self.noise.params[SP.TAU] / tau_eff)) / sigma
 
         def integrand(x):
             if x < -10.:
@@ -178,7 +177,6 @@ class MFLinearPop(MFPop):
     @property
     @check_units(result=units.Hz)
     def rate_prediction(self):
-        print(self.phi_firing_func())
         return self.phi_firing_func()
 
     @property
@@ -187,16 +185,40 @@ class MFLinearPop(MFPop):
         """
         Volt
         """
-        print('*', self.rate, self.tau_eff, self.mu)
-        print('>', self.params[NP.VL] + self.mu - (self.params[NP.VTHR] - self.params[NP.VRES]) * self.rate * self.tau_eff)
         return self.params[NP.VL] + self.mu - (self.params[NP.VTHR] - self.params[NP.VRES]) * self.rate * self.tau_eff
 
     def __repr__(self):
         return "MFpop [{}] <{} ({} sources, n: {}, rate: {}, v_mean: {})>".format(id(self), self.name, len(self.sources), self.n, self.rate, self.v_mean)
 
-    def print_sys(self, mf=False):
+    def print_sys(self):
         print("\t{} - tau_eff: {}, mu: {}, sig^2: {}, rate_pred: {}, v_mean_pred: {}".format(
             self, self.tau_eff, self.mu, self.sigma_square, self.rate_prediction, self.v_mean_prediction))
         for s in self.sources:
             print("\t\t", s.print_sys())
+
+
+class MFNonLinearPop(MFLinearPop):
+    """pop: similar neurons"""
+
+    def __init__(self, name, n, params):
+        super().__init__(name, n, params)
+
+        defaults = {}
+        expectations = {
+            NP.GAMMA: 1,
+            NP.BETA: 1,
+        }
+
+        self.params.fill(defaults)
+        self.params.verify(expectations)
+
+    @property
+    def has_nmda(self):
+        return any([s.is_nmda for s in self.sources])
+
+    @property
+    def J(self):
+        """Linearization factor for NMDA"""
+        return 1 + self.params[NP.GAMMA] * np.exp(-self.params[NP.BETA] * self.v_mean)
+
 

@@ -192,8 +192,6 @@ def mean():
         SP.FRAC: 1 - f
     }, from_pop=pop_e2)
 
-    # TODO : synaptic activation classes
-
     source_ee_ampa21 = MFDynamicSource('EE AMPA 21', pop_e2, {
         SP.GM: g_AMPA_rec_E,
         SP.VE: 0. * mV,
@@ -278,7 +276,6 @@ def mean():
     print(pop_i.brian2_model())
 
     # TODO integrate NMDA
-    # TODO
 
     net = Network()
     net.add(pop_e1.brian2)
