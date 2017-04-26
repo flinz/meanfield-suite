@@ -55,7 +55,7 @@ alpha = 0.5 / ms
 Mg2 = 1.
 
 # GABAergic (inhibitory)
-g_GABA_E = 1.25 * nS  * 200. / N_I
+g_GABA_E = 1.25 * nS * 200. / N_I
 g_GABA_I = 0.973 * nS * 200. / N_I
 tau_GABA = 10. * ms
 

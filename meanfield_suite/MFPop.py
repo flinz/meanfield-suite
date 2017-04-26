@@ -15,7 +15,7 @@ class MFPop(object):
     def __init__(self, name, n, params=None):
         self.name = name
         self.n = n
-        self.params = MFParams({}) if params is None else params
+        self.params = MFParams({}) if params is None else MFParams(params)
 
         self.sources = []
         self.noise = None
@@ -49,13 +49,15 @@ class MFPop(object):
     def v_mean(self, value):
         self._v_mean = value
 
-    @abstractmethod
-    @property
+    #@abstractmethod
+    #@property
+    @abstractproperty
     def rate_prediction(self):
         pass
 
-    @abstractmethod
-    @property
+    #@abstractmethod
+    #@property
+    @abstractproperty
     def v_mean_prediction(self):
         pass
 
@@ -152,7 +154,7 @@ class MFLinearPop(MFPop):
         """
         if not self.noise:
             return 0. * units.volt
-        return (self.noise.g_base / self.params[NP.CM] * (self.v_mean - self.noise.param[SP.VE])) ** 2 * self.tau_eff * self.noise.g_dyn() * self.noise.params[SP.TAU]
+        return (self.noise.g_base / self.params[NP.CM] * (self.v_mean - self.noise.params[SP.VE])) ** 2 * self.tau_eff * self.noise.g_dyn() * self.noise.params[SP.TAU]
 
     def phi_firing_func(self):
 

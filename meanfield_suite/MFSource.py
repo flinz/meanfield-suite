@@ -29,7 +29,7 @@ class MFSource(object):
         self.params.fill(defaults)
         self.params.verify(expectations)
 
-        self.g_base = params[SP.GM]  # TODO : parameterize, solve for ?
+        self.g_base = params[SP.GM]  # TODO : parameterize, solve for ? => general setter checking for units
 
         # link to pop
         self.pop = pop
@@ -159,12 +159,11 @@ class MFNMDASource(MFDynamicSource):
     def g_dyn(self):
         activation = self.synapse(self.from_pop.rate) if self.synapse else self.from_pop.rate * self.params[SP.TAU]
         return self.from_pop.n * activation * self.params[SP.W]
-        # TODO : SAME ?
 
     def brian2_model(self):
         return Equations(
             '''
-            I = g * (v - ve) / (1 + exp(-0.062 * v) / 3.57) * s_post : amp
+            I = g * (v - ve) / (1 + gamma * exp(- beta * v) ) * s_post : amp
             s_post: 1
             ''',
             s_post=self.post_variable_name + '_post',
@@ -173,11 +172,11 @@ class MFNMDASource(MFDynamicSource):
             ve=self.params[SP.VE]
         )
     # TODO parameterize, / mV
+    # Beta 1 / mV
 
     @property
     def post_nonlinear_name(self):
         return 'x_' + self.ref
-    # TODO name
 
     @lazy
     def brian2(self, mode='i != j'):
@@ -194,7 +193,7 @@ class MFNMDASource(MFDynamicSource):
             x=self.post_nonlinear_name,
             tau_decay=self.params[SP.TAU_NMDA],
             tau_rise=self.params[SP.TAU_NMDA_RISE],
-            alpha=self.params[SP.ALPHA], # TODO ALPHA ?
+            alpha=self.params[SP.ALPHA], # TODO ALPHA ? 1 / ms
         )
         eqs_pre = '''
         {} += 1

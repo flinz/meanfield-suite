@@ -232,7 +232,7 @@ class MFTestCase(unittest.TestCase):
         state = MFState(constraints)
         print('solve', flush=True)
 
-        solver = MFSolver(state)
+        solver = MFSolver(state, solver='gradient')
         solver.run()
 
         for p in system.pops:

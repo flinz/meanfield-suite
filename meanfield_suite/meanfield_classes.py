@@ -14,8 +14,7 @@ params_standard = {
         'gamma': 0.280112,
         'beta': 0.062,
         'VE': 0.,
-        'E_L': -70.,
-        'VI': -70. * mV,
+        'V_L': -70. * mV,
         'V_th': -50. * mV,
         'V_reset': -60. * mV,
         'tau_AMPA': 2. * ms,
@@ -32,8 +31,7 @@ params_standard = {
         'gamma': 0.280112,
         'beta': 0.062,
         'VE': 0.,
-        'E_L': -70., # TODO INLINEd
-        'VI': -70. * mV,
+        'V_L': -70. * mV,
         'V_th': -50. * mV,
         'V_reset': -60. * mV,
         'tau_AMPA': 2. * ms,
@@ -60,7 +58,7 @@ def setup_brunel99(w_plus_val=2.5):
     system = MFSystem('Brunel')
     pop_e1 = MFLinearPop('Eup', 800 * ff , {
         NP.GM: params_standard['E']['g_L'],
-        NP.VL: params_standard['E']['VI'],
+        NP.VL: params_standard['E']['V_L'],
         NP.CM: params_standard['E']['C_m'],
         NP.VTHR: params_standard['E']['V_th'],
         NP.VRES: params_standard['E']['V_reset'],
@@ -69,7 +67,7 @@ def setup_brunel99(w_plus_val=2.5):
     #pop_e1.n = 800
     pop_e2 = MFLinearPop('Edown', 800 * (1. - ff), {
         NP.GM: params_standard['E']['g_L'],
-        NP.VL: params_standard['E']['VI'],
+        NP.VL: params_standard['E']['V_L'],
         NP.CM: params_standard['E']['C_m'],
         NP.VTHR: params_standard['E']['V_th'],
         NP.VRES: params_standard['E']['V_reset'],
@@ -78,7 +76,7 @@ def setup_brunel99(w_plus_val=2.5):
     #pop_e2.n = 800
     pop_i = MFLinearPop('I', 200, {
         NP.GM: params_standard['I']['g_L'],
-        NP.VL: params_standard['I']['VI'],
+        NP.VL: params_standard['I']['V_L'],
         NP.CM: params_standard['I']['C_m'],
         NP.VTHR: params_standard['I']['V_th'],
         NP.VRES: params_standard['I']['V_reset'],
@@ -245,7 +243,7 @@ def setup_EI(has_nmda=False):
     system = MFSystem('EI')
     pop_e = MFLinearPop('E', 800, {
         NP.GM: params_standard['E']['g_L'],
-        NP.VL: params_standard['E']['VI'],
+        NP.VL: params_standard['E']['V_L'],
         NP.CM: params_standard['E']['C_m'],
         NP.VTHR: params_standard['E']['V_th'],
         NP.VRES: params_standard['E']['V_reset'],
@@ -254,7 +252,7 @@ def setup_EI(has_nmda=False):
     #pop_e.n = 800
     pop_i = MFLinearPop('I', 200, {
         NP.GM: params_standard['I']['g_L'],
-        NP.VL: params_standard['I']['VI'],
+        NP.VL: params_standard['I']['V_L'],
         NP.CM: params_standard['I']['C_m'],
         NP.VTHR: params_standard['I']['V_th'],
         NP.VRES: params_standard['I']['V_reset'],
