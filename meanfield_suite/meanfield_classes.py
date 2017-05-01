@@ -19,7 +19,7 @@ params_standard = {
         'V_reset': -60. * mV,
         'tau_AMPA': 2. * ms,
         't_ref': 2. * ms,
-        'C_m': 500. * pF,
+        'C_m': 500. * pF, ## FIXME
         'g_L': 25. * nsiemens,
         'Cext': 1000,
         'nu_ext': 2.4 * Hz,

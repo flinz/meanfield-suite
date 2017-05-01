@@ -17,7 +17,7 @@ class MFTestCase(unittest.TestCase):
 
     def testTaus(self):
         """Effective timeconstants equal old implementation"""
-        taus = [p.tau_eff for p in self.system.pops]
+        taus = [p.tau_eff / units.ms for p in self.system.pops]
         #taus_brunel = [11.309393346834508, 10.259016117146679, 5.2504978292166333] # NMDA
         taus_brunel = [4.334601,  5.106385,  2.545614]
         np.testing.assert_array_almost_equal(taus, taus_brunel)
@@ -30,21 +30,13 @@ class MFTestCase(unittest.TestCase):
         #mus_brunel = [18.868912317468116, 16.462020986464438, 16.524683021279241] # NMDA
         #mus_brunel = [41.174904,  36.042538,  36.576346]
         mus_brunel = [0.041175,  0.036043,  0.036576]
-        #diff = (mus - mus_brunel)
-        #assert all(diff < 1e-8), "Values not equal: %s" % diff
         np.testing.assert_array_almost_equal(mus, mus_brunel)
 
     def testSigmaSquare(self):
         """Sigma square predictions equal old implementation"""
-        sigma_square = [p.sigma_square for p in self.system.pops]
-        print(sigma_square / (units.mV ** 2))
-        sigma_square_brunel = np.array([4.8869461761143898, 5.1557159873625888, 10.003849121175195])
-        diff = (sigma_square - sigma_square_brunel)
-        #print(sigma_square)
-        #print(sigma_square_brunel)
-        #print(diff)
-        #print(diff < 1e-8)
-        #assert all(diff < 1e-8), "Values not equal: %s" % diff
+        sigma_square = [p.sigma_square / (units.mV) ** 2 for p in self.system.pops]
+        #sigma_square_brunel = np.array([4.8869461761143898, 5.1557159873625888, 10.003849121175195]) # NMDA
+        sigma_square_brunel = [1.873041,  2.566238,  4.850195]
         np.testing.assert_array_almost_equal(sigma_square, sigma_square_brunel)
 
     def testFiringRate(self):
@@ -113,7 +105,7 @@ class MFTestCase(unittest.TestCase):
 
         # take old implementation and compare
         state = self.testMFState()
-        solver = MFSolver(state, solver='mse')
+        solver = MFSolver(state, solver='gradient')
         r2 = solver.run()
 
         for key in r1.names:

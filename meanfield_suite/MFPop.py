@@ -49,14 +49,14 @@ class MFPop(object):
     def v_mean(self, value):
         self._v_mean = value
 
-    #@abstractmethod
     #@property
+    #@abstractmethod
     @abstractproperty
     def rate_prediction(self):
         pass
 
-    #@abstractmethod
     #@property
+    #@abstractmethod
     @abstractproperty
     def v_mean_prediction(self):
         pass
@@ -136,6 +136,8 @@ class MFLinearPop(MFPop):
         """
         Seconds
         """
+        print(self.params[NP.CM])
+        print(self.total_cond)
         return self.params[NP.CM] / self.total_cond
 
     @property
@@ -158,6 +160,7 @@ class MFLinearPop(MFPop):
 
     def phi_firing_func(self):
 
+        print(self.sigma_square)
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
 
@@ -213,10 +216,6 @@ class MFNonLinearPop(MFLinearPop):
 
         self.params.fill(defaults)
         self.params.verify(expectations)
-
-    @property
-    def has_nmda(self):
-        return any([s.is_nmda for s in self.sources])
 
     @property
     def J(self):

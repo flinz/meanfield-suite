@@ -17,8 +17,10 @@ def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
     state = np.array(p_0)
     states = [state]
 
+    print("GRADIENT SOLVER START", flush=True)
     while t < tmax:
         state -= [dt * v for v in mfstate(state)]
+        #print(state)
         t += dt
         states.append(list(state))
 
@@ -155,6 +157,7 @@ class MFSolverRatesVoltages(MFSolver):
                 )
             )
 
+            # def any([s.is_nmda for s in p.sources])
             if False:#p.has_nmda or force_nmda:
                 print("Population %s has NMDA -> solving for voltages" % p.name)
                 constraints.append(
@@ -170,6 +173,9 @@ class MFSolverRatesVoltages(MFSolver):
                 functions.append(
                     partial(lambda x: setattr(x, "v_mean", x.v_mean_prediction), p),
                 )
+
+        print(constraints)
+        print(functions)
 
         state = MFState(constraints, dependent_functions=functions)
         super(MFSolverRatesVoltages, self).__init__(state, *args, **kwargs)
