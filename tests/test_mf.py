@@ -3,10 +3,10 @@ from functools import partial
 
 import numpy as np
 from brian2 import units
+from meanfield_suite.MFConstraint import MFConstraint
 
 from MFSolver import MFSolver, MFSolverRatesVoltages
 from MFState import MFState
-from meanfield_suite.MFConstraint import MFConstraint
 from meanfield_suite.meanfield_classes import setup_brunel99, setup_EI
 
 

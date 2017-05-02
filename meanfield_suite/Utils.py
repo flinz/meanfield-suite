@@ -1,6 +1,8 @@
 
+
 def name2identifier(name):
     return name.replace(' ', '_')
+
 
 def lazy(f):
     attr = '_lazy_' + f.__name__
@@ -11,6 +13,4 @@ def lazy(f):
             setattr(self, attr, f(self))
         return getattr(self, attr)
     return wrapper
-
-
 

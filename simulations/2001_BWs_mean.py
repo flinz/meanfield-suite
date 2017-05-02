@@ -1,5 +1,5 @@
 from MFPop import MFOldPop
-from MFSolver import MFSolver, MFSolverRatesVoltages
+from MFSolver import MFSolverRatesVoltages
 from MFSource import MFSource
 from MFSystem import MFSystem
 

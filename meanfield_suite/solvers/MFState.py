@@ -3,6 +3,7 @@ from brian2 import Quantity
 
 import OutOfBoundsError
 
+
 class MFState(object):
 
     def __init__(self, constraints, dependent_functions=None, bounds_check=False, bounds_correct=False, bounds_escalate=True, bounds_interrupt=False):

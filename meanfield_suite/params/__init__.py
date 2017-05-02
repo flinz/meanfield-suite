@@ -1,4 +1,5 @@
-from .NeuronParameters import NeuronParameters, SynapseParameters
+from SynapseParameters import SynapseParameters
+from PopulationParameters import PopulationParameters
 
-NP = NeuronParameters
+NP = PopulationParameters
 SP = SynapseParameters

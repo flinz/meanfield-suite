@@ -1,12 +1,9 @@
-from brian2 import units
-
-from MFParams import MFParams
-from MFPop import MFLinearPop
-from MFSolver import MFSolver, MFSolverRatesVoltages
-from MFSource import MFSource, MFDynamicSource, MFStaticSource
-from MFSystem import MFSystem
 from brian2 import *
 
+from MFPop import MFLinearPop
+from MFSolver import MFSolverRatesVoltages
+from MFSource import MFDynamicSource, MFStaticSource
+from MFSystem import MFSystem
 from params import NP, SP
 
 BrianLogger.log_level_debug()

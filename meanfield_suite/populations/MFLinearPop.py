@@ -1,65 +1,12 @@
-from abc import abstractproperty, abstractmethod
 from math import erf
 
 import numpy as np
 from brian2 import units, Equations, NeuronGroup, check_units
 from scipy.integrate import quad
 
-from MFParams import MFParams
+from MFPop import MFPop
 from Utils import lazy
 from params import NP, SP
-
-
-class MFPop(object):
-
-    def __init__(self, name, n, params=None):
-        self.name = name
-        self.n = n
-        self.params = MFParams({}) if params is None else MFParams(params)
-
-        self.sources = []
-        self.noise = None
-        # base estimation
-        self._rate = 0. * units.Hz
-        self._v_mean = -60. * units.mV
-
-    def add_noise(self, noise):
-        self.noise = noise
-
-    def add_source(self, source):
-        self.sources.append(source)
-
-    @property
-    @check_units(result=units.Hz)
-    def rate(self):
-        return self._rate
-
-    @rate.setter
-    @check_units(value=units.Hz)
-    def rate(self, value):
-        self._rate = value
-
-    @property
-    @check_units(result=units.volt)
-    def v_mean(self):
-        return self._v_mean
-
-    @v_mean.setter
-    @check_units(value=units.volt)
-    def v_mean(self, value):
-        self._v_mean = value
-
-    #@property
-    #@abstractmethod
-    @abstractproperty
-    def rate_prediction(self):
-        pass
-
-    #@property
-    #@abstractmethod
-    @abstractproperty
-    def v_mean_prediction(self):
-        pass
 
 
 class MFLinearPop(MFPop):
@@ -168,7 +115,7 @@ class MFLinearPop(MFPop):
         alpha = -0.5 * self.noise.params[SP.TAU] / tau_eff \
                 + 1.03 * np.sqrt(self.noise.params[SP.TAU] / tau_eff) \
                 + (-self.mu - self.params[NP.VL] + self.params[NP.VTHR]) * (
-                1. + (0.5 * self.noise.params[SP.TAU] / tau_eff)) / sigma
+            1. + (0.5 * self.noise.params[SP.TAU] / tau_eff)) / sigma
 
         def integrand(x):
             if x < -10.:
@@ -200,26 +147,4 @@ class MFLinearPop(MFPop):
             self, self.tau_eff, self.mu, self.sigma_square, self.rate_prediction, self.v_mean_prediction))
         for s in self.sources:
             print("\t\t", s.print_sys())
-
-
-class MFNonLinearPop(MFLinearPop):
-    """pop: similar neurons"""
-
-    def __init__(self, name, n, params):
-        super().__init__(name, n, params)
-
-        defaults = {}
-        expectations = {
-            NP.GAMMA: 1,
-            NP.BETA: 1,
-        }
-
-        self.params.fill(defaults)
-        self.params.verify(expectations)
-
-    @property
-    def J(self):
-        """Linearization factor for NMDA"""
-        return 1 + self.params[NP.GAMMA] * np.exp(-self.params[NP.BETA] * self.v_mean)
-
 

@@ -1,9 +1,11 @@
+from brian2 import *
+
 from MFParams import MFParams
-from MFPop import MFOldPop, MFLinearPop
-from MFSolver import MFSolver, MFSolverRatesVoltages
+from MFPop import MFLinearPop
+from MFSolver import MFSolverRatesVoltages
 from MFSource import MFSource
 from MFSystem import MFSystem
-from brian2 import *
+
 BrianLogger.log_level_debug()
 
 # neurons
