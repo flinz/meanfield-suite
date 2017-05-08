@@ -1,7 +1,9 @@
 
 class SourcesParameters(object):
-    GAMMA = 'gamma'
+    ALPHA = 'alpha'
     BETA = 'beta'
+    GAMMA = 'gamma'
+
     VE = 'VE'
     VL = 'VL'
     VREV = 'Vrev'

@@ -1,6 +1,6 @@
 from brian2 import Equations, Synapses, check_units
 
-from MFNMDALinearSource import MFNMDALinearSource
+from MFLinearNMDASource import MFNMDALinearSource
 from MFSource import MFSource
 from Utils import lazy
 from params import SP
