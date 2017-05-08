@@ -15,7 +15,8 @@ class MFLinearPop(MFPop):
     def __init__(self, name, n, params):
         super().__init__(name, n, params)
 
-        defaults = {}
+        defaults = {
+        }
         expectations = {
             NP.GM: units.siemens,
             NP.VL: units.volt,
@@ -138,6 +139,7 @@ class MFLinearPop(MFPop):
         Volt
         """
         return self.params[NP.VL] + self.mu - (self.params[NP.VTHR] - self.params[NP.VRES]) * self.rate * self.tau_eff
+
 
     def __repr__(self):
         return "MFpop [{}] <{} ({} sources, n: {}, rate: {}, v_mean: {})>".format(id(self), self.name, len(self.sources), self.n, self.rate, self.v_mean)

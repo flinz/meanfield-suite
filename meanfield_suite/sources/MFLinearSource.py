@@ -2,29 +2,26 @@ from brian2 import check_units, Equations, Synapses
 
 from MFSource import MFSource
 from Utils import lazy
+from params import SP
 
 
-class MFDynamicSource(MFSource):
+class MFLinearSource(MFSource):
 
-    def __init__(self, name, pop, params, from_pop, synapse=None):
+    def __init__(self, name, pop, params, from_pop):
         super().__init__(name, pop, params)
         self.from_pop = from_pop
-        self.synapse = synapse
         defaults = {
             SP.W: 1.,
-            SP.FRAC: 1.
         }
         expectations = {
-            SP.W: 1., # unitless
-            SP.FRAC: 1.
+            SP.W: 1.,
         }
         self.params.fill(defaults)
         self.params.verify(expectations)
 
     @check_units(result=1)
     def g_dyn(self):
-        activation = self.synapse(self.from_pop.rate) if self.synapse else self.from_pop.rate * self.params[SP.TAU]
-        return self.from_pop.n * activation * self.params[SP.W]
+        return self.from_pop.n * self.from_pop.rate * self.params[SP.TAU] * self.params[SP.W]
 
     @lazy
     def brian2(self, mode='i != j'):
@@ -36,6 +33,21 @@ class MFDynamicSource(MFSource):
         C.connect(mode)
         C.w[:] = 1
         return C
+
+    def brian2_model(self):
+        return Equations(
+            ## FIXME split current outside and s also
+            '''
+            I = g * (v - vrev) * s : amp
+            ds / dt = - s / tau : 1
+            ''',
+            s=self.post_variable_name,
+            I=self.current_name,
+            g=self.params[SP.GM],
+            vrev=self.params[SP.VREV],
+            tau=self.params[SP.TAU]
+        )
+
 
     def __repr__(self):
         return "MFSource [{}] <{}, nmda: {}, E_rev: {}>".format(id(self), self.name, self.is_nmda, self.params[SP.VE])

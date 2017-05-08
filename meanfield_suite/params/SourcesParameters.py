@@ -1,9 +1,10 @@
 
-class SynapseParameters(object):
+class SourcesParameters(object):
     GAMMA = 'gamma'
     BETA = 'beta'
     VE = 'VE'
     VL = 'VL'
+    VREV = 'Vrev'
     VI = 'VI'
     VTHR = 'Vthr'
     VRES = 'Vres'

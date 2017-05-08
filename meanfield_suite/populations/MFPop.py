@@ -1,13 +1,8 @@
-from abc import abstractproperty, abstractmethod
-from math import erf
+from abc import abstractproperty
 
-import numpy as np
-from brian2 import units, Equations, NeuronGroup, check_units
-from scipy.integrate import quad
+from brian2 import units, check_units
 
 from MFParams import MFParams
-from Utils import lazy
-from params import NP, SP
 
 
 class MFPop(object):

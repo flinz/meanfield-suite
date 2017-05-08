@@ -1,5 +1,5 @@
-from SynapseParameters import SynapseParameters
+from SourcesParameters import SourcesParameters
 from PopulationParameters import PopulationParameters
 
 NP = PopulationParameters
-SP = SynapseParameters
+SP = SourcesParameters

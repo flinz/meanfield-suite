@@ -20,7 +20,7 @@ class MFSource(object):
         defaults = {}
         expectations = {
             SP.GM: units.siemens,
-            SP.VE: units.volt,
+            SP.VREV: units.volt,
             SP.TAU: units.second,
         }
 
@@ -41,15 +41,14 @@ class MFSource(object):
 
     @property
     def voltage_conductance(self):
-        cond = self.g_dyn() * self.g_base
-        return cond * (self.params[SP.VE] - self.pop.params[NP.VL])
+        return self.conductance * (self.params[SP.VREV] - self.pop.params[NP.VL])
 
 
     def print_sys(self):
         print("{}: {}".format(self, self.conductance))
 
     def __repr__(self):
-        return "MFSource [{}] <{}, nmda: {}, E_rev: {}>".format(id(self), self.name, self.is_nmda, self.params[SP.VE])
+        return "MFSource [{}] <{}, nmda: {}, E_rev: {}>".format(id(self), self.name, self.is_nmda, self.params[SP.VREV])
 
     @abstractmethod
     def g_dyn(self):
@@ -67,15 +66,7 @@ class MFSource(object):
     def post_variable_name(self):
         return 's_' + self.ref
 
+    @abstractmethod
     def brian2_model(self):
-        return Equations(
-            '''
-            I = g * (v - ve) * s : amp
-            ds / dt = - s / tau : 1
-            ''',
-            s=self.post_variable_name,
-            I=self.current_name,
-            g=self.params[SP.GM],
-            ve=self.params[SP.VE],
-            tau=self.params[SP.TAU]
-        )
+        pass
+
