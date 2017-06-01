@@ -26,9 +26,10 @@ class MFLinearSource(MFSource):
         return self.from_pop.n * self.from_pop.rate * self.params[SP.TAU] * self.params[SP.W]
 
     @lazy
-    def b2_syn(self, mode='i != j', method='euler'):
+    def b2_syn(self, mode='i != j', method='euler', weight=1):
         model = Equations('w : 1')
         on_pre = '{} += w'.format(self.post_variable_name)
+        print(self.from_pop)
         syn = Synapses(
             source=self.from_pop.brian2,
             target=self.pop.brian2,
@@ -37,5 +38,5 @@ class MFLinearSource(MFSource):
             on_pre=on_pre
         )
         syn.connect(mode)
-        syn.w[:] = 1 # TODO configure weight
+        syn.w[:] = weight
         return syn

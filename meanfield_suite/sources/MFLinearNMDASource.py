@@ -59,9 +59,3 @@ class MFNMDALinearSource(MFLinearSource):
             beta=self.params[SP.BETA] / units.mV,
         )
 
-        # simulate poisson spike train (100 neurons) connect all with same source, record s (should be linear function of input), 10 rates * 10 reps
-        # s = tau * nu
-
-        ## s ~= g_dyn (theory)
-        # TTS different slope but still linear
-

@@ -1,4 +1,4 @@
-from brian2 import units, check_units
+from brian2 import units, check_units, PoissonInput
 
 from MFSource import MFSource
 from Utils import lazy
@@ -20,7 +20,4 @@ class MFStaticSource(MFSource):
 
     @lazy
     def b2_syn(self):
-        # TODO add PoissonInput
-        return None
-
-
+        return PoissonInput(self.pop, self.post_variable_name, self.n, self.rate, 1)

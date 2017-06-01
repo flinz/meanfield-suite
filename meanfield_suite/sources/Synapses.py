@@ -37,9 +37,9 @@ class Synapse(object):
     def taus(self):
         return [
             self.balance * self.tau_syn_d1,
-            (1.-self.balance) * self.tau_syn_d2,
+            (1. - self.balance) * self.tau_syn_d2,
             - self.balance * self.tau_syn_d1 * self.tau_syn_rise / (self.tau_syn_d1 + self.tau_syn_rise),
-            - (1.-self.balance) * self.tau_syn_d2 * self.tau_syn_rise / (self.tau_syn_d2 + self.tau_syn_rise)
+            - (1. - self.balance) * self.tau_syn_d2 * self.tau_syn_rise / (self.tau_syn_d2 + self.tau_syn_rise)
         ]
 
     def __call__(self, x):

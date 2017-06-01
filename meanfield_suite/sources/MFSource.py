@@ -10,7 +10,6 @@ from params import SP, NP
 class MFSource(object):
     """Source: a synapse coupled to pops"""
 
-    @check_units(pop=1)
     def __init__(self, name, pop, params):
 
         self.name = name
@@ -38,7 +37,7 @@ class MFSource(object):
         return self.g_dyn() * self.g_base
 
     @property
-    @check_units(result=units.volt)
+    @check_units(result=units.amp)
     def voltage_conductance(self):
         return self.conductance * (self.params[SP.VREV] - self.pop.params[NP.VL])
 
@@ -55,7 +54,6 @@ class MFSource(object):
         return 's_' + self.ref
 
     @abstractmethod
-    @lazy
     def b2_syn(self):
         """Builds lazily Brian2 synapse component once."""
         pass

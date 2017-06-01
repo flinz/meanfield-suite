@@ -39,7 +39,7 @@ class MFLinearPop(MFPop):
 
         total = []
         for i, s in enumerate(self.sources):
-            eqs += s.brian2_model()
+            eqs += s.b2_dyn()
             total.append(s.current_name)
 
         if len(total):
@@ -56,7 +56,8 @@ class MFLinearPop(MFPop):
         return 'v = {} * mV'.format(self.params[NP.VRES] / units.mV)
 
     @lazy
-    def brian2(self, method='euler'):
+    def brian2(self):
+        method = 'euler'
         P = NeuronGroup(
             self.n,
             self.brian2_model(),
@@ -84,8 +85,6 @@ class MFLinearPop(MFPop):
         """
         Seconds
         """
-        print(self.params[NP.CM])
-        print(self.total_cond)
         return self.params[NP.CM] / self.total_cond
 
     @property
@@ -94,7 +93,7 @@ class MFLinearPop(MFPop):
         """
         Volt
         """
-        return 1. / self.total_cond * np.sum(s.voltage_conductance for s in self.sources)
+        return np.sum(s.voltage_conductance for s in self.sources) / self.total_cond
 
     @property
     @check_units(result=units.volt ** 2)
@@ -103,19 +102,22 @@ class MFLinearPop(MFPop):
         Volt^2
         """
         if not self.noise:
-            return 0. * units.volt
+            return 0. * units.volt ** 2
         return (self.noise.g_base / self.params[NP.CM] * (self.v_mean - self.noise.params[SP.VE])) ** 2 * self.tau_eff * self.noise.g_dyn() * self.noise.params[SP.TAU]
 
+    @check_units(result=units.Hz)
     def phi_firing_func(self):
+        if not self.noise:
+            return 0 * units.Hz
+            # TODO : 0 here ?
 
-        print(self.sigma_square)
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
 
         beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma
         alpha = -0.5 * self.noise.params[SP.TAU] / tau_eff \
                 + 1.03 * np.sqrt(self.noise.params[SP.TAU] / tau_eff) \
-                + (-self.mu - self.params[NP.VL] + self.params[NP.VTHR]) * (
+                + (- self.mu - self.params[NP.VRES] + self.params[NP.VTHR]) * (
             1. + (0.5 * self.noise.params[SP.TAU] / tau_eff)) / sigma
 
         def integrand(x):
