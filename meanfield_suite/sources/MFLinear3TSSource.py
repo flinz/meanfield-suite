@@ -21,7 +21,6 @@ class MFTLinearTTSSource(MFLinearSource):
         self.params.verify(expectations)
 
     def g_dyn(self):
-        # TODO check dynamic
         taus = [
             self.params[SP.ALPHA] * self.params[SP.TAU_D1],
             (1. - self.params[SP.ALPHA]) * self.params[SP.TAU_D2],
@@ -69,10 +68,9 @@ class MFTLinearTTSSource(MFLinearSource):
         return self.post_variable_name + '_3'
 
     def b2_dyn(self):
-        # TODO forgot about that one
         return Equations(
             '''
-            I = g * ((v - vrev) * s1 + (1 - a) * s2 + v * s3) : amp
+            I = g * (v - vrev) * (1 - s1) * (a * s2 + (1 - a) * s3) : amp
             ds1 / dt = - s1 / tau1 : 1
             ds2 / dt = - s2 / tau2 : 1
             ds3 / dt = - s3 / tau3 : 1
@@ -83,8 +81,8 @@ class MFTLinearTTSSource(MFLinearSource):
             s2=self.post_variable_name_2,
             s3=self.post_variable_name_3,
             vrev=self.params[SP.VREV],
-            tau_1=self.params[SP.TAU_1],
-            tau_2=self.params[SP.TAU_2],
-            tau_3=self.params[SP.TAU_3],
+            tau_1=self.params[SP.TAU_RISE],
+            tau_2=self.params[SP.TAU_D1],
+            tau_3=self.params[SP.TAU_D2],
         )
 

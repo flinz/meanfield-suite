@@ -37,6 +37,12 @@ class MFStaticSourceTests(unittest.TestCase):
 
     def testSimulation(self):
 
+        #noise = MFStaticSource("E_noise1", pop_e1, {
+        #    SP.GM: g_AMPA_ext_E,
+        #    SP.VE: 0. * mV,
+        #    SP.TAU: tau_AMPA
+        #}, rate, C_ext)
+
         class MFPoissonSource:
             @check_units(rate=units.Hz)
             def __init__(self, name, n, rate):
@@ -46,8 +52,7 @@ class MFStaticSourceTests(unittest.TestCase):
             def brian2(self):
                 return PoissonGroup(self.n, self.rate)
 
-
-        i = MFPoissonSource('poisson', 10, 10 * Hz)
+        i = MFPoissonSource('poisson', 10, 10 * 10 * Hz)
 
         p_params = {
             NP.GM: 10 * nsiemens,
@@ -70,6 +75,7 @@ class MFStaticSourceTests(unittest.TestCase):
         system.pops += [p]
         solver = MFSolverRatesVoltages(system, solver='mse')
         solver.run()
+        print('===>', s.g_dyn() / s.from_pop.n)
 
         net = Network()
         net.add(i.brian2)
@@ -83,6 +89,19 @@ class MFStaticSourceTests(unittest.TestCase):
         net.run(3000 * ms)
 
         print(m.t)
-        print(m.__getattr__('s_s')[0])
+        print(m.__getattr__(s.post_variable_name)[0])
+
+        import matplotlib.pyplot as plt
+
+        tmp = m.__getattr__(s.post_variable_name)
+        plt.plot(tmp.T)
+        plt.figure()
+        plt.plot(np.mean(tmp, 0))
+        plt.figure()
+        plt.plot(np.mean(tmp, 1))
+        plt.show()
+
+
+        # TODO : post_variable = tau * nu
 
 

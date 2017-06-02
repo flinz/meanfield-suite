@@ -14,8 +14,9 @@ class MFNMDANonLinearSource(MFNMDALinearSource):
 
         }
         expectations = {
-            SP.TAU_NMDA: 1.,  # unitless
-            SP.TAU_NMDA_RISE: 1.
+            SP.TAU_NMDA: 1.,
+            SP.TAU_NMDA_RISE: 1.,
+            SP.BETA: 1.,
         }
         self.params.fill(defaults)
         self.params.verify(expectations)
@@ -29,18 +30,16 @@ class MFNMDANonLinearSource(MFNMDALinearSource):
             s_post=self.post_variable_name + '_post',
             I=self.current_name,
             g=self.params[SP.GM],
-            ve=self.params[SP.VE]
+            ve=self.params[SP.VE],
+            beta=self.params[SP.BETA]
         )
-    # TODO parameterize, / mV
-    # Beta 1 / mV
 
     @property
     def post_nonlinear_name(self):
         return 'x_' + self.ref
 
     @lazy
-    def brian2(self, mode='i != j'):
-        # weight
+    def brian2(self, mode='i != j', weight=1):
         model = Equations(
             '''
             w : 1
@@ -60,9 +59,5 @@ class MFNMDANonLinearSource(MFNMDALinearSource):
         '''.format(self.post_nonlinear_name)
         C = Synapses(self.from_pop.brian2, self.pop.brian2, method='euler', model=model, on_pre=eqs_pre)
         C.connect(mode)
-        C.w[:] = 1
+        C.w[:] = weight
         return C
-
-    def __repr__(self):
-        return "MFSource [{}] <{}, nmda: {}, E_rev: {}>".format(id(self), self.name, self.is_nmda, self.params[SP.VE])
-

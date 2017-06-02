@@ -107,9 +107,9 @@ class MFLinearPop(MFPop):
 
     @check_units(result=units.Hz)
     def phi_firing_func(self):
+        # FIXME no noise
         if not self.noise:
             return 0 * units.Hz
-            # TODO : 0 here ?
 
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
