@@ -5,6 +5,7 @@ from brian2 import units
 
 from MFLinearPop import MFLinearPop
 from MFLinearSource import MFLinearSource
+from MFPoissonSource import MFPoissonSource
 from MFSolver import MFSolverRatesVoltages
 from MFSource import MFSource
 from MFSystem import MFSystem
@@ -43,16 +44,11 @@ class MFStaticSourceTests(unittest.TestCase):
         #    SP.TAU: tau_AMPA
         #}, rate, C_ext)
 
-        class MFPoissonSource:
-            @check_units(rate=units.Hz)
-            def __init__(self, name, n, rate):
-                self.n = n
-                self.rate = rate
-            @lazy
-            def brian2(self):
-                return PoissonGroup(self.n, self.rate)
+        t = 3000 * ms
+        dt = 0.01 * ms
+        n = 100
 
-        i = MFPoissonSource('poisson', 10, 10 * 10 * Hz)
+        i = MFPoissonSource('poisson', n, n * 10 * Hz)
 
         p_params = {
             NP.GM: 10 * nsiemens,
@@ -62,7 +58,7 @@ class MFStaticSourceTests(unittest.TestCase):
             NP.VRES: 0 * mV,
             NP.TAU_RP: 15 * ms
         }
-        p = MFLinearPop('p', 10, p_params)
+        p = MFLinearPop('p', n, p_params)
 
         s_params = {
             SP.GM: 10 * nsiemens,
@@ -75,33 +71,25 @@ class MFStaticSourceTests(unittest.TestCase):
         system.pops += [p]
         solver = MFSolverRatesVoltages(system, solver='mse')
         solver.run()
-        print('===>', s.g_dyn() / s.from_pop.n)
+        theory = s.g_dyn() / s.from_pop.n
 
+        m = StateMonitor(s.b2_syn, s.post_variable_name, record=True)
+
+        defaultclock.dt = dt
         net = Network()
         net.add(i.brian2)
         net.add(p.brian2)
         net.add(s.b2_syn)
-
-        m = StateMonitor(s.b2_syn, [s.post_variable_name], record=True)
-
         net.add(m)
+        net.run(t)
 
-        net.run(3000 * ms)
+        stable_t = int(t / dt * 0.1)
+        simulation = m.__getattr__(s.post_variable_name)[:, stable_t:]
+        simulation_mean = np.mean(simulation)
 
-        print(m.t)
-        print(m.__getattr__(s.post_variable_name)[0])
-
-        import matplotlib.pyplot as plt
-
-        tmp = m.__getattr__(s.post_variable_name)
-        plt.plot(tmp.T)
-        plt.figure()
-        plt.plot(np.mean(tmp, 0))
-        plt.figure()
-        plt.plot(np.mean(tmp, 1))
-        plt.show()
-
-
+        assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
+        print(simulation_mean)
+        print(20 * ms * 10 * Hz)
         # TODO : post_variable = tau * nu
 
 
