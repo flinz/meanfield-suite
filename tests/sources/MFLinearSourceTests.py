@@ -1,15 +1,12 @@
 import unittest
 
 from brian2 import *
-from brian2 import units
 
 from MFLinearPop import MFLinearPop
 from MFLinearSource import MFLinearSource
 from MFPoissonSource import MFPoissonSource
 from MFSolver import MFSolverRatesVoltages
-from MFSource import MFSource
 from MFSystem import MFSystem
-from Utils import lazy
 from params import NP
 from params import SP
 
@@ -32,59 +29,44 @@ params_source = {
 
 class MFStaticSourceTests(unittest.TestCase):
 
-    def testModelGen(self):
-        pass
-
-
-    def testSimulation(self):
-
-        #noise = MFStaticSource("E_noise1", pop_e1, {
-        #    SP.GM: g_AMPA_ext_E,
-        #    SP.VE: 0. * mV,
-        #    SP.TAU: tau_AMPA
-        #}, rate, C_ext)
+    def testSimulationVsTheory(self):
 
         t = 3000 * ms
         dt = 0.01 * ms
         n = 100
 
-        i = MFPoissonSource('poisson', n, n * 10 * Hz)
-
-        p_params = {
+        poisson = MFPoissonSource('poisson', n, n * 10 * Hz)
+        pop = MFLinearPop('pop', n, {
             NP.GM: 10 * nsiemens,
             NP.VL: 0 * mV,
             NP.CM: 5 * nfarad,
             NP.VTHR: 0 * mV,
             NP.VRES: 0 * mV,
             NP.TAU_RP: 15 * ms
-        }
-        p = MFLinearPop('p', n, p_params)
-
-        s_params = {
+        })
+        syn = MFLinearSource('syn', pop, {
             SP.GM: 10 * nsiemens,
             SP.VREV: 0 * volt,
             SP.TAU: 20 * ms,
-        }
-        s = MFLinearSource('s', p, s_params, i)
+        }, poisson)
 
         system = MFSystem('test')
-        system.pops += [p]
+        system.pops += [pop]
         solver = MFSolverRatesVoltages(system, solver='mse')
         solver.run()
-        theory = s.g_dyn() / s.from_pop.n
+        theory = syn.g_dyn() / syn.from_pop.n
 
-        m = StateMonitor(s.b2_syn, s.post_variable_name, record=True)
-
+        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=True)
         defaultclock.dt = dt
         net = Network()
-        net.add(i.brian2)
-        net.add(p.brian2)
-        net.add(s.b2_syn)
+        net.add(poisson.brian2)
+        net.add(pop.brian2)
+        net.add(syn.b2_syn)
         net.add(m)
         net.run(t)
 
         stable_t = int(t / dt * 0.1)
-        simulation = m.__getattr__(s.post_variable_name)[:, stable_t:]
+        simulation = m.__getattr__(syn.post_variable_name)[:, stable_t:]
         simulation_mean = np.mean(simulation)
 
         assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)

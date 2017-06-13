@@ -4,16 +4,16 @@ from MFLinearSource import MFLinearSource
 from params import SP, NP
 
 
-class MFNMDALinearSource(MFLinearSource):
+class MFLinearNMDASource(MFLinearSource):
 
     def __init__(self, name, pop, params, from_pop):
         super().__init__(name, pop, params, from_pop)
 
         defaults = {}
         expectations = {
-            SP.TAU_NMDA: 1,
+            SP.TAU_NMDA: units.second,
             SP.ALPHA: 1,
-            SP.BETA: 1,
+            SP.BETA: 1, # TODO beta 1/v ?
             SP.GAMMA: 1,
         }
         self.params.fill(defaults)
@@ -22,15 +22,17 @@ class MFNMDALinearSource(MFLinearSource):
     @property
     def J(self):
         """Linearization factor for NMDA"""
-        return 1 + self.params[NP.GAMMA] * np.exp(-self.params[NP.BETA] * self.pop.v_mean)
+        return 1 + self.params[NP.GAMMA] * np.exp(-self.params[NP.BETA] * self.pop.v_mean / units.volt)
 
     @property
+    @check_units(result=1)
     def rho1(self):
-        return 1 / self.pop.J
+        return 1 / self.J
 
     @property
+    @check_units(result=1)
     def rho2(self):
-        return (self.J - 1) / self.J ** 2 * self.pop.params[NP.BETA] * (self.pop.v_mean - self.params[SP.VREV])
+        return (self.J - 1) / self.J ** 2 * self.params[NP.BETA] * (self.pop.v_mean - self.params[SP.VREV]) / units.volt # TODO unitless?
 
     @property
     @check_units(result=units.siemens)
@@ -52,6 +54,7 @@ class MFNMDALinearSource(MFLinearSource):
             ''',
             I=self.current_name,
             g=self.params[SP.GM],
+            s=self.post_variable_name,
             s_post=self.post_variable_name + '_post',
             vrev=self.params[SP.VREV],
             tau_decay=self.params[SP.TAU_NMDA],

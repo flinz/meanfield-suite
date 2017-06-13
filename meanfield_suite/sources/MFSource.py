@@ -20,7 +20,7 @@ class MFSource(object):
         expectations = {
             SP.GM: units.siemens,
             SP.VREV: units.volt,
-            SP.TAU: units.second,
+            SP.TAU: units.second, # TODO : tau subclass?
         }
         self.params.fill(defaults)
         self.params.verify(expectations)

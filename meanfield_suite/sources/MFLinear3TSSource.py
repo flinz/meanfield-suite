@@ -1,20 +1,19 @@
-from brian2 import Equations, Synapses
+from brian2 import Equations, Synapses, units
 
 from MFLinearSource import MFLinearSource
 from Utils import lazy
 from params import SP
 
 
-class MFTLinearTTSSource(MFLinearSource):
+class MFLinear3TSSource(MFLinearSource):
     def __init__(self, name, pop, params, from_pop):
         super().__init__(name, pop, params, from_pop)
 
         defaults = {}
         expectations = {
-            SP.GM: 1,
-            SP.TAU_RISE: 1,
-            SP.TAU_D1: 1,
-            SP.TAU_D2: 1,
+            SP.TAU_RISE: units.second,
+            SP.TAU_D1: units.second,
+            SP.TAU_D2: units.second,
             SP.ALPHA: 1
         }
         self.params.fill(defaults)

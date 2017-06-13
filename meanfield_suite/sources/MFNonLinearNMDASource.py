@@ -1,12 +1,12 @@
 from brian2 import Equations, Synapses, check_units
 
-from MFLinearNMDASource import MFNMDALinearSource
+from MFLinearNMDASource import MFLinearNMDASource
 from MFSource import MFSource
 from Utils import lazy
 from params import SP
 
 
-class MFNMDANonLinearSource(MFNMDALinearSource):
+class MFNMDANonLinearSource(MFLinearNMDASource):
 
     def __init__(self, name, pop, params, from_pop):
         super().__init__(name, pop, params, from_pop)
