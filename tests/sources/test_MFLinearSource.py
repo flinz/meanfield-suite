@@ -1,14 +1,14 @@
-import unittest
+from brian2 import StateMonitor, Network, defaultclock
+from brian2.units import *
+import numpy as np
 
-from brian2 import *
-
-from sources.MFLinearNMDASource import MFLinearNMDASource
-from populations.MFLinearPop import MFLinearPop
-from populations.MFPoissonSource import MFPoissonSource
-from solvers.MFSolver import MFSolverRatesVoltages
-from MFSystem import MFSystem
-from parameters import NP
-from parameters import SP
+from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.sources.MFLinearSource import MFLinearSource
+from meanfield.populations.MFPoissonSource import MFPoissonSource
+from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.MFSystem import MFSystem
+from meanfield.parameters import NP
+from meanfield.parameters import SP
 
 params_pop = {
     NP.GAMMA: 0.280112,
@@ -27,11 +27,9 @@ params_source = {
     SP.TAU: 10 * ms,
 }
 
-class MFLinearNMDASourceTests(unittest.TestCase):
+class TestMFLinearSource(object):
 
-    def testSimulationVsTheory(self):
-        set_device('cpp_standalone')
-        #prefs.codegen.target = 'cython'
+    def test_simulation_theory(self):
 
         t = 3000 * ms
         dt = 0.01 * ms
@@ -46,14 +44,10 @@ class MFLinearNMDASourceTests(unittest.TestCase):
             NP.VRES: 0 * mV,
             NP.TAU_RP: 15 * ms
         })
-        syn = MFLinearNMDASource('syn', pop, {
+        syn = MFLinearSource('syn', pop, {
             SP.GM: 10 * nsiemens,
             SP.VREV: 0 * volt,
             SP.TAU: 20 * ms,
-            SP.TAU_NMDA: 30 * ms,
-            SP.ALPHA: 1, # TODO git aalpha ?
-            SP.BETA: 1,
-            SP.GAMMA: 1,
         }, poisson)
 
         system = MFSystem('test')
@@ -62,7 +56,7 @@ class MFLinearNMDASourceTests(unittest.TestCase):
         solver.run()
         theory = syn.g_dyn() / syn.from_pop.n
 
-        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=range(100))
+        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=True)
         defaultclock.dt = dt
         net = Network()
         net.add(poisson.brian2)
@@ -74,10 +68,10 @@ class MFLinearNMDASourceTests(unittest.TestCase):
         stable_t = int(t / dt * 0.1)
         simulation = m.__getattr__(syn.post_variable_name)[:, stable_t:]
         simulation_mean = np.mean(simulation)
-        print(simulation)
 
         assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
         print(simulation_mean)
         print(20 * ms * 10 * Hz)
         # TODO : post_variable = tau * nu
+
 

@@ -1,9 +1,9 @@
 from brian2 import Equations, Synapses, check_units
 
-from .MFLinearNMDASource import MFLinearNMDASource
-from .MFSource import MFSource
-from ..utils import lazyproperty
-from ..parameters import SP
+from meanfield.sources.MFLinearNMDASource import MFLinearNMDASource
+from meanfield.sources.MFSource import MFSource
+from meanfield.utils import lazyproperty
+from meanfield.parameters import SP
 
 
 class MFNMDANonLinearSource(MFLinearNMDASource):

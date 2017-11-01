@@ -1,9 +1,9 @@
 from brian2.units import *
 
-from .populations import MFLinearPop
-from .sources import MFStaticSource
-from .MFSystem import MFSystem
-from parameters import NP, SP
+from meanfield.populations import MFLinearPop
+from meanfield.sources import MFStaticSource
+from meanfield.MFSystem import MFSystem
+from meanfield.parameters import NP, SP
 
 params_standard = {
     'NMDA': {

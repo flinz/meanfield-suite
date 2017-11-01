@@ -1,6 +1,4 @@
-import unittest
-
-from utils import lazyproperty
+from meanfield.utils import lazyproperty
 
 
 class Counter(object):
@@ -19,9 +17,9 @@ class Counter(object):
         return self.n
 
 
-class UtilsTests(unittest.TestCase):
+class TestUtils(object):
 
-    def testLazy(self):
+    def test_lazy_property(self):
         c = Counter()
         assert(c.n == 0)
         assert(c.m1 == 1)
@@ -33,7 +31,7 @@ class UtilsTests(unittest.TestCase):
         assert(c.m2 == 2)
         assert(c.n == 2)
 
-    def testSharedLazyStructure(self):
+    def test_shared_lazy_property(self):
         c1 = Counter()
         c2 = Counter()
         assert(c1.n == 0)

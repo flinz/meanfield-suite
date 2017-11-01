@@ -2,9 +2,9 @@ from abc import abstractmethod
 
 from brian2 import units, check_units, Equations
 
-from ..parameters.MFParams import MFParams
-from ..utils import name2identifier, lazyproperty
-from ..parameters import SP, NP
+from meanfield.parameters.MFParams import MFParams
+from meanfield.utils import name2identifier, lazyproperty
+from meanfield.parameters import SP, NP
 
 
 class MFSource(object):
@@ -61,7 +61,7 @@ class MFSource(object):
 
     def b2_dyn(self):
         """Returns Brian2 dynamic (Equations) affecting specified populations."""
-        a =  Equations(
+        return Equations(
             '''
             I = g * (v - vrev) * s : amp
             ds / dt = - s / tau : 1
@@ -72,9 +72,6 @@ class MFSource(object):
             vrev=self.params[SP.VREV],
             tau=self.params[SP.TAU],
         )
-        print(self.post_variable_name)
-        print(a)
-        return a
 
     def __repr__(self):
         return "{} [{}]: {}".format(self.__class__.__name__, self.name, self.params)

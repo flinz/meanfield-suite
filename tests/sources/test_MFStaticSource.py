@@ -1,9 +1,7 @@
-import unittest
+from brian2.units import *
 
-from brian2 import *
-
-from parameters import SP
-from parameters import NP
+from meanfield.parameters import SP
+from meanfield.parameters import NP
 
 params_pop = {
     NP.GAMMA: 0.280112,
@@ -22,8 +20,8 @@ params_source = {
     SP.TAU: 10 * ms,
 }
 
-class MFStaticSourceTests(unittest.TestCase):
+class TestMFStaticSource(object):
 
-    def testModelGen(self):
+    def test_model_gen(self):
         pass
 

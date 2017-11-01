@@ -1,7 +1,7 @@
 import numpy as np
 from brian2 import Quantity
 
-from . import OutOfBoundsError
+from meanfield.solvers import OutOfBoundsError
 
 
 class MFState(object):

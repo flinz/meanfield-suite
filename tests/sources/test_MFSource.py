@@ -1,6 +1,4 @@
-import unittest
-
-from brian2 import *
+from brian2.units import *
 
 from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.sources.MFSource import MFSource
@@ -21,22 +19,22 @@ params_pop = {
 
 params_source = {
     SP.GM: 0 * siemens,
-    SP.VE: 0 * volt,
+    SP.VREV: 0 * volt,
     SP.TAU: 10 * ms,
 }
 
-class MFSourceTests(unittest.TestCase):
+class TestMFSource(object):
 
-    def testModelGen(self):
+    def test_model_gen(self):
         pop = MFLinearPop("test", 1, params_pop)
         source = MFSource('test', pop, params_source)
 
         assert_equations(
-            source.brian2_model(),
+            source.b2_dyn(),
             '''
-            I_test = (0. * siemens) * (v - (0. * volt)) * s_test : A
+            I_test = (0. * siemens) * (v - (0. * volt)) * s_test : amp
             ds_test / dt = -s_test / (10. * msecond) : 1
-            ''', True
+            '''
         )
 
         # def testModelUpdate(self):

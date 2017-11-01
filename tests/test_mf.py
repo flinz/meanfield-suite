@@ -1,8 +1,8 @@
-import unittest
 from functools import partial
 
 import numpy as np
-from brian2 import units
+import pytest
+from brian2.units import *
 from meanfield.solvers.MFConstraint import MFConstraint
 
 from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
@@ -10,14 +10,14 @@ from meanfield.solvers.MFState import MFState
 from meanfield.meanfield_classes import setup_brunel99, setup_EI
 
 
-class MFTestCase(unittest.TestCase):
+class MFTestCase(object):
 
     def setUp(self):
         self.system = setup_brunel99()
 
     def testTaus(self):
         """Effective timeconstants equal old implementation"""
-        taus = [p.tau_eff / units.ms for p in self.system.pops]
+        taus = [p.tau_eff / ms for p in self.system.pops]
         #taus_brunel = [11.309393346834508, 10.259016117146679, 5.2504978292166333] # NMDA
         taus_brunel = [4.334601,  5.106385,  2.545614]
         np.testing.assert_array_almost_equal(taus, taus_brunel)
@@ -34,7 +34,7 @@ class MFTestCase(unittest.TestCase):
 
     def testSigmaSquare(self):
         """Sigma square predictions equal old implementation"""
-        sigma_square = [p.sigma_square / (units.mV) ** 2 for p in self.system.pops]
+        sigma_square = [p.sigma_square / (mV) ** 2 for p in self.system.pops]
         #sigma_square_brunel = np.array([4.8869461761143898, 5.1557159873625888, 10.003849121175195]) # NMDA
         sigma_square_brunel = [1.873041,  2.566238,  4.850195]
         np.testing.assert_array_almost_equal(sigma_square, sigma_square_brunel)
@@ -64,8 +64,8 @@ class MFTestCase(unittest.TestCase):
             0.,
             750.
         )
-        c.free = 111. * units.Hz
-        assert pop.rate == c.free == 111. * units.Hz
+        c.free = 111. * Hz
+        assert pop.rate == c.free == 111. * Hz
         assert c.error > 0.
 
     def testMFState(self):
@@ -76,7 +76,7 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.rate, p),
                 partial(lambda x, val: setattr(x, "rate", val), p),
                 partial(lambda x: x.rate - x.rate_prediction, p),
-                0. * units.Hz, 750. * units.Hz
+                0. * Hz, 750. * Hz
             ) for p in self.system.pops
         ] + [
             MFConstraint(
@@ -84,14 +84,14 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.v_mean, p),
                 partial(lambda x, val: setattr(x, "v_mean", val), p),
                 partial(lambda x: x.v_mean-x.v_mean_prediction, p),
-                -80. * units.mV, 50. * units.mV
+                -80. * mV, 50. * mV
             ) for p in self.system.pops
         ]
 
         state = MFState(constraints)
         error = [c.error_fun() for c in state.constraints]
         state_ = [c.free for c in state.constraints]
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             state.error = 1.
         assert state.error == error
         np.testing.assert_array_almost_equal(state.state, state_)
@@ -169,7 +169,7 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.sources[1].g_base, p),
                 partial(lambda x, val: setattr(x.sources[1], "g_base", val), p),
                 partial(lambda x: x.rate - x.rate_prediction, p),
-                0. * units.nsiemens, 500. * units.nsiemens
+                0. * nsiemens, 500. * nsiemens
             ) for p in system.pops
         ] + [
             MFConstraint(
@@ -177,7 +177,7 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.v_mean, p),
                 partial(lambda x, val: setattr(x, "v_mean", val), p),
                 partial(lambda x: x.v_mean - x.v_mean_prediction, p),
-                -80. * units.mV, -50. * units.mV
+                -80. * mV, -50. * mV
             ) for p in system.pops
         ]
 
@@ -208,7 +208,7 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.sources[1].g_base, p),
                 partial(e_setter, p),
                 partial(lambda x: x.rate - x.rate_prediction, p),
-                0. * units.nsiemens, 500. * units.nsiemens
+                0. * nsiemens, 500. * nsiemens
             ) for p in system.pops
         ] + [
             MFConstraint(
@@ -216,7 +216,7 @@ class MFTestCase(unittest.TestCase):
                 partial(lambda x: x.v_mean, p),
                 partial(lambda x, val: setattr(x, "v_mean", val), p),
                 partial(lambda x: x.v_mean-x.v_mean_prediction, p),
-                -80. * units.mV, 50. * units.mV
+                -80. * mV, 50. * mV
             ) for p in system.pops
         ]
 
@@ -232,9 +232,3 @@ class MFTestCase(unittest.TestCase):
             np.testing.assert_almost_equal(np.array(p.rate_prediction), np.array(p.rate))
             assert p.sources[1].g_base == p.sources[1].g_base
 
-
-def test():
-    """Run all tests"""
-    suite = unittest.TestLoader().loadTestsFromTestCase(MFTestCase)
-    runner = unittest.TextTestRunner(verbosity=2)
-    runner.run(suite)

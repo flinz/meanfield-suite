@@ -1,8 +1,8 @@
 from brian2 import Equations, Synapses, units
 
-from MFLinearSource import MFLinearSource
-from utils import lazyproperty
-from parameters import SP
+from meanfield.sources.MFLinearSource import MFLinearSource
+from meanfield.utils import lazyproperty
+from meanfield.parameters import SP
 
 
 class MFLinear3TSSource(MFLinearSource):

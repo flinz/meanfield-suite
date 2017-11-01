@@ -1,14 +1,14 @@
-import unittest
+from brian2 import StateMonitor, defaultclock, Network, set_device
+from brian2.units import *
 
-from brian2 import *
-
-from populations.MFLinearPop import MFLinearPop
-from sources.MFLinearSource import MFLinearSource
-from populations.MFPoissonSource import MFPoissonSource
-from solvers.MFSolver import MFSolverRatesVoltages
-from MFSystem import MFSystem
-from parameters import NP
-from parameters import SP
+from meanfield.sources.MFLinearNMDASource import MFLinearNMDASource
+from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.populations.MFPoissonSource import MFPoissonSource
+from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.MFSystem import MFSystem
+from meanfield.parameters import NP
+from meanfield.parameters import SP
+from tests.utils import enable_cpp
 
 params_pop = {
     NP.GAMMA: 0.280112,
@@ -27,9 +27,11 @@ params_source = {
     SP.TAU: 10 * ms,
 }
 
-class MFStaticSourceTests(unittest.TestCase):
+enable_cpp()
 
-    def testSimulationVsTheory(self):
+class TestMFLinearNMDASource(object):
+
+    def test_simulation_theory(self):
 
         t = 3000 * ms
         dt = 0.01 * ms
@@ -44,10 +46,14 @@ class MFStaticSourceTests(unittest.TestCase):
             NP.VRES: 0 * mV,
             NP.TAU_RP: 15 * ms
         })
-        syn = MFLinearSource('syn', pop, {
+        syn = MFLinearNMDASource('syn', pop, {
             SP.GM: 10 * nsiemens,
             SP.VREV: 0 * volt,
             SP.TAU: 20 * ms,
+            SP.TAU_NMDA: 30 * ms,
+            SP.ALPHA: 1, # TODO git aalpha ?
+            SP.BETA: 1,
+            SP.GAMMA: 1,
         }, poisson)
 
         system = MFSystem('test')
@@ -56,7 +62,7 @@ class MFStaticSourceTests(unittest.TestCase):
         solver.run()
         theory = syn.g_dyn() / syn.from_pop.n
 
-        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=True)
+        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=range(100))
         defaultclock.dt = dt
         net = Network()
         net.add(poisson.brian2)
@@ -68,10 +74,10 @@ class MFStaticSourceTests(unittest.TestCase):
         stable_t = int(t / dt * 0.1)
         simulation = m.__getattr__(syn.post_variable_name)[:, stable_t:]
         simulation_mean = np.mean(simulation)
+        print(simulation)
 
         assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
         print(simulation_mean)
         print(20 * ms * 10 * Hz)
         # TODO : post_variable = tau * nu
-
 

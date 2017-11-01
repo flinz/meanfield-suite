@@ -1,14 +1,14 @@
-import unittest
+from brian2 import StateMonitor, defaultclock, Network
+from brian2.units import *
+import numpy as np
 
-from brian2 import *
-
-from sources.MFLinear3TSSource import MFLinear3TSSource
-from populations.MFLinearPop import MFLinearPop
-from populations.MFPoissonSource import MFPoissonSource
-from solvers.MFSolver import MFSolverRatesVoltages
-from MFSystem import MFSystem
-from parameters import NP
-from parameters import SP
+from meanfield.sources.MFLinear3TSSource import MFLinear3TSSource
+from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.populations.MFPoissonSource import MFPoissonSource
+from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.MFSystem import MFSystem
+from meanfield.parameters import NP
+from meanfield.parameters import SP
 
 params_pop = {
     NP.GAMMA: 0.280112,
@@ -27,9 +27,9 @@ params_source = {
     SP.TAU: 10 * ms,
 }
 
-class MFStaticSourceTests(unittest.TestCase):
+class TestMFLinear3TSSource(object):
 
-    def testSimulationVsTheory(self):
+    def test_simulation_theory(self):
 
         t = 3000 * ms
         dt = 0.01 * ms
@@ -88,7 +88,7 @@ class MFStaticSourceTests(unittest.TestCase):
         # TODO : post_variable = tau * nu
 
 
-    def testModelGen(self):
+    def test_model_gen(self):
         pass
 
 

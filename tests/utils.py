@@ -1,3 +1,8 @@
+from brian2 import set_device
+
+def enable_cpp():
+    set_device('cpp_standalone')
+
 
 def assert_equations(given, expected):
 

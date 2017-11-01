@@ -1,14 +1,12 @@
-import unittest
+from meanfield.parameters.MFParams import MFParams
 
-from parameters.MFParams import MFParams
+class TestMFParams(object):
 
-class MFParamsTests(unittest.TestCase):
-
-    def testConstructor(self):
+    def test_constructor(self):
         assert MFParams({}).underlying == {}
         assert MFParams({'a': 1}).underlying == {'a': 1}
 
-    def testGetter(self):
+    def test_getter(self):
         try:
             _ = MFParams({})['a']
             assert False
@@ -23,7 +21,7 @@ class MFParamsTests(unittest.TestCase):
 #        assert p.a == 2
 #        assert p.b == 3
 
-    def testAllKeysConsumed(self):
+    def test_all_keys_consumed(self):
         assert MFParams({}).all_keys_consumed()
         p = MFParams({'a': 1})
         assert not p.all_keys_consumed()

@@ -1,33 +1,31 @@
-import unittest
+from brian2.units import *
 
-from brian2 import units
-
-from populations.MFLinearPop import MFLinearPop
-from sources.MFSource import MFSource
-from parameters import NP
-from parameters import SP
+from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.sources.MFSource import MFSource
+from meanfield.parameters import NP
+from meanfield.parameters import SP
 from tests.utils import assert_equations
 
 params_pop = {
     NP.GAMMA: 0.280112,
     NP.BETA: 0.062,
-    NP.GM: 25. * units.nS,
-    NP.CM: 0.5 * units.nF,  # * 1e3,
-    NP.VL: -70. * units.mV,
-    NP.VTHR: -50. * units.mV,
-    NP.VRES: -55. * units.mV,
-    NP.TAU_RP: 2. * units.ms
+    NP.GM: 25. * nS,
+    NP.CM: 0.5 * nF,  # * 1e3,
+    NP.VL: -70. * mV,
+    NP.VTHR: -50. * mV,
+    NP.VRES: -55. * mV,
+    NP.TAU_RP: 2. * ms
 }
 
 params_source = {
-    SP.GM: 0 * units.siemens,
-    SP.VREV: 0 * units.volt,
-    SP.TAU: 10 * units.ms,
+    SP.GM: 0 * siemens,
+    SP.VREV: 0 * volt,
+    SP.TAU: 10 * ms,
 }
 
-class MFPopTests(unittest.TestCase):
+class TestMFPop(object):
 
-    def testModelGenWithoutSource(self):
+    def test_model_gen_without_source(self):
         pop = MFLinearPop("test", 1, params_pop)
 
         assert_equations(
@@ -38,7 +36,7 @@ class MFPopTests(unittest.TestCase):
             '''
         )
 
-    def testModelGenWithOneSource(self):
+    def test_model_gen_with_one_source(self):
         pop = MFLinearPop("test", 1, params_pop)
         _ = MFSource('test', pop, params_source)
 
@@ -52,7 +50,7 @@ class MFPopTests(unittest.TestCase):
             '''
         )
 
-    def testModelGenWithTwoSources(self):
+    def test_model_gen_with_two_sources(self):
         pop = MFLinearPop("test", 1, params_pop)
         MFSource('test1', pop, params_source)
         MFSource('test2', pop, params_source)
