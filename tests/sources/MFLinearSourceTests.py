@@ -2,13 +2,13 @@ import unittest
 
 from brian2 import *
 
-from meanfield.populations.MFLinearPop import MFLinearPop
-from meanfield.sources.MFLinearSource import MFLinearSource
-from meanfield.populations.MFPoissonSource import MFPoissonSource
-from meanfield.solvers.MFSolver import MFSolverRatesVoltages
-from meanfield.MFSystem import MFSystem
-from meanfield.params import NP
-from meanfield.params import SP
+from populations.MFLinearPop import MFLinearPop
+from sources.MFLinearSource import MFLinearSource
+from populations.MFPoissonSource import MFPoissonSource
+from solvers.MFSolver import MFSolverRatesVoltages
+from MFSystem import MFSystem
+from parameters import NP
+from parameters import SP
 
 params_pop = {
     NP.GAMMA: 0.280112,

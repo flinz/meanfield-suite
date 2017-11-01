@@ -1,8 +1,8 @@
 from brian2 import units, check_units, PoissonInput
 
 from .MFSource import MFSource
-from ..utils import lazy
-from ..params import SP
+from ..utils import lazyproperty
+from ..parameters import SP
 
 
 class MFStaticSource(MFSource):
@@ -18,6 +18,6 @@ class MFStaticSource(MFSource):
     def g_dyn(self):
         return self.rate * self.n * self.params[SP.TAU]
 
-    @lazy
+    @lazyproperty
     def b2_syn(self):
         return PoissonInput(self.pop, self.post_variable_name, self.n, self.rate, 1)

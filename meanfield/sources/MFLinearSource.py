@@ -1,8 +1,8 @@
 from brian2 import check_units, Equations, Synapses
 
 from .MFSource import MFSource
-from ..utils import lazy
-from ..params import SP
+from ..utils import lazyproperty
+from ..parameters import SP
 
 
 class MFLinearSource(MFSource):
@@ -25,7 +25,7 @@ class MFLinearSource(MFSource):
     def g_dyn(self):
         return self.from_pop.n * self.from_pop.rate * self.params[SP.TAU] * self.params[SP.W]
 
-    @lazy
+    @lazyproperty
     def b2_syn(self, method='euler', weight=1, **kv):
         model = Equations('w : 1')
         on_pre = '{} += w'.format(self.post_variable_name)

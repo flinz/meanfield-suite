@@ -1,7 +1,7 @@
 from brian2 import check_units, units, PoissonGroup
 
-from MFPop import MFPop
-from utils import lazy
+from meanfield.populations.MFPop import MFPop
+from meanfield.utils import lazyproperty
 
 
 class MFPoissonSource(MFPop):
@@ -10,7 +10,7 @@ class MFPoissonSource(MFPop):
         super().__init__(name, n, {})
         self.rate = rate
 
-    @lazy
+    @lazyproperty
     def brian2(self):
         return PoissonGroup(self.n, self.rate)
 

@@ -1,6 +1,6 @@
 import unittest
 
-from meanfield.params.MFParams import MFParams
+from parameters.MFParams import MFParams
 
 class MFParamsTests(unittest.TestCase):
 

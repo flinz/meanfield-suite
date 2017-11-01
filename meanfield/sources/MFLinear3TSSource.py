@@ -1,8 +1,8 @@
 from brian2 import Equations, Synapses, units
 
 from MFLinearSource import MFLinearSource
-from utils import lazy
-from params import SP
+from utils import lazyproperty
+from parameters import SP
 
 
 class MFLinear3TSSource(MFLinearSource):
@@ -28,7 +28,7 @@ class MFLinear3TSSource(MFLinearSource):
         ]
         return self.from_pop.n * self.from_pop.rate * sum(taus)
 
-    @lazy
+    @lazyproperty
     def b2_syn(self, mode='i != j', method='euler', weight1=1, weight2=1, weight3=3):
         model = Equations('''
         w1 : 1

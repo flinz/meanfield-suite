@@ -4,7 +4,7 @@ from MFPop import MFLinearPop
 from MFSolver import MFSolverRatesVoltages
 from MFSource import MFDynamicSource, MFStaticSource
 from MFSystem import MFSystem
-from params import NP, SP
+from parameters import NP, SP
 
 BrianLogger.log_level_debug()
 

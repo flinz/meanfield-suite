@@ -2,7 +2,7 @@ from abc import abstractproperty
 
 from brian2 import units, check_units
 
-from MFParams import MFParams
+from meanfield.parameters.MFParams import MFParams
 
 
 class MFPop(object):

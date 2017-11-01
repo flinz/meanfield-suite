@@ -1,17 +1,23 @@
-
 from setuptools import find_packages, setup
 
-readme = open('README.md').read()
+with open('README.md') as f:
+    readme = f.read()
 
 install_requires = [
-    'numpy',
-    'scipy',
-    'matplotlib',
-    'brian2'
+    'numpy==1.13.3',
+    'scipy==1.0.0',
+    'matplotlib==2.1.0',
+    'Brian2==2.0.2.1',
+    'pandas==0.21.0',
 ]
 
 tests_require = [
     'pytest'
+]
+
+setup_requires = [
+    'pytest-runner',
+    'autopep8'
 ]
 
 setup(

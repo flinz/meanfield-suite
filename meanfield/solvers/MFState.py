@@ -1,7 +1,7 @@
 import numpy as np
 from brian2 import Quantity
 
-import OutOfBoundsError
+from . import OutOfBoundsError
 
 
 class MFState(object):

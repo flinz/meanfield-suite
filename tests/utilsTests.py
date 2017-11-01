@@ -1,6 +1,6 @@
 import unittest
 
-from utils import lazy
+from utils import lazyproperty
 
 
 class Counter(object):
@@ -8,20 +8,20 @@ class Counter(object):
     def __init__(self):
         self.n = 0
 
-    @lazy
+    @lazyproperty
     def m1(self):
         self.n += 1
         return self.n
 
-    @lazy
+    @lazyproperty
     def m2(self):
         self.n += 1
         return self.n
 
 
-class LazyTests(unittest.TestCase):
+class UtilsTests(unittest.TestCase):
 
-    def testLazyness(self):
+    def testLazy(self):
         c = Counter()
         assert(c.n == 0)
         assert(c.m1 == 1)

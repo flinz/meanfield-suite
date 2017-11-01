@@ -2,8 +2,8 @@ from brian2 import Equations, Synapses, check_units
 
 from .MFLinearNMDASource import MFLinearNMDASource
 from .MFSource import MFSource
-from ..utils import lazy
-from ..params import SP
+from ..utils import lazyproperty
+from ..parameters import SP
 
 
 class MFNMDANonLinearSource(MFLinearNMDASource):
@@ -38,7 +38,7 @@ class MFNMDANonLinearSource(MFLinearNMDASource):
     def post_nonlinear_name(self):
         return 'x_' + self.ref
 
-    @lazy
+    @lazyproperty
     def b2_syn(self, mode='i != j', weight=1):
         model = Equations(
             '''

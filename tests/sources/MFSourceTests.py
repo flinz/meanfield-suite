@@ -4,8 +4,8 @@ from brian2 import *
 
 from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.sources.MFSource import MFSource
-from meanfield.params import NP
-from meanfield.params import SP
+from meanfield.parameters import NP
+from meanfield.parameters import SP
 from tests.utils import assert_equations
 
 params_pop = {
@@ -40,7 +40,7 @@ class MFSourceTests(unittest.TestCase):
         )
 
         # def testModelUpdate(self):
-        #     pop = MFLinearPop("test", 1, params)
+        #     pop = MFLinearPop("test", 1, parameters)
         #     source = MFSource('test', pop)
         #
         #     assert_equations(

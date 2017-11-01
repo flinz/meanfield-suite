@@ -1,9 +1,9 @@
 from brian2.units import *
 
-from MFPop import MFLinearPop, MFNonLinearPop
-from MFSource import MFStaticSource, MFDynamicSource, Synapse
-from MFSystem import MFSystem
-from params import NP, SP
+from .populations import MFLinearPop
+from .sources import MFStaticSource
+from .MFSystem import MFSystem
+from parameters import NP, SP
 
 params_standard = {
     'NMDA': {

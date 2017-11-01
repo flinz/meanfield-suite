@@ -1,7 +1,7 @@
 from brian2 import units, Equations, check_units, np
 
 from .MFLinearSource import MFLinearSource
-from ..params import SP, NP
+from ..parameters import SP, NP
 
 
 class MFLinearNMDASource(MFLinearSource):

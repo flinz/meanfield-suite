@@ -7,8 +7,9 @@ import numpy as np
 from brian2 import units
 from scipy.optimize import root, minimize
 
-from MFConstraint import MFConstraint
-from MFState import MFState
+from meanfield.solvers.MFConstraint import MFConstraint
+from meanfield.solvers.MFState import MFState
+
 
 def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
     """Simple gradient descent along the error."""

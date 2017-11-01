@@ -4,9 +4,9 @@ import numpy as np
 from brian2 import units, Equations, NeuronGroup, check_units
 from scipy.integrate import quad
 
-from MFPop import MFPop
-from utils import lazy
-from params import NP, SP
+from meanfield.populations.MFPop import MFPop
+from meanfield.utils import lazyproperty
+from meanfield.parameters import NP, SP
 
 
 class MFLinearPop(MFPop):
@@ -38,7 +38,7 @@ class MFLinearPop(MFPop):
         )
 
         total = []
-        for i, s in enumerate(self.sources):
+        for s in self.sources:
             eqs += s.b2_dyn()
             total.append(s.current_name)
 
@@ -55,7 +55,7 @@ class MFLinearPop(MFPop):
     def brian2_reset(self):
         return 'v = {} * mV'.format(self.params[NP.VRES] / units.mV)
 
-    @lazy
+    @lazyproperty
     def brian2(self):
         method = 'euler'
         P = NeuronGroup(
