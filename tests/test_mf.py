@@ -3,11 +3,11 @@ from functools import partial
 
 import numpy as np
 from brian2 import units
-from meanfield_suite.MFConstraint import MFConstraint
+from meanfield.solvers.MFConstraint import MFConstraint
 
-from MFSolver import MFSolver, MFSolverRatesVoltages
-from MFState import MFState
-from meanfield_suite.meanfield_classes import setup_brunel99, setup_EI
+from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
+from meanfield.solvers.MFState import MFState
+from meanfield.meanfield_classes import setup_brunel99, setup_EI
 
 
 class MFTestCase(unittest.TestCase):

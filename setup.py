@@ -15,7 +15,7 @@ tests_require = [
 ]
 
 setup(
-    name='meanfield_suite',
+    name='meanfield',
     version='0.0.1',
     description='Meanfield suite',
     long_description=readme,

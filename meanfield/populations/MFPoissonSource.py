@@ -1,7 +1,7 @@
 from brian2 import check_units, units, PoissonGroup
 
 from MFPop import MFPop
-from Utils import lazy
+from utils import lazy
 
 
 class MFPoissonSource(MFPop):

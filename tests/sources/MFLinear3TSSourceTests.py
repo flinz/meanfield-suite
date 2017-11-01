@@ -2,11 +2,11 @@ import unittest
 
 from brian2 import *
 
-from MFLinear3TSSource import MFLinear3TSSource
-from MFLinearPop import MFLinearPop
-from MFPoissonSource import MFPoissonSource
-from MFSolver import MFSolverRatesVoltages
-from MFSystem import MFSystem
+from meanfield.sources.MFLinear3TSSource import MFLinear3TSSource
+from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.populations.MFPoissonSource import MFPoissonSource
+from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.MFSystem import MFSystem
 from params import NP
 from params import SP
 

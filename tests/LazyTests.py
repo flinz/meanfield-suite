@@ -1,6 +1,6 @@
 import unittest
 
-from Utils import lazy
+from utils import lazy
 
 
 class Counter(object):

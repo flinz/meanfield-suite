@@ -1,8 +1,8 @@
 from brian2 import units, check_units, PoissonInput
 
-from MFSource import MFSource
-from Utils import lazy
-from params import SP
+from .MFSource import MFSource
+from ..utils import lazy
+from ..params import SP
 
 
 class MFStaticSource(MFSource):

@@ -1,7 +1,7 @@
 from brian2 import Equations, Synapses, units
 
 from MFLinearSource import MFLinearSource
-from Utils import lazy
+from utils import lazy
 from params import SP
 
 
@@ -70,9 +70,9 @@ class MFLinear3TSSource(MFLinearSource):
         return Equations(
             '''
             I = g * (v - vrev) * (1 - s1) * (a * s2 + (1 - a) * s3) : amp
-            ds1 / dt = - s1 / tau1 : 1
-            ds2 / dt = - s2 / tau2 : 1
-            ds3 / dt = - s3 / tau3 : 1
+            ds1 / dt = - s1 / tau_1 : 1
+            ds2 / dt = - s2 / tau_2 : 1
+            ds3 / dt = - s3 / tau_3 : 1
             ''',
             I=self.current_name,
             g=self.params[SP.GM],
@@ -83,5 +83,6 @@ class MFLinear3TSSource(MFLinearSource):
             tau_1=self.params[SP.TAU_RISE],
             tau_2=self.params[SP.TAU_D1],
             tau_3=self.params[SP.TAU_D2],
+            a=self.params[SP.ALPHA]
         )
 

@@ -2,9 +2,9 @@ from abc import abstractmethod
 
 from brian2 import units, check_units, Equations
 
-from MFParams import MFParams
-from Utils import name2identifier, lazy
-from params import SP, NP
+from ..params.MFParams import MFParams
+from ..utils import name2identifier, lazy
+from ..params import SP, NP
 
 
 class MFSource(object):

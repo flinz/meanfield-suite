@@ -5,7 +5,7 @@ from brian2 import units, Equations, NeuronGroup, check_units
 from scipy.integrate import quad
 
 from MFPop import MFPop
-from Utils import lazy
+from utils import lazy
 from params import NP, SP
 
 

@@ -2,14 +2,13 @@ import unittest
 
 from brian2 import *
 
-from MFLinearNMDASource import MFLinearNMDASource
-from MFLinearPop import MFLinearPop
-from MFLinearSource import MFLinearSource
-from MFPoissonSource import MFPoissonSource
-from MFSolver import MFSolverRatesVoltages
-from MFSystem import MFSystem
-from params import NP
-from params import SP
+from meanfield.sources.MFLinearNMDASource import MFLinearNMDASource
+from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.populations.MFPoissonSource import MFPoissonSource
+from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.MFSystem import MFSystem
+from meanfield.params import NP
+from meanfield.params import SP
 
 params_pop = {
     NP.GAMMA: 0.280112,
@@ -31,6 +30,8 @@ params_source = {
 class MFLinearNMDASourceTests(unittest.TestCase):
 
     def testSimulationVsTheory(self):
+        set_device('cpp_standalone')
+        #prefs.codegen.target = 'cython'
 
         t = 3000 * ms
         dt = 0.01 * ms
@@ -61,7 +62,7 @@ class MFLinearNMDASourceTests(unittest.TestCase):
         solver.run()
         theory = syn.g_dyn() / syn.from_pop.n
 
-        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=True)
+        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=range(100))
         defaultclock.dt = dt
         net = Network()
         net.add(poisson.brian2)
@@ -73,6 +74,7 @@ class MFLinearNMDASourceTests(unittest.TestCase):
         stable_t = int(t / dt * 0.1)
         simulation = m.__getattr__(syn.post_variable_name)[:, stable_t:]
         simulation_mean = np.mean(simulation)
+        print(simulation)
 
         assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
         print(simulation_mean)

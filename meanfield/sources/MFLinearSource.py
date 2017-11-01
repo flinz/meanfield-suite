@@ -1,8 +1,8 @@
 from brian2 import check_units, Equations, Synapses
 
-from MFSource import MFSource
-from Utils import lazy
-from params import SP
+from .MFSource import MFSource
+from ..utils import lazy
+from ..params import SP
 
 
 class MFLinearSource(MFSource):

@@ -1,9 +1,9 @@
 from brian2 import Equations, Synapses, check_units
 
-from MFLinearNMDASource import MFLinearNMDASource
-from MFSource import MFSource
-from Utils import lazy
-from params import SP
+from .MFLinearNMDASource import MFLinearNMDASource
+from .MFSource import MFSource
+from ..utils import lazy
+from ..params import SP
 
 
 class MFNMDANonLinearSource(MFLinearNMDASource):
@@ -21,7 +21,7 @@ class MFNMDANonLinearSource(MFLinearNMDASource):
         self.params.fill(defaults)
         self.params.verify(expectations)
 
-    def brian2_model(self):
+    def b2_dyn(self):
         return Equations(
             '''
             I = g * (v - ve) / (1 + gamma * exp(- beta * v) ) * s_post : amp
@@ -39,7 +39,7 @@ class MFNMDANonLinearSource(MFLinearNMDASource):
         return 'x_' + self.ref
 
     @lazy
-    def brian2(self, mode='i != j', weight=1):
+    def b2_syn(self, mode='i != j', weight=1):
         model = Equations(
             '''
             w : 1

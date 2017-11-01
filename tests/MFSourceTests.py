@@ -2,10 +2,10 @@ import unittest
 
 from brian2 import *
 
-from MFPop import MFLinearPop
-from MFSource import MFSource
-from params import NP
-from params import SP
+from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.sources.MFSource import MFSource
+from meanfield.params import NP
+from meanfield.params import SP
 from tests.utils import assert_equations
 
 params_pop = {

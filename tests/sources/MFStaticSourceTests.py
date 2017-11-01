@@ -2,8 +2,8 @@ import unittest
 
 from brian2 import *
 
-from params import NP
-from params import SP
+from meanfield.params import NP
+from meanfield.params import SP
 
 params_pop = {
     NP.GAMMA: 0.280112,
