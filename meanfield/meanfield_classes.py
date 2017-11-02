@@ -1,7 +1,8 @@
 from brian2.units import *
 
 from meanfield.populations import MFLinearPop
-from meanfield.sources import MFStaticSource
+from meanfield.sources.MFStaticSource import MFStaticSource
+from meanfield.sources.MFNonLinearNMDASource import MFNonLinearNMDASource
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import NP, SP
 
@@ -56,7 +57,7 @@ def setup_brunel99_nmda():
     initials = {'nu_plus': 25 * Hz, 'nu_min': 1.5 * Hz, 'nu_i': 9 * Hz}
 
     system = MFSystem('Brunel')
-    pop_e1 = MFNonLinearPop('Eup', 800 * ff , {
+    pop_e1 = MFNonLinearNMDASource('Eup', 800 * ff , {
         NP.GM: params_standard['E']['g_L'],
         NP.VL: params_standard['E']['V_L'],
         NP.CM: params_standard['E']['C_m'],

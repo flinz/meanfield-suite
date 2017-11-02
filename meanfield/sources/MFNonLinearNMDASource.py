@@ -1,12 +1,11 @@
 from brian2 import Equations, Synapses, check_units
 
 from meanfield.sources.MFLinearNMDASource import MFLinearNMDASource
-from meanfield.sources.MFSource import MFSource
 from meanfield.utils import lazyproperty
 from meanfield.parameters import SP
 
 
-class MFNMDANonLinearSource(MFLinearNMDASource):
+class MFNonLinearNMDASource(MFLinearNMDASource):
 
     def __init__(self, name, pop, params, from_pop):
         super().__init__(name, pop, params, from_pop)

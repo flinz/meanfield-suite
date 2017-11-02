@@ -37,6 +37,6 @@ class MFLinearSource(MFSource):
             model=model,
             on_pre=on_pre
         )
-        syn.connect(j='i')
+        syn.connect(j='i')  # FIXME mode j != i
         syn.w[:] = weight
         return syn
