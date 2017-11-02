@@ -10,7 +10,13 @@ class MFPop(object):
     def __init__(self, name, n, params=None):
         self.name = name
         self.n = n
-        self.params = MFParams({}) if params is None else MFParams(params)
+        if params:
+            if isinstance(params, MFParams):
+                self.params = params
+            else:
+                self.params = MFParams(params)
+        else:
+            self.params = MFParams({})
 
         self.sources = []
         self.noise = None

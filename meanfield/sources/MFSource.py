@@ -20,12 +20,12 @@ class MFSource(object):
         expectations = {
             SP.GM: units.siemens,
             SP.VREV: units.volt,
-            SP.TAU: units.second, # TODO : tau subclass?
+            SP.TAU: units.second,  # TODO : tau subclass?
         }
         self.params.fill(defaults)
         self.params.verify(expectations)
 
-        self.g_base = params[SP.GM]  # TODO : parameterize, solve for ? => general setter checking for units
+        self.g_base = params[SP.GM]  # TODO : parametrize, solve for ? => general setter checking for units
 
         # link to pop
         self.pop = pop
