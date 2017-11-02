@@ -29,7 +29,6 @@ class MFLinearSource(MFSource):
     def b2_syn(self, method='euler', weight=1, **kv):
         model = Equations('w : 1')
         on_pre = '{} += w'.format(self.post_variable_name)
-        print(self.from_pop)
         syn = Synapses(
             source=self.from_pop.brian2,
             target=self.pop.brian2,

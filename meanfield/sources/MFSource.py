@@ -14,7 +14,6 @@ class MFSource(object):
 
         self.name = name
         self.ref = name2identifier(name)
-        print(self.ref)
         self.params = MFParams(params)
 
         defaults = {}

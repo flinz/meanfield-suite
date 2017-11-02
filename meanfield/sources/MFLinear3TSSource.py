@@ -40,7 +40,8 @@ class MFLinear3TSSource(MFLinearSource):
         {} += w2
         {} += w3
         '''.format(self.post_variable_name_1, self.post_variable_name_2, self.post_variable_name_3)
-        print(self.from_pop)
+        print(model)
+        print(on_pre)
         syn = Synapses(
             source=self.from_pop.brian2,
             target=self.pop.brian2,
