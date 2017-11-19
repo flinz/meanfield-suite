@@ -1,5 +1,6 @@
 from brian2 import StateMonitor, defaultclock, Network, set_device
 from brian2.units import *
+import numpy as np
 
 from meanfield.sources.MFLinearNMDASource import MFLinearNMDASource
 from meanfield.populations.MFLinearPop import MFLinearPop

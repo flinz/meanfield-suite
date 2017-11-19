@@ -1,6 +1,6 @@
 from brian2.units import *
 
-from meanfield.populations import MFLinearPop
+from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.sources.MFStaticSource import MFStaticSource
 from meanfield.sources.MFNonLinearNMDASource import MFNonLinearNMDASource
 from meanfield.MFSystem import MFSystem

@@ -29,7 +29,7 @@ class MFLinear3TSSource(MFLinearSource):
         return self.from_pop.n * self.from_pop.rate * sum(taus)
 
     @lazyproperty
-    def b2_syn(self, mode='i != j', method='euler', weight1=1, weight2=1, weight3=3):
+    def b2_syn(self, mode='i != j', method='euler', weight1=1, weight2=1, weight3=1):
         model = Equations('''
         w1 : 1
         w2 : 1
@@ -49,7 +49,7 @@ class MFLinear3TSSource(MFLinearSource):
             model=model,
             on_pre=on_pre
         )
-        syn.connect(mode)
+        syn.connect(j='i')
         syn.w1[:] = weight1
         syn.w2[:] = weight2
         syn.w3[:] = weight3

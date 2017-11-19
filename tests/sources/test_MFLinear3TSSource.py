@@ -9,6 +9,7 @@ from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import NP
 from meanfield.parameters import SP
+from tests.utils import enable_cpp
 
 params_pop = {
     NP.GAMMA: 0.280112,
@@ -26,6 +27,8 @@ params_source = {
     SP.VE: 0 * volt,
     SP.TAU: 10 * ms,
 }
+
+enable_cpp()
 
 class TestMFLinear3TSSource(object):
 
@@ -63,27 +66,32 @@ class TestMFLinear3TSSource(object):
         print([syn.post_variable_name_1, syn.post_variable_name_2, syn.post_variable_name_3])
         print(syn.b2_syn)
 
-        m = StateMonitor(syn.b2_syn, [syn.post_variable_name_1, syn.post_variable_name_2, syn.post_variable_name_3], record=True)
+        m1 = StateMonitor(syn.b2_syn, syn.post_variable_name_1, record=range(100))
+        m2 = StateMonitor(syn.b2_syn, syn.post_variable_name_2, record=range(100))
+        m3 = StateMonitor(syn.b2_syn, syn.post_variable_name_3, record=range(100))
         defaultclock.dt = dt
         net = Network()
         net.add(poisson.brian2)
         net.add(pop.brian2)
         net.add(syn.b2_syn)
-        net.add(m)
+        net.add(m1)
+        net.add(m2)
+        net.add(m3)
         net.run(t)
 
         stable_t = int(t / dt * 0.1)
-        simulation_1 = m.__getattr__(syn.post_variable_name_1)[:, stable_t:]
+        simulation_1 = m1.__getattr__(syn.post_variable_name_1)[:, stable_t:]
         simulation_mean_1 = np.mean(simulation_1)
-        simulation_2 = m.__getattr__(syn.post_variable_name_2)[:, stable_t:]
+        simulation_2 = m2.__getattr__(syn.post_variable_name_2)[:, stable_t:]
         simulation_mean_2 = np.mean(simulation_2)
-        simulation_3 = m.__getattr__(syn.post_variable_name_3)[:, stable_t:]
+        simulation_3 = m3.__getattr__(syn.post_variable_name_3)[:, stable_t:]
         simulation_mean_3 = np.mean(simulation_3)
 
         #assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
         print(simulation_mean_1)
         print(simulation_mean_2)
         print(simulation_mean_3)
+        print(theory)
         print(20 * ms * 10 * Hz)
         # TODO : post_variable = tau * nu
 

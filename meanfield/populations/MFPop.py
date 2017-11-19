@@ -54,10 +54,10 @@ class MFPop(object):
     #@abstractmethod
     @abstractproperty
     def rate_prediction(self):
-        pass
+        raise NotImplementedError
 
     #@property
     #@abstractmethod
     @abstractproperty
     def v_mean_prediction(self):
-        pass
+        raise NotImplementedError
