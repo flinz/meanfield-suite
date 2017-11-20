@@ -6,7 +6,7 @@ from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
-from populations.MFPoissonSource import MFPoissonSource
+from populations.MFPoissonPop import MFPoissonPop
 from sources.MFLinearSource import MFLinearSource
 
 BrianLogger.log_level_debug()
@@ -97,7 +97,6 @@ I_params = MFParams({
 nu_e = 0.01
 nu_i = 0.01
 
-system = MFSystem("Brunel Wang simplified")
 
 # NMDA
 pop_e1 = MFLinearPop("E", N_non, E_params)
@@ -114,32 +113,31 @@ pop_i = MFLinearPop("I", N_I, I_params)
 pop_i.rate_ms = nu_i * Hz
 pop_i.v_mean = -52. * mV
 
-system.pops += [pop_e1, pop_e2, pop_i]
 
 # noise pops
-source_e_noise1 = MFPoissonSource("E_noise1", C_ext, rate)#pop_e1, {
-#    SP.GM: g_AMPA_ext_E,
-#    SP.VREV: 0 * volt,
-#    SP.TAU: tau_AMPA,
-#})
-source_e_noise1.g_base = g_AMPA_ext_E
-#pop_e1.noise = source_e_noise1
+source_e_noise1 = MFPoissonPop("E_noise1", C_ext, rate, {
+    SP.GM: g_AMPA_ext_E,
+    SP.VRES: 0 * volt,
+    SP.TAU_RP: tau_AMPA,
+})
+#source_e_noise1.g_base = g_AMPA_ext_E
+pop_e1.add_noise(source_e_noise1)
 
-source_e_noise2 = MFPoissonSource("E_noise2", C_ext, rate)#pop_e2, {
-#    SP.GM: g_AMPA_ext_E,
-#    SP.VREV: 0 * volt,
-#    SP.TAU: tau_AMPA,
-#})
-source_e_noise2.g_base = g_AMPA_ext_E
-#pop_e2.noise = source_e_noise2
+source_e_noise2 = MFPoissonPop("E_noise2", C_ext, rate, {
+    SP.GM: g_AMPA_ext_E,
+    SP.VRES: 0 * volt,
+    SP.TAU_RP: tau_AMPA,
+})
+#source_e_noise2.g_base = g_AMPA_ext_E
+pop_e2.add_noise(source_e_noise2)
 
-source_i_noise = MFPoissonSource("I_noise", C_ext, rate)#pop_i, {
-#    SP.GM: g_AMPA_ext_I,
-#    SP.VREV: 0 * volt,
-#    SP.TAU: tau_AMPA,
-#})
-source_i_noise.g_base = g_AMPA_ext_I
-#pop_i.noise = source_i_noise
+source_i_noise = MFPoissonPop("I_noise", C_ext, rate, {
+    SP.GM: g_AMPA_ext_I,
+    SP.VRES: 0 * volt,
+    SP.TAU_RP: tau_AMPA,
+})
+#.g_base = g_AMPA_ext_I
+pop_i.add_noise(source_i_noise)
 
 # E->E NMDA
 source_ee_nmda1 = MFLinearSource('EE NMDA 1', pop_e1, {
@@ -200,6 +198,10 @@ source_ie_gaba2 = MFLinearSource('IE GABA 2', pop_e2, {
     SP.VREV: -70 * volt,
     SP.TAU: tau_GABA,
 }, pop_i)
+
+
+system = MFSystem("Brunel Wang simplified")
+system.pops += [pop_e1, pop_e2, pop_i]
 
 solver = MFSolverRatesVoltages(system, solver='gradient')
 #solver.run()

@@ -20,6 +20,7 @@ class MFPop(object):
 
         self.sources = []
         self.noise = None
+
         # base estimation
         self._rate = 0. * units.Hz
         self._v_mean = -60. * units.mV
@@ -28,6 +29,7 @@ class MFPop(object):
         self.noise = noise
 
     def add_source(self, source):
+        # TODO control source and no duplicate
         self.sources.append(source)
 
     @property
@@ -50,17 +52,13 @@ class MFPop(object):
     def v_mean(self, value):
         self._v_mean = value
 
-    #@property
-    #@abstractmethod
-    @abstractproperty
+    @abstractmethod
     def rate_prediction(self):
-        raise NotImplementedError
+        pass
 
-    #@property
-    #@abstractmethod
-    @abstractproperty
+    @abstractmethod
     def v_mean_prediction(self):
-        raise NotImplementedError
+        pass
 
     @abstractmethod
     def brian2(self):

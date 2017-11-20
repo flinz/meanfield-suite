@@ -4,7 +4,7 @@ import numpy as np
 
 from meanfield.sources.MFLinearNMDASource import MFLinearNMDASource
 from meanfield.populations.MFLinearPop import MFLinearPop
-from meanfield.populations.MFPoissonSource import MFPoissonSource
+from meanfield.populations.MFPoissonPop import MFPoissonPop
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import NP
@@ -38,7 +38,11 @@ class TestMFLinearNMDASource(object):
         dt = 0.01 * ms
         n = 100
 
-        poisson = MFPoissonSource('poisson', n, n * 10 * Hz)
+        poisson = MFPoissonPop('poisson', n, n * 10 * Hz, {
+            NP.GM: 0 * nsiemens,
+            NP.VRES: 0 * mV,
+            NP.TAU_RP: 0 * ms
+        })
         pop = MFLinearPop('pop', n, {
             NP.GM: 10 * nsiemens,
             NP.VL: 0 * mV,

@@ -29,7 +29,7 @@ class MFSource(object):
 
         # link to pop
         self.pop = pop
-        self.pop.sources.append(self)  # TODO consistent
+        self.pop.add_source(self)  # TODO consistent
 
     @property
     @check_units(result=units.siemens)
