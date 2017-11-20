@@ -142,7 +142,6 @@ class MFLinearPop(MFPop):
         """
         return self.params[NP.VL] + self.mu - (self.params[NP.VTHR] - self.params[NP.VRES]) * self.rate * self.tau_eff
 
-
     def __repr__(self):
         return "MFpop [{}] <{} ({} sources, n: {}, rate: {}, v_mean: {})>".format(id(self), self.name, len(self.sources), self.n, self.rate, self.v_mean)
 

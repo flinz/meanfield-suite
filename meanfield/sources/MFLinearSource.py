@@ -1,13 +1,16 @@
 from brian2 import check_units, Equations, Synapses
 
+from meanfield.parameters import Connection
+from meanfield.parameters import SP
+from meanfield.parameters.MFParams import MFParams
+from meanfield.populations.MFPop import MFPop
 from meanfield.sources.MFSource import MFSource
 from meanfield.utils import lazyproperty
-from meanfield.parameters import SP
 
 
 class MFLinearSource(MFSource):
 
-    def __init__(self, name, pop, params, from_pop):
+    def __init__(self, name: str, pop: MFPop, params: MFParams, from_pop: MFPop, connection: Connection=Connection.one_to_one()):
         super().__init__(name, pop, params)
 
         defaults = {
@@ -20,10 +23,11 @@ class MFLinearSource(MFSource):
         self.params.verify(expectations)
 
         self.from_pop = from_pop
+        self.connection = connection
 
     @check_units(result=1)
     def g_dyn(self):
-        return self.from_pop.n * self.from_pop.rate * self.params[SP.TAU] * self.params[SP.W]
+        return self.connection.theory(self.from_pop.n) * self.from_pop.rate * self.params[SP.TAU] * self.params[SP.W]
 
     @lazyproperty
     def b2_syn(self, method='euler', weight=1, **kv):
@@ -36,6 +40,6 @@ class MFLinearSource(MFSource):
             model=model,
             on_pre=on_pre
         )
-        syn.connect(j='i')  # FIXME mode j != i
-        syn.w[:] = weight
+        self.connection.simulation(syn)
+        syn.w[:] = self.params[SP.W]
         return syn

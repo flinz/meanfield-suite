@@ -1,4 +1,4 @@
-from abc import abstractproperty
+from abc import abstractproperty, abstractmethod
 
 from brian2 import units, check_units
 
@@ -61,3 +61,7 @@ class MFPop(object):
     @abstractproperty
     def v_mean_prediction(self):
         raise NotImplementedError
+
+    @abstractmethod
+    def brian2(self):
+        pass

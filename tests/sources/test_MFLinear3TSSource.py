@@ -38,6 +38,8 @@ class TestMFLinear3TSSource(object):
         dt = 0.01 * ms
         n = 100
 
+        alpha = 0.5
+
         poisson = MFPoissonSource('poisson', n, n * 10 * Hz)
         pop = MFLinearPop('pop', n, {
             NP.GM: 10 * nsiemens,
@@ -54,7 +56,7 @@ class TestMFLinear3TSSource(object):
             SP.TAU_RISE: 10 * ms,
             SP.TAU_D1: 20 * ms,
             SP.TAU_D2: 30 * ms,
-            SP.ALPHA: 1
+            SP.ALPHA: alpha
         }, poisson)
 
         system = MFSystem('test')
@@ -88,11 +90,15 @@ class TestMFLinear3TSSource(object):
         simulation_mean_3 = np.mean(simulation_3)
 
         #assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
+        assert np.isclose(10 * ms * 10 * Hz * 100, simulation_mean_1, rtol=0.5, atol=0.5)
+        assert np.isclose(20 * ms * 10 * Hz * 100, simulation_mean_2, rtol=0.5, atol=0.5)
+        assert np.isclose(30 * ms * 10 * Hz * 100, simulation_mean_3, rtol=0.5, atol=0.5)
+
+        print(theory)
         print(simulation_mean_1)
         print(simulation_mean_2)
         print(simulation_mean_3)
-        print(theory)
-        print(20 * ms * 10 * Hz)
+        print((1 - simulation_mean_1) * (alpha * simulation_mean_2 + (1 - alpha) * simulation_mean_3))
         # TODO : post_variable = tau * nu
 
 

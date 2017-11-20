@@ -9,6 +9,7 @@ from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import NP
 from meanfield.parameters import SP
+from tests.utils import enable_cpp
 
 params_pop = {
     NP.GAMMA: 0.280112,
@@ -26,6 +27,8 @@ params_source = {
     SP.VE: 0 * volt,
     SP.TAU: 10 * ms,
 }
+
+enable_cpp()
 
 class TestMFLinearSource(object):
 
@@ -56,7 +59,7 @@ class TestMFLinearSource(object):
         solver.run()
         theory = syn.g_dyn() / syn.from_pop.n
 
-        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=True)
+        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=range(100))
         defaultclock.dt = dt
         net = Network()
         net.add(poisson.brian2)

@@ -43,7 +43,7 @@ class MFSource(object):
 
     @abstractmethod
     def g_dyn(self):
-        raise NotImplementedError
+        pass
 
     @property
     def current_name(self):
@@ -56,7 +56,7 @@ class MFSource(object):
     @abstractmethod
     def b2_syn(self):
         """Builds lazily Brian2 synapse component once."""
-        raise NotImplementedError
+        pass
 
     def b2_dyn(self):
         """Returns Brian2 dynamic (Equations) affecting specified populations."""
