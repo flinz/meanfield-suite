@@ -34,14 +34,14 @@ class MFLinear3TSSource(MFLinearSource):
         w1 : 1
         w2 : 1
         w3 : 1
+        w4 : 1
         ''')
         on_pre = '''
         {} += w1
         {} += w2
         {} += w3
-        '''.format(self.post_variable_name_1, self.post_variable_name_2, self.post_variable_name_3)
-        print(model)
-        print(on_pre)
+        {} += w4
+        '''.format(self.post_variable_name_1, self.post_variable_name_2, self.post_variable_name_3, self.post_variable_name_4)
         syn = Synapses(
             source=self.from_pop.brian2,
             target=self.pop.brian2,
@@ -53,6 +53,7 @@ class MFLinear3TSSource(MFLinearSource):
         syn.w1[:] = weight1
         syn.w2[:] = weight2
         syn.w3[:] = weight3
+        syn.w4[:] = 1
         return syn
 
     @property
@@ -67,23 +68,34 @@ class MFLinear3TSSource(MFLinearSource):
     def post_variable_name_3(self):
         return self.post_variable_name + '_3'
 
+    @property
+    def post_variable_name_4(self):
+        return self.post_variable_name + '_4'
+
     def b2_dyn(self):
+
+        tau_mix1 = (self.params[SP.TAU_RISE] * self.params[SP.TAU_D1]) / (self.params[SP.TAU_RISE] + self.params[SP.TAU_D1])
+        tau_mix2 = (self.params[SP.TAU_RISE] * self.params[SP.TAU_D2]) / (self.params[SP.TAU_RISE] + self.params[SP.TAU_D2])
+
         return Equations(
             '''
-            I = g * (v - vrev) * (1 - s1) * (a * s2 + (1 - a) * s3) : amp
-            ds1 / dt = - s1 / tau_1 : 1
-            ds2 / dt = - s2 / tau_2 : 1
-            ds3 / dt = - s3 / tau_3 : 1
+            I = g * (v - vrev) * (a * s1 + (1 - a) * s2 - a * s3 - (1 - a) * s4) : amp
+            ds1 / dt = - s1 / tau_d1 : 1
+            ds2 / dt = - s2 / tau_d2 : 1
+            ds3 / dt = - s3 / tau_mix1 : 1
+            ds4 / dt = - s4 / tau_mix2 : 1
             ''',
             I=self.current_name,
             g=self.params[SP.GM],
             s1=self.post_variable_name_1,
             s2=self.post_variable_name_2,
             s3=self.post_variable_name_3,
+            s4=self.post_variable_name_4,
             vrev=self.params[SP.VREV],
-            tau_1=self.params[SP.TAU_RISE],
-            tau_2=self.params[SP.TAU_D1],
-            tau_3=self.params[SP.TAU_D2],
+            tau_d1=self.params[SP.TAU_D1],
+            tau_d2=self.params[SP.TAU_D2],
+            tau_mix1=tau_mix1,
+            tau_mix2=tau_mix2,
             a=self.params[SP.ALPHA]
         )
 

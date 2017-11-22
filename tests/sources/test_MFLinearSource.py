@@ -9,6 +9,7 @@ from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import NP
 from meanfield.parameters import SP
+from meanfield.parameters import Connection
 from tests.utils import enable_cpp
 
 params_pop = {
@@ -38,7 +39,7 @@ class TestMFLinearSource(object):
         dt = 0.01 * ms
         n = 100
 
-        poisson = MFPoissonPop('poisson', n, n * 10 * Hz, {
+        poisson = MFPoissonPop('poisson', n, 10 * Hz, {
             NP.GM: 0 * nsiemens,
             NP.VRES: 0 * mV,
             NP.TAU_RP: 0 * ms
@@ -55,7 +56,7 @@ class TestMFLinearSource(object):
             SP.GM: 10 * nsiemens,
             SP.VREV: 0 * volt,
             SP.TAU: 20 * ms,
-        }, poisson)
+        }, poisson, Connection.one_to_one())
 
         system = MFSystem('test')
         system.pops += [pop]
@@ -80,5 +81,7 @@ class TestMFLinearSource(object):
         print(simulation_mean)
         print(20 * ms * 10 * Hz)
         # TODO : post_variable = tau * nu
+
+        # FIXME test for all
 
 

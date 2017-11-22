@@ -7,7 +7,7 @@ class ConnectionStrategy:
         self.simulation = simulation
 
 
-def probability(p):
+def random(p):
     def theory(n):
         return round(p * n)
 
@@ -21,6 +21,7 @@ def probability(p):
 def all_to_all():
     def theory(n):
         return n
+    # FIXME n-1 self connection, else n
 
     def simulation(s):
         s.connect(condition='j != i')
@@ -31,7 +32,7 @@ def all_to_all():
 
 def one_to_one():
     def theory(n):
-        return n
+        return 1
 
     def simulation(s):
         s.connect(j='i')
