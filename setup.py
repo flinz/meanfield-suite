@@ -4,11 +4,11 @@ with open('README.md') as f:
     readme = f.read()
 
 install_requires = [
-    'numpy==1.13.3',
-    'scipy==1.0.0',
-    'matplotlib==2.1.0',
-    'Brian2==2.1.2',
-    'pandas==0.21.0',
+    'numpy>=1.13.3',
+    'scipy>=1.0.0',
+    'matplotlib>=2.1.0',
+    'Brian2>=2.1.2',
+    'pandas>=0.21.0',
 ]
 
 tests_require = [
