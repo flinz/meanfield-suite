@@ -1,3 +1,5 @@
+from time import sleep
+
 from brian2 import *
 from meanfield.parameters import NP
 from meanfield.parameters import SP
@@ -10,6 +12,7 @@ from populations.MFPoissonPop import MFPoissonPop
 from sources.MFLinearSource import MFLinearSource
 
 BrianLogger.log_level_debug()
+set_device('cpp_standalone')
 
 # neurons
 N = 1000
@@ -68,7 +71,7 @@ f = 0.1
 p = 1
 N_sub = int(N_E * f)
 N_non = int(N_E * (1. - f * p))
-w_plus = 1
+w_plus = 2.1
 w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
 
@@ -120,7 +123,6 @@ source_e_noise1 = MFPoissonPop("E_noise1", C_ext, rate, {
     SP.VRES: 0 * volt,
     SP.TAU_RP: tau_AMPA,
 })
-#source_e_noise1.g_base = g_AMPA_ext_E
 pop_e1.add_noise(source_e_noise1)
 
 source_e_noise2 = MFPoissonPop("E_noise2", C_ext, rate, {
@@ -128,7 +130,6 @@ source_e_noise2 = MFPoissonPop("E_noise2", C_ext, rate, {
     SP.VRES: 0 * volt,
     SP.TAU_RP: tau_AMPA,
 })
-#source_e_noise2.g_base = g_AMPA_ext_E
 pop_e2.add_noise(source_e_noise2)
 
 source_i_noise = MFPoissonPop("I_noise", C_ext, rate, {
@@ -136,7 +137,6 @@ source_i_noise = MFPoissonPop("I_noise", C_ext, rate, {
     SP.VRES: 0 * volt,
     SP.TAU_RP: tau_AMPA,
 })
-#.g_base = g_AMPA_ext_I
 pop_i.add_noise(source_i_noise)
 
 # E->E NMDA
@@ -207,6 +207,20 @@ solver = MFSolverRatesVoltages(system, solver='gradient')
 #solver.run()
 
 
+sp1 = SpikeMonitor(pop_e1.brian2[:40])
+sp2 = SpikeMonitor(pop_e2.brian2[:40])
+sp3 = SpikeMonitor(pop_i.brian2[:40])
+rate1 = PopulationRateMonitor(pop_e1.brian2)
+rate2 = PopulationRateMonitor(pop_e2.brian2)
+rate3 = PopulationRateMonitor(pop_i.brian2)
+s = StateMonitor(pop_e1.brian2, ['I'], record=[100])
+
+system.print_introspect()
+print(system, flush=True)
+
+sleep(1)
+raise NotImplementedError
+
 net = Network()
 net.add(pop_e1.brian2)
 net.add(pop_e2.brian2)
@@ -220,7 +234,31 @@ net.add(source_ie_ampa.b2_syn)
 net.add(source_ii_gaba.b2_syn)
 net.add(source_ie_gaba1.b2_syn)
 net.add(source_ie_gaba2.b2_syn)
+net.add(sp1)
+net.add(sp2)
+net.add(sp3)
+net.add(rate1)
+net.add(rate2)
+net.add(rate3)
+net.add(s)
 net.run(3000 * ms)
+
+print(s.I)
+
+subplot(311)
+plot(rate1.t / ms, rate1.smooth_rate(width=25 * ms) / Hz, label='pyramidal neuron')
+plot(rate2.t / ms, rate2.smooth_rate(width=25 * ms) / Hz, label='pyramidal neuron')
+plot(rate3.t / ms, rate3.smooth_rate(width=25 * ms) / Hz, label='interneuron')
+legend()
+
+subplot(312)
+plot(sp1.t / ms, sp1.i, '.', markersize=5, label='nonselective')
+
+subplot(313)
+plot(sp3.t / ms, sp3.i, '.', markersize=5)
+
+show()
+
 
 
 # eqs_E = '''

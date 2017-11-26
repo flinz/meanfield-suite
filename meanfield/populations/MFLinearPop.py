@@ -101,21 +101,21 @@ class MFLinearPop(MFPop):
         """
         Volt^2
         """
-        if not len(self.noise):
+        if not len(self.noises):
             return 0. * units.volt ** 2
 
-        noise = self.noise[0]
+        noise = self.noises[0]
         return (noise.g_base / self.params[NP.CM] * (self.v_mean - noise.params[SP.VE])) ** 2 * self.tau_eff * noise.g_dyn() * noise.params[SP.TAU]
 
     @check_units(result=units.Hz)
     def phi_firing_func(self):
         # FIXME no noise
-        if not len(self.noise):
+        if not len(self.noises):
             return 0 * units.Hz
 
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
-        noise = self.noise[0]
+        noise = self.noises[0]
 
         beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma
         alpha = -0.5 * noise.params[SP.TAU] / tau_eff \
@@ -144,13 +144,4 @@ class MFLinearPop(MFPop):
         Volt
         """
         return self.params[NP.VL] + self.mu - (self.params[NP.VTHR] - self.params[NP.VRES]) * self.rate * self.tau_eff
-
-    def __repr__(self):
-        return "MFpop [{}] <{} ({} sources, n: {}, rate: {}, v_mean: {})>".format(id(self), self.name, len(self.sources), self.n, self.rate, self.v_mean)
-
-    def print_sys(self):
-        print("\t{} - tau_eff: {}, mu: {}, sig^2: {}, rate_pred: {}, v_mean_pred: {}".format(
-            self, self.tau_eff, self.mu, self.sigma_square, self.rate_prediction, self.v_mean_prediction))
-        for s in self.sources:
-            print("\t\t", s.print_sys())
 

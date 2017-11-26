@@ -46,5 +46,6 @@ class MFParams(object):
         return self
 
     def __repr__(self):
-        return self.underlying.__repr__()
+        items = ', '.join('{}: {}'.format(k, v) for k, v in self.underlying.items())
+        return '{} {{ {} }}'.format(self.__class__.__name__, items)
 

@@ -13,10 +13,19 @@ class MFSystem(object):
             raise KeyError
         return self.pops[idx]
 
-    def print_sys(self, mf=False):
-        print("%s" % self)
-        for p in self.pops:
-            p.print_sys(mf)
+    def introspect(self, indent=0) -> str:
+        builder = []
+        spaces = ' ' * indent
+        builder.append(str(self))
+
+        for pop in self.pops:
+            builder.append('\n{}  - {}'.format(spaces, pop.introspect(indent=indent + 2)))
+
+        builder.append('')
+        return '\n'.join(builder)
+
+    def print_introspect(self) -> None:
+        print(self.introspect())
 
     def __repr__(self):
-        return "MFSystem <%s (%i pops)>" % (self.name, len(self.pops))
+        return "{} [{}] ({} pops)".format(self.__class__.__name__, self.name, len(self.pops))

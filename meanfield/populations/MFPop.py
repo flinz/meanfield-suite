@@ -19,17 +19,17 @@ class MFPop(object):
             self.params = MFParams({})
 
         self.sources = []
-        self.noise = []
+        self.noises = []
 
         # base estimation
         self._rate = 0. * units.Hz
         self._v_mean = -60. * units.mV
 
     def add_noise(self, noise):
-        if len(self.noise):
+        if len(self.noises):
             raise NotImplementedError('multiple noise not supported yet')
 
-        self.noise.append(noise)
+        self.noises.append(noise)
 
     def add_source(self, source):
         # TODO control source and no duplicate
@@ -66,3 +66,20 @@ class MFPop(object):
     @abstractmethod
     def brian2(self):
         pass
+
+    def introspect(self, indent=0) -> str:
+        builder = []
+        spaces = ' ' * indent
+        builder.append(str(self))
+
+        for noise in self.noises:
+            builder.append('{}  - {}'.format(spaces, noise))
+
+        for source in self.sources:
+            builder.append('{}  - {}'.format(spaces, source))
+
+        return '\n'.join(builder)
+
+
+    def __repr__(self):
+        return '{} [{}] ({} noises, {} sources, n: {}, rate: {}, v_mean: {})'.format(self.__class__.__name__, self.name, len(self.noises), len(self.sources), self.n, self.rate, self.v_mean)
