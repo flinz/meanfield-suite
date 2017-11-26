@@ -101,24 +101,27 @@ class MFLinearPop(MFPop):
         """
         Volt^2
         """
-        if not self.noise:
+        if not len(self.noise):
             return 0. * units.volt ** 2
-        return (self.noise.g_base / self.params[NP.CM] * (self.v_mean - self.noise.params[SP.VE])) ** 2 * self.tau_eff * self.noise.g_dyn() * self.noise.params[SP.TAU]
+
+        noise = self.noise[0]
+        return (noise.g_base / self.params[NP.CM] * (self.v_mean - noise.params[SP.VE])) ** 2 * self.tau_eff * noise.g_dyn() * noise.params[SP.TAU]
 
     @check_units(result=units.Hz)
     def phi_firing_func(self):
         # FIXME no noise
-        if not self.noise:
+        if not len(self.noise):
             return 0 * units.Hz
 
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
+        noise = self.noise[0]
 
         beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma
-        alpha = -0.5 * self.noise.params[SP.TAU] / tau_eff \
-                + 1.03 * np.sqrt(self.noise.params[SP.TAU] / tau_eff) \
+        alpha = -0.5 * noise.params[SP.TAU] / tau_eff \
+                + 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff) \
                 + (- self.mu - self.params[NP.VRES] + self.params[NP.VTHR]) * (
-            1. + (0.5 * self.noise.params[SP.TAU] / tau_eff)) / sigma
+            1. + (0.5 * noise.params[SP.TAU] / tau_eff)) / sigma
 
         def integrand(x):
             if x < -10.:

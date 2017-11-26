@@ -19,14 +19,17 @@ class MFPop(object):
             self.params = MFParams({})
 
         self.sources = []
-        self.noise = None
+        self.noise = []
 
         # base estimation
         self._rate = 0. * units.Hz
         self._v_mean = -60. * units.mV
 
     def add_noise(self, noise):
-        self.noise = noise
+        if len(self.noise):
+            raise NotImplementedError('multiple noise not supported yet')
+
+        self.noise.append(noise)
 
     def add_source(self, source):
         # TODO control source and no duplicate

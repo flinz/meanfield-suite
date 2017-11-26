@@ -284,7 +284,7 @@ def setup_brunel99(w_plus_val=2.5):
     #source_e_noise1.g_base = params_standard['E']['gAMPA']
     #source_e_noise1.g_dyn = lambda: params_standard['E']['nu_ext'] * params_standard['E']['Cext'] * params_standard['E']['tau_AMPA']
     #source_e_noise1.noise_tau = params_standard['E']['tau_AMPA']
-    pop_e1.noise = source_e_noise1
+    pop_e1.add_noise(source_e_noise1)
 
     source_e_noise2 = MFStaticSource('E_noise2', pop_e2, {
         SP.GM: params_standard['E']['gAMPA'],
@@ -294,7 +294,7 @@ def setup_brunel99(w_plus_val=2.5):
     #source_e_noise2.g_base = params_standard['E']['gAMPA']
     #source_e_noise2.g_dyn = lambda: params_standard['E']['nu_ext'] * params_standard['E']['Cext'] * params_standard['E']['tau_AMPA']
     #source_e_noise2.noise_tau = params_standard['E']['tau_AMPA']
-    pop_e2.noise = source_e_noise2
+    pop_e2.add_noise(source_e_noise2)
 
     source_i_noise = MFStaticSource('I_noise', pop_i, {
         SP.GM: params_standard['I']['gAMPA'],
@@ -304,7 +304,7 @@ def setup_brunel99(w_plus_val=2.5):
     #source_i_noise.g_base = params_standard['I']['gAMPA']
     #source_i_noise.g_dyn = lambda: params_standard['I']['nu_ext'] * params_standard['I']['Cext'] * params_standard['I']['tau_AMPA']
     #source_i_noise.noise_tau = params_standard['I']['tau_AMPA']
-    pop_i.noise = source_i_noise
+    pop_i.add_noise(source_i_noise)
 
     # E->E NMDA
     syn_spec_nmda = {
@@ -457,7 +457,7 @@ def setup_EI(has_nmda=False):
     #source_e_noise.g_base = params_standard['E']['gAMPA']
     #source_e_noise.g_dyn = lambda: params_standard['E']['nu_ext'] * params_standard['E']['Cext'] * params_standard['E']['tau_AMPA']
     #source_e_noise.noise_tau = params_standard['E']['tau_AMPA']
-    pop_e.noise = source_e_noise
+    pop_e.add_noise(source_e_noise)
 
     source_i_noise = MFStaticSource('I_noise', pop_i, {
         SP.GM: params_standard['I']['gAMPA'],
@@ -467,7 +467,7 @@ def setup_EI(has_nmda=False):
     #source_i_noise.g_base = params_standard['I']['gAMPA']
     #source_i_noise.g_dyn = lambda: params_standard['I']['nu_ext'] * params_standard['I']['Cext'] * params_standard['I']['tau_AMPA']
     #source_i_noise.noise_tau = params_standard['I']['tau_AMPA']
-    pop_i.noise = source_i_noise
+    pop_i.add_noise(source_i_noise)
 
     # E->E NMDA
     syn_spec_nmda = {
