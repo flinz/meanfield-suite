@@ -29,7 +29,7 @@ class MFLinear3TSSource(MFLinearSource):
         return self.from_pop.n * self.from_pop.rate * sum(taus)
 
     @lazyproperty
-    def b2_syn(self, mode='i != j', method='euler', weight1=1, weight2=1, weight3=1):
+    def b2_syn(self):
         model = Equations('''
         w1 : 1
         w2 : 1
@@ -45,14 +45,14 @@ class MFLinear3TSSource(MFLinearSource):
         syn = Synapses(
             source=self.from_pop.brian2,
             target=self.pop.brian2,
-            method=method,
+            method='euler',
             model=model,
             on_pre=on_pre
         )
         syn.connect(j='i')
-        syn.w1[:] = weight1
-        syn.w2[:] = weight2
-        syn.w3[:] = weight3
+        syn.w1[:] = 1
+        syn.w2[:] = 1
+        syn.w3[:] = 1
         syn.w4[:] = 1
         return syn
 

@@ -69,7 +69,7 @@ class TestMFLinear3TSSource(object):
         solver.run()
         theory = syn.g_dyn() / syn.from_pop.n
 
-        print([syn.post_variable_name_1, syn.post_variable_name_2, syn.post_variable_name_3])
+        print([syn.post_variable_name_1, syn.post_variable_name_2, syn.post_variable_name_3, syn.post_variable_name_4])
         print(syn.b2_syn)
 
         m1 = StateMonitor(syn.b2_syn, syn.post_variable_name_1, record=range(100))
@@ -94,21 +94,14 @@ class TestMFLinear3TSSource(object):
         simulation_mean_2 = np.mean(simulation_2)
         simulation_3 = m3.__getattr__(syn.post_variable_name_3)[:, stable_t:]
         simulation_mean_3 = np.mean(simulation_3)
-        simulation_4 = m3.__getattr__(syn.post_variable_name_4)[:, stable_t:]
+        simulation_4 = m4.__getattr__(syn.post_variable_name_4)[:, stable_t:]
         simulation_mean_4 = np.mean(simulation_4)
 
-        #assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
-        #assert np.isclose(2 * ms * 10 * Hz * 100, simulation_mean_1, rtol=0.5, atol=0.5)
-        #assert np.isclose(20 * ms * 10 * Hz * 100, simulation_mean_2, rtol=0.5, atol=0.5)
-        #assert np.isclose(30 * ms * 10 * Hz * 100, simulation_mean_3, rtol=0.5, atol=0.5)
+        simulation_mean = alpha * simulation_mean_1 + (1 - alpha) * simulation_mean_2 + - alpha * simulation_mean_3 - (1 - alpha) * simulation_mean_4
 
-        print(theory)
-        print(simulation_mean_1)
-        print(simulation_mean_2)
-        print(simulation_mean_3)
-        print(simulation_mean_4)
-        print(alpha * simulation_mean_1 + (1 - alpha) * simulation_mean_2 + - alpha * simulation_mean_3 - (1 - alpha) * simulation_4)
         # TODO : post_variable = tau * nu
+        assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
+
 
 
     def test_model_gen(self):
