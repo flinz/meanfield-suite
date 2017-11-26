@@ -1,12 +1,16 @@
+from typing import Union, Dict
+
 from brian2 import Equations, Synapses, units
 
 from meanfield.sources.MFLinearSource import MFLinearSource
 from meanfield.utils import lazyproperty
 from meanfield.parameters import SP
+from meanfield.parameters.MFParams import MFParams
+from meanfield.populations.MFPop import MFPop
 
 
 class MFLinear3TSSource(MFLinearSource):
-    def __init__(self, name, pop, params, from_pop):
+    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop):
         super().__init__(name, pop, params, from_pop)
 
         defaults = {}

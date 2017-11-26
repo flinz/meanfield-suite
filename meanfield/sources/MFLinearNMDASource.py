@@ -1,12 +1,16 @@
+from typing import Union, Dict
+
 from brian2 import units, Equations, check_units, np
 
 from meanfield.sources.MFLinearSource import MFLinearSource
 from meanfield.parameters import SP, NP
+from meanfield.parameters.MFParams import MFParams
+from meanfield.populations.MFPop import MFPop
 
 
 class MFLinearNMDASource(MFLinearSource):
 
-    def __init__(self, name, pop, params, from_pop):
+    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop):
         super().__init__(name, pop, params, from_pop)
 
         defaults = {}

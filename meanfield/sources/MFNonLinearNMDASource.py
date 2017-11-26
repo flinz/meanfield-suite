@@ -1,13 +1,17 @@
+from typing import Dict, Union
+
 from brian2 import Equations, Synapses, check_units
 
 from meanfield.sources.MFLinearNMDASource import MFLinearNMDASource
 from meanfield.utils import lazyproperty
 from meanfield.parameters import SP
+from meanfield.parameters.MFParams import MFParams
+from meanfield.populations.MFPop import MFPop
 
 
 class MFNonLinearNMDASource(MFLinearNMDASource):
 
-    def __init__(self, name, pop, params, from_pop):
+    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop):
         super().__init__(name, pop, params, from_pop)
         defaults = {
 
@@ -38,7 +42,7 @@ class MFNonLinearNMDASource(MFLinearNMDASource):
         return 'x_' + self.ref
 
     @lazyproperty
-    def b2_syn(self, mode='i != j', weight=1):
+    def b2_syn(self):
         model = Equations(
             '''
             w : 1
@@ -57,6 +61,6 @@ class MFNonLinearNMDASource(MFLinearNMDASource):
         {} += 1
         '''.format(self.post_nonlinear_name)
         C = Synapses(self.from_pop.brian2, self.pop.brian2, method='euler', model=model, on_pre=eqs_pre)
-        C.connect(mode)
-        C.w[:] = weight
+        C.connect()
+        C.w[:] = 1
         return C

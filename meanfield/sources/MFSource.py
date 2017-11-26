@@ -1,16 +1,18 @@
 from abc import abstractmethod
+from typing import Union, Dict
 
 from brian2 import units, check_units, Equations
 
 from meanfield.parameters.MFParams import MFParams
 from meanfield.utils import name2identifier, lazyproperty
 from meanfield.parameters import SP, NP
+from meanfield.populations.MFPop import MFPop
 
 
 class MFSource(object):
     """Source: a synapse coupled to pops"""
 
-    def __init__(self, name, pop, params):
+    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams]):
 
         self.name = name
         self.ref = name2identifier(name)
