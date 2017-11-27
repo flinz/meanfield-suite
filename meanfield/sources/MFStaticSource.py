@@ -26,4 +26,4 @@ class MFStaticSource(MFSource):
 
     @lazyproperty
     def brian2(self):
-        return PoissonInput(self.pop.brian2, self.post_variable_name, self.n, self.rate, 100)
+        return PoissonInput(self.pop.brian2, self.post_variable_name, self.n, self.rate, 1)

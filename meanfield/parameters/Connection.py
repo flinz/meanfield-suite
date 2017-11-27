@@ -28,7 +28,6 @@ def random(p):
 def all_to_all():
     def theory(n):
         return n
-    # FIXME n-1 self connection, else n
 
     def simulation(s):
         s.connect()
@@ -36,10 +35,10 @@ def all_to_all():
 
     return ConnectionStrategy('all-to-all', theory, simulation)
 
+
 def all_to_others():
     def theory(n):
         return n - 1
-    # FIXME n-1 self connection, else n
 
     def simulation(s):
         s.connect(condition='j != i')

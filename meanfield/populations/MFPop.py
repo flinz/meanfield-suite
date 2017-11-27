@@ -22,7 +22,7 @@ class MFPop(object):
         self.noises = []
 
         # base estimation
-        self._rate = 0. * units.Hz
+        self._rate = 5 * units.Hz
         self._v_mean = -60. * units.mV
 
     def add_noise(self, noise):

@@ -49,22 +49,22 @@ C_I = N_I
 
 # AMPA (excitatory)
 g_AMPA_ext_E = 2.08 * nS
-g_AMPA_rec_E = 0.104 * nS * 800. / N_E
+g_AMPA_rec_E = 0*0.104 * nS * 800. / N_E
 g_AMPA_ext_I = 1.62 * nS
-g_AMPA_rec_I = 0.081 * nS * 800. / N_E
+g_AMPA_rec_I = 0*0.081 * nS * 800. / N_E
 tau_AMPA = 2. * ms
 
 # NMDA (excitatory)
-g_NMDA_E = 0.327 * nS * 800. / N_E
-g_NMDA_I = 0.258 * nS * 800. / N_E
+g_NMDA_E = 0 * 0.327 * nS * 800. / N_E
+g_NMDA_I = 0 * 0.258 * nS * 800. / N_E
 tau_NMDA_rise = 2. * ms
 tau_NMDA_decay = 100. * ms
 alpha = 0. / ms # 0.5 / ms
 Mg2 = 0. # 1.
 
 # GABAergic (inhibitory)
-g_GABA_E = 0.1 * 1.25 * nS * 200. / N_I # FIXME
-g_GABA_I = 0.973 * nS * 200. / N_I
+g_GABA_E = 0*1.25 * nS * 200. / N_I
+g_GABA_I = 0*0.973 * nS * 200. / N_I
 tau_GABA = 10. * ms
 
 # subpopulations
@@ -80,7 +80,7 @@ E_params = MFParams({
     #NP.GAMMA: 0.280112,
     #NP.BETA: 0.062,
     NP.GM: g_m_E,
-    NP.CM: C_m_E * 1e3,
+    NP.CM: C_m_E,
     NP.VL: V_L,
     NP.VTHR: V_thr,
     NP.VRES: V_reset,
@@ -91,7 +91,7 @@ I_params = MFParams({
     #gamma: 0.280112,
     #beta: 0.062,
     NP.GM: g_m_I,
-    NP.CM: C_m_I * 1e3,
+    NP.CM: C_m_I,
     NP.VL: V_L,
     NP.VTHR: V_thr,
     NP.VRES: V_reset,
@@ -180,6 +180,8 @@ source_ie_ampa = MFLinearSource('EI AMPA', pop_i, {
     SP.TAU: tau_AMPA,
 }, pop_e2)
 
+print(g_GABA_I)
+
 # I->I GABA
 source_ii_gaba = MFLinearSource('II GABA', pop_i, {
     SP.GM: g_GABA_I,
@@ -204,8 +206,11 @@ source_ie_gaba2 = MFLinearSource('IE GABA 2', pop_e2, {
 system = MFSystem("Brunel Wang simplified")
 system.pops += [pop_e1, pop_e2, pop_i]
 
-solver = MFSolverRatesVoltages(system, solver='gradient')
+solver = MFSolverRatesVoltages(system)
+print(solver.state)
 solver.run()
+
+print(pop_e1.brian2_model())
 
 
 sp1 = SpikeMonitor(pop_e1.brian2[:40])

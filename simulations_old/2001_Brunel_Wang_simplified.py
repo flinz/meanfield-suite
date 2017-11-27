@@ -41,21 +41,21 @@ C_I = N_I
 
 # AMPA (excitatory)
 g_AMPA_ext_E = 2.08 * nS
-g_AMPA_rec_E = 0.104 * nS * 800. / N_E
+g_AMPA_rec_E = 0*0.104 * nS * 800. / N_E
 g_AMPA_ext_I = 1.62 * nS
-g_AMPA_rec_I = 0.081 * nS * 800. / N_E
+g_AMPA_rec_I = 0*0.081 * nS * 800. / N_E
 tau_AMPA = 2. * ms
 
 # NMDA (excitatory)
-g_NMDA_E = 0.327 * nS * 800. / N_E
-g_NMDA_I = 0.258 * nS * 800. / N_E
+g_NMDA_E = 0*0.01 * 0.327 * nS * 800. / N_E
+g_NMDA_I = 0*0.01 * 0.258 * nS * 800. / N_E
 tau_NMDA_rise = 2. * ms
 tau_NMDA_decay = 100. * ms
 alpha = 0. / ms # 0.5 / ms
 Mg2 = 0. # 1.
 
 # GABAergic (inhibitory)
-g_GABA_E = 1.25 * nS * 200. / N_I
+g_GABA_E = 0*1.25 * nS * 200. / N_I
 g_GABA_I = 0.973 * nS * 200. / N_I
 tau_GABA = 10. * ms
 
@@ -64,8 +64,9 @@ f = 0.1
 p = 1
 N_sub = int(N_E * f)
 N_non = int(N_E * (1. - f * p))
-w_plus = 2.1
+w_plus = 1#2.1
 w_minus = 1. - f * (w_plus - 1.) / (1. - f)
+
 
 eqs_E = '''
 dv / dt = (- g_m_E * (v - V_L) - I_syn) / C_m_E : volt (unless refractory)
@@ -111,8 +112,8 @@ w : 1
 '''
 
 eqs_pre_glut = '''
-s_AMPA += w
-s_NMDA += w
+s_AMPA += 1
+s_NMDA += 1
 '''
 
 eqs_pre_gaba = '''
@@ -126,20 +127,20 @@ s_AMPA_ext += 1
 # recurrent E to E
 C_E_E = Synapses(P_E, P_E, method='euler', model=eqs_glut, on_pre=eqs_pre_glut)
 C_E_E.connect('i != j')
-C_E_E.w[:] = 1
+C_E_E.w[:] = 0
 
 for pi in range(N_non, N_non + p * N_sub, N_sub):
 
     # internal other subpopulation to current nonselective
-    C_E_E.w[C_E_E.indices[:, pi:pi + N_sub]] = w_minus
+    C_E_E.w[C_E_E.indices[:, pi:pi + N_sub]] = 0#w_minus
 
     # internal current subpopulation to current subpopulation
-    C_E_E.w[C_E_E.indices[pi:pi + N_sub, pi:pi + N_sub]] = w_plus
+    C_E_E.w[C_E_E.indices[pi:pi + N_sub, pi:pi + N_sub]] = 0#w_plus
 
 # E to I
 C_E_I = Synapses(P_E, P_I, method='euler', model=eqs_glut, on_pre=eqs_pre_glut)
 C_E_I.connect()
-C_E_I.w[:] = 1
+C_E_I.w[:] = 0
 
 # recurrent I to I
 C_I_I = Synapses(P_I, P_I, on_pre=eqs_pre_gaba)
@@ -153,10 +154,10 @@ C_I_E.connect()
 C_P_E = PoissonInput(P_E, 's_AMPA_ext', C_ext, rate, 1)
 C_P_I = PoissonInput(P_I, 's_AMPA_ext', C_ext, rate, 1)
 
-stimuli = TimedArray(np.r_[np.zeros(10), np.ones(2) * 50, np.zeros(50)] * Hz, dt=100 * ms)
-C_PG_sti = PoissonGroup(100, 'stimuli(t)')
-C_PG_E = Synapses(C_PG_sti, P_E[N_non: N_non + N_sub], on_pre='s_AMPA += 1')
-C_PG_E.connect()
+#stimuli = TimedArray(np.r_[np.zeros(10), np.ones(2) * 50, np.zeros(50)] * Hz, dt=100 * ms)
+#C_PG_sti = PoissonGroup(100, 'stimuli(t)')
+#C_PG_E = Synapses(C_PG_sti, P_E[N_non: N_non + N_sub], on_pre='s_AMPA += 1')
+#C_PG_E.connect()
 
 # monitors
 s_E_sel = StateMonitor(P_E, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA'], record=[N_non + 1])
@@ -182,6 +183,7 @@ subplot(322)
 title('rates')
 plot(r_E.t / ms, r_E.smooth_rate(width=10 * ms) / Hz, label='pyramidal neuron')
 plot(r_I.t / ms, r_I.smooth_rate(width=10 * ms) / Hz, label='interneuron')
+legend()
 
 subplot(323)
 title('pyramidal neuron parameters')

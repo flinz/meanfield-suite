@@ -76,7 +76,7 @@ class MFLinearPop(MFPop):
         Gm * SE in [1]
         Units of S
         """
-        return self.params[NP.GM] + np.sum(s.conductance for s in self.sources)
+        return self.params[NP.GM] + np.sum(s.conductance for s in self.sources + self.noises)
 
     @property
     @check_units(result=units.second)
@@ -92,7 +92,7 @@ class MFLinearPop(MFPop):
         """
         Volt
         """
-        return np.sum(s.voltage_conductance for s in self.sources) / self.total_cond
+        return np.sum(s.voltage_conductance for s in self.sources + self.noises) / self.total_cond
 
     @property
     @check_units(result=units.volt ** 2)
