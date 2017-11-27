@@ -4,6 +4,7 @@ from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.sources.MFSource import MFSource
 from meanfield.parameters import NP
 from meanfield.parameters import SP
+from meanfield.parameters import Connection
 from tests.utils import assert_equations
 
 params_pop = {
@@ -38,7 +39,7 @@ class TestMFPop(object):
 
     def test_model_gen_with_one_source(self):
         pop = MFLinearPop("test", 1, params_pop)
-        _ = MFSource('test', pop, params_source)
+        _ = MFSource('test', pop, params_source, Connection.all_to_all())
 
         assert_equations(
             pop.brian2_model(),
@@ -52,8 +53,8 @@ class TestMFPop(object):
 
     def test_model_gen_with_two_sources(self):
         pop = MFLinearPop("test", 1, params_pop)
-        MFSource('test1', pop, params_source)
-        MFSource('test2', pop, params_source)
+        MFSource('test1', pop, params_source, Connection.all_to_all())
+        MFSource('test2', pop, params_source, Connection.all_to_all())
 
         assert_equations(
             pop.brian2_model(),

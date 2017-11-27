@@ -64,12 +64,12 @@ class TestMFLinearSource(object):
         solver.run()
         theory = syn.g_dyn() / syn.from_pop.n
 
-        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=range(100))
+        m = StateMonitor(syn.brian2, syn.post_variable_name, record=range(100))
         defaultclock.dt = dt
         net = Network()
         net.add(poisson.brian2)
         net.add(pop.brian2)
-        net.add(syn.b2_syn)
+        net.add(syn.brian2)
         net.add(m)
         net.run(t)
 

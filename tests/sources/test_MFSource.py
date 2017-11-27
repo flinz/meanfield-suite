@@ -4,7 +4,8 @@ from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.sources.MFSource import MFSource
 from meanfield.parameters import NP
 from meanfield.parameters import SP
-from tests.utils import assert_equations
+from meanfield.parameters import Connection
+from tests.utils import assert_equations, enable_cpp
 
 params_pop = {
     NP.GAMMA: 0.280112,
@@ -23,14 +24,16 @@ params_source = {
     SP.TAU: 10 * ms,
 }
 
+enable_cpp()
+
 class TestMFSource(object):
 
     def test_model_gen(self):
         pop = MFLinearPop("test", 1, params_pop)
-        source = MFSource('test', pop, params_source)
+        source = MFSource('test', pop, params_source, Connection.all_to_all())
 
         assert_equations(
-            source.b2_dyn(),
+            source.brian2_model(),
             '''
             I_test = (0. * siemens) * (v - (0. * volt)) * s_test : amp
             ds_test / dt = -s_test / (10. * msecond) : 1

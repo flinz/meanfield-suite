@@ -14,7 +14,7 @@ from meanfield.utils import lazyproperty
 class MFLinearSource(MFSource):
 
     def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop, connection: ConnectionStrategy=Connection.all_to_all()):
-        super().__init__(name, pop, params)
+        super().__init__(name, pop, params, connection)
 
         defaults = {
             SP.W: 1,
@@ -26,14 +26,13 @@ class MFLinearSource(MFSource):
         self.params.verify(expectations)
 
         self.from_pop = from_pop
-        self.connection = connection
 
     @check_units(result=1)
     def g_dyn(self):
         return self.connection.theory(self.from_pop.n) * self.from_pop.rate * self.params[SP.TAU] * self.params[SP.W]
 
     @lazyproperty
-    def b2_syn(self):
+    def brian2(self):
         model = Equations('w : 1')
         on_pre = '{} += w'.format(self.post_variable_name)
         syn = Synapses(

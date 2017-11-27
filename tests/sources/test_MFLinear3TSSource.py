@@ -70,17 +70,17 @@ class TestMFLinear3TSSource(object):
         theory = syn.g_dyn() / syn.from_pop.n
 
         print([syn.post_variable_name_1, syn.post_variable_name_2, syn.post_variable_name_3, syn.post_variable_name_4])
-        print(syn.b2_syn)
+        print(syn.brian2)
 
-        m1 = StateMonitor(syn.b2_syn, syn.post_variable_name_1, record=range(100))
-        m2 = StateMonitor(syn.b2_syn, syn.post_variable_name_2, record=range(100))
-        m3 = StateMonitor(syn.b2_syn, syn.post_variable_name_3, record=range(100))
-        m4 = StateMonitor(syn.b2_syn, syn.post_variable_name_4, record=range(100))
+        m1 = StateMonitor(syn.brian2, syn.post_variable_name_1, record=range(100))
+        m2 = StateMonitor(syn.brian2, syn.post_variable_name_2, record=range(100))
+        m3 = StateMonitor(syn.brian2, syn.post_variable_name_3, record=range(100))
+        m4 = StateMonitor(syn.brian2, syn.post_variable_name_4, record=range(100))
         defaultclock.dt = dt
         net = Network()
         net.add(poisson.brian2)
         net.add(pop.brian2)
-        net.add(syn.b2_syn)
+        net.add(syn.brian2)
         net.add(m1)
         net.add(m2)
         net.add(m3)

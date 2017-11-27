@@ -7,12 +7,13 @@ from meanfield.parameters.MFParams import MFParams
 from meanfield.utils import name2identifier, lazyproperty
 from meanfield.parameters import SP, NP
 from meanfield.populations.MFPop import MFPop
+from meanfield.parameters.Connection import ConnectionStrategy
 
 
 class MFSource(object):
     """Source: a synapse coupled to pops"""
 
-    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams]):
+    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], connection: ConnectionStrategy, add_as_source=True):
 
         self.name = name
         self.ref = name2identifier(name)
@@ -29,9 +30,12 @@ class MFSource(object):
 
         self.g_base = params[SP.GM]  # TODO : parametrize, solve for ? => general setter checking for units
 
+        self.connection = connection
+
         # link to pop
         self.pop = pop
-        self.pop.add_source(self)  # TODO consistent
+        if add_as_source:
+            self.pop.add_source(self)  # TODO consistent
 
     @property
     @check_units(result=units.siemens)
@@ -56,11 +60,11 @@ class MFSource(object):
         return 's_' + self.ref
 
     @abstractmethod
-    def b2_syn(self):
+    def brian2(self):
         """Builds lazily Brian2 synapse component once."""
         pass
 
-    def b2_dyn(self):
+    def brian2_model(self):
         """Returns Brian2 dynamic (Equations) affecting specified populations."""
         return Equations(
             '''
@@ -75,5 +79,5 @@ class MFSource(object):
         )
 
     def __repr__(self):
-        return "{} [{}] ({})".format(self.__class__.__name__, self.name, self.params)
+        return "{} [{}] ({}, {})".format(self.__class__.__name__, self.name, self.params, self.connection)
 

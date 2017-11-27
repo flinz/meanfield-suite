@@ -56,7 +56,7 @@ class TestMFLinearNMDASource(object):
             SP.VREV: 0 * volt,
             SP.TAU: 20 * ms,
             SP.TAU_NMDA: 30 * ms,
-            SP.ALPHA: 1, # TODO git aalpha ?
+            SP.ALPHA: 1, # TODO git alpha ?
             SP.BETA: 1,
             SP.GAMMA: 1,
         }, poisson)
@@ -67,12 +67,12 @@ class TestMFLinearNMDASource(object):
         solver.run()
         theory = syn.g_dyn() / syn.from_pop.n
 
-        m = StateMonitor(syn.b2_syn, syn.post_variable_name, record=range(100))
+        m = StateMonitor(syn.brian2, syn.post_variable_name, record=range(100))
         defaultclock.dt = dt
         net = Network()
         net.add(poisson.brian2)
         net.add(pop.brian2)
-        net.add(syn.b2_syn)
+        net.add(syn.brian2)
         net.add(m)
         net.run(t)
 

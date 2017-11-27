@@ -67,6 +67,10 @@ class MFPop(object):
     def brian2(self):
         pass
 
+    @abstractmethod
+    def brian2_model(self):
+        pass
+
     def introspect(self, indent=0) -> str:
         builder = []
         spaces = ' ' * indent

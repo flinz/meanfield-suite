@@ -25,7 +25,7 @@ class MFSystem(object):
         return '\n'.join(builder)
 
     def print_introspect(self) -> None:
-        print(self.introspect())
+        print(self.introspect(), flush=True)
 
     def __repr__(self):
         return "{} [{}] ({} pops)".format(self.__class__.__name__, self.name, len(self.pops))

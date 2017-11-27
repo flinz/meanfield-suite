@@ -7,11 +7,13 @@ from meanfield.utils import lazyproperty
 from meanfield.parameters import SP
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPop import MFPop
+from meanfield.parameters import Connection
+from meanfield.parameters.Connection import ConnectionStrategy
 
 
 class MFLinear3TSSource(MFLinearSource):
-    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop):
-        super().__init__(name, pop, params, from_pop)
+    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop, connection: ConnectionStrategy=Connection.all_to_all()):
+        super().__init__(name, pop, params, from_pop, connection)
 
         defaults = {}
         expectations = {
@@ -33,7 +35,7 @@ class MFLinear3TSSource(MFLinearSource):
         return self.from_pop.n * self.from_pop.rate * sum(taus)
 
     @lazyproperty
-    def b2_syn(self):
+    def brian2(self):
         model = Equations('''
         w1 : 1
         w2 : 1
@@ -76,7 +78,7 @@ class MFLinear3TSSource(MFLinearSource):
     def post_variable_name_4(self):
         return self.post_variable_name + '_4'
 
-    def b2_dyn(self):
+    def brian2_model(self):
 
         tau_mix1 = (self.params[SP.TAU_RISE] * self.params[SP.TAU_D1]) / (self.params[SP.TAU_RISE] + self.params[SP.TAU_D1])
         tau_mix2 = (self.params[SP.TAU_RISE] * self.params[SP.TAU_D2]) / (self.params[SP.TAU_RISE] + self.params[SP.TAU_D2])

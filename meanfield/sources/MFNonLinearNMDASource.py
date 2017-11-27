@@ -7,12 +7,14 @@ from meanfield.utils import lazyproperty
 from meanfield.parameters import SP
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPop import MFPop
+from meanfield.parameters import Connection
+from meanfield.parameters.Connection import ConnectionStrategy
 
 
 class MFNonLinearNMDASource(MFLinearNMDASource):
 
-    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop):
-        super().__init__(name, pop, params, from_pop)
+    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop, connection: ConnectionStrategy=Connection.all_to_all()):
+        super().__init__(name, pop, params, from_pop, connection)
         defaults = {
 
         }
@@ -24,7 +26,7 @@ class MFNonLinearNMDASource(MFLinearNMDASource):
         self.params.fill(defaults)
         self.params.verify(expectations)
 
-    def b2_dyn(self):
+    def brian2_model(self):
         return Equations(
             '''
             I = g * (v - ve) / (1 + gamma * exp(- beta * v) ) * s_post : amp
@@ -42,7 +44,7 @@ class MFNonLinearNMDASource(MFLinearNMDASource):
         return 'x_' + self.ref
 
     @lazyproperty
-    def b2_syn(self):
+    def brian2(self):
         model = Equations(
             '''
             w : 1

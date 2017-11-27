@@ -10,7 +10,7 @@ from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
 from meanfield.solvers.MFState import MFState
 
 
-class TestMF(object):
+class Tes_____tMF(object):
 
     def setup_method(self):
         self.system = setup_brunel99()

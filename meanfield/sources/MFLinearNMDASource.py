@@ -6,11 +6,13 @@ from meanfield.sources.MFLinearSource import MFLinearSource
 from meanfield.parameters import SP, NP
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPop import MFPop
+from meanfield.parameters import Connection
+from meanfield.parameters.Connection import ConnectionStrategy
 
 
 class MFLinearNMDASource(MFLinearSource):
 
-    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop):
+    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop, connection: ConnectionStrategy=Connection.all_to_all()):
         super().__init__(name, pop, params, from_pop)
 
         defaults = {}
@@ -50,7 +52,7 @@ class MFLinearNMDASource(MFLinearSource):
             self.rho2 * (self.pop.v_mean - self.pop.params[NP.VL])
         )
 
-    def b2_dyn(self):
+    def brian2_model(self):
         return Equations(
             '''
             I = g * (v - vrev ) / (1 + gamma * exp(- beta * v)) * s : amp

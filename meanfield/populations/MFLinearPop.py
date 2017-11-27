@@ -38,8 +38,8 @@ class MFLinearPop(MFPop):
         )
 
         total = []
-        for s in self.sources:
-            eqs += s.b2_dyn()
+        for s in self.sources + self.noises:
+            eqs += s.brian2_model()
             total.append(s.current_name)
 
         if len(total):
@@ -57,11 +57,10 @@ class MFLinearPop(MFPop):
 
     @lazyproperty
     def brian2(self):
-        method = 'euler'
         P = NeuronGroup(
             self.n,
             self.brian2_model(),
-            method=method,
+            method='euler',
             threshold=self.brian2_threshold(),
             reset=self.brian2_reset(),
             refractory=self.params[NP.TAU_RP]
@@ -105,7 +104,7 @@ class MFLinearPop(MFPop):
             return 0. * units.volt ** 2
 
         noise = self.noises[0]
-        return (noise.g_base / self.params[NP.CM] * (self.v_mean - noise.params[SP.VE])) ** 2 * self.tau_eff * noise.g_dyn() * noise.params[SP.TAU]
+        return (noise.g_base / self.params[NP.CM] * (self.v_mean - noise.params[SP.VREV])) ** 2 * self.tau_eff * noise.g_dyn() * noise.params[SP.TAU]
 
     @check_units(result=units.Hz)
     def phi_firing_func(self):
