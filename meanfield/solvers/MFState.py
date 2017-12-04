@@ -103,6 +103,6 @@ class MFState(object):
 
     def __call__(self, value, fun=lambda x: x):
         self.state = value
-        print(value)
+        #print(value)
         error = self.error_checked
         return fun(error)

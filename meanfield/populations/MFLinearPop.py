@@ -116,16 +116,22 @@ class MFLinearPop(MFPop):
         tau_eff = self.tau_eff
         noise = self.noises[0]
 
+        # Brunel Wang 2001 / Brunel Sergi 1998
         beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma
         alpha = -0.5 * noise.params[SP.TAU] / tau_eff \
                 + 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff) \
-                + (- self.mu - self.params[NP.VRES] + self.params[NP.VTHR]) * (
+                + (- self.mu - self.params[NP.VL] + self.params[NP.VTHR]) * (
             1. + (0.5 * noise.params[SP.TAU] / tau_eff)) / sigma
 
+        # Fourcauld Brunel 2002
+        beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma + 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff)
+        alpha = 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff) \
+                + (- self.mu - self.params[NP.VL] + self.params[NP.VTHR])/ sigma
+
         def integrand(x):
-            if x < -10.:
-                return np.exp(10. ** 2) * (1. + erf(10.))
-            if x > 10.:
+            if x < -20.:
+                return np.exp(20. ** 2) * (1. + erf(20.))
+            if x > 20.:
                 return 0.
             return np.exp(x ** 2) * (1. + erf(x))
 

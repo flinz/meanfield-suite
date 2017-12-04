@@ -1,5 +1,3 @@
-from time import sleep
-
 from brian2 import *
 from meanfield.parameters import NP
 from meanfield.parameters import SP
@@ -104,18 +102,12 @@ nu_i = 0.01
 
 # NMDA
 pop_e1 = MFLinearPop("E", N_non, E_params)
-pop_e1.rate_ms = nu_e * Hz
-pop_e1.v_mean = -52. * mV
 
 # AMPA
 pop_e2 = MFLinearPop("Edown", N_sub, E_params)
-pop_e2.rate_ms = nu_e * Hz
-pop_e2.v_mean = -52. * mV
 
 # GABA
 pop_i = MFLinearPop("I", N_I, I_params)
-pop_i.rate_ms = nu_i * Hz
-pop_i.v_mean = -52. * mV
 
 
 # noise pops
@@ -206,11 +198,9 @@ source_ie_gaba2 = MFLinearSource('IE GABA 2', pop_e2, {
 system = MFSystem("Brunel Wang simplified")
 system.pops += [pop_e1, pop_e2, pop_i]
 
-solver = MFSolverRatesVoltages(system)
+solver = MFSolverRatesVoltages(system, solver='mse')
 print(solver.state)
 solver.run()
-
-print(pop_e1.brian2_model())
 
 
 sp1 = SpikeMonitor(pop_e1.brian2[:40])
