@@ -55,8 +55,8 @@ alpha = 0. / ms # 0.5 / ms
 Mg2 = 0. # 1.
 
 # GABAergic (inhibitory)
-g_GABA_E = 0*1.25 * nS * 200. / N_I
-g_GABA_I = 0.973 * nS * 200. / N_I
+g_GABA_E = 0.01*1.25 * nS * 200. / N_I
+g_GABA_I = 0*0.973 * nS * 200. / N_I
 tau_GABA = 10. * ms
 
 # subpopulations
@@ -85,6 +85,9 @@ I_GABA_rec = g_GABA_E * (v - V_I) * s_GABA : amp
 ds_GABA / dt = - s_GABA / tau_GABA : 1
 '''
 
+print(Equations(eqs_E, **globals()))
+print()
+
 eqs_I = '''
 dv / dt = (- g_m_I * (v - V_L) - I_syn) / C_m_I : volt (unless refractory)
 
@@ -101,6 +104,9 @@ ds_NMDA / dt = - s_NMDA / tau_NMDA_decay : 1
 I_GABA_rec = g_GABA_I * (v - V_I) * s_GABA : amp
 ds_GABA / dt = - s_GABA / tau_GABA : 1
 '''
+
+print(Equations(eqs_I, **globals()))
+
 
 P_E = NeuronGroup(N_E, eqs_E, method='euler', threshold='v > V_thr', reset='v = V_reset;', refractory=tau_rp_E)
 P_E.v = V_L
@@ -160,55 +166,33 @@ C_P_I = PoissonInput(P_I, 's_AMPA_ext', C_ext, rate, 1)
 #C_PG_E.connect()
 
 # monitors
-s_E_sel = StateMonitor(P_E, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA'], record=[N_non + 1])
-s_E = StateMonitor(P_E, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA'], record=[0])
-s_I = StateMonitor(P_I, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA'], record=[0])
-sp_E_sel = SpikeMonitor(P_E[N_non:N_non + 40])
-sp_E = SpikeMonitor(P_E[:40])
-sp_I = SpikeMonitor(P_I[:40])
-r_E = PopulationRateMonitor(P_E)
+#s_E_sel = StateMonitor(P_E, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA'], record=[N_non + 1])
+#s_E = StateMonitor(P_E, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA'], record=[0])
+#s_I = StateMonitor(P_I, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA'], record=[0])
+sp_E_sel = SpikeMonitor(P_E[N_non:N_non + 10])
+sp_E = SpikeMonitor(P_E[:10])
+sp_I = SpikeMonitor(P_I[:10])
+r_E_sel = PopulationRateMonitor(P_E[N_non:])
+r_E = PopulationRateMonitor(P_E[:N_non])
 r_I = PopulationRateMonitor(P_I)
 
-run(3000 * ms)
+run(2000 * ms)
 
-subplot(321)
-title('selective pyramidal neuron parameters')
-plot(s_E_sel.t / ms, s_E_sel.s_GABA[0], label='gaba')
-plot(s_E_sel.t / ms, s_E_sel.s_AMPA_ext[0], label='ext')
-plot(s_E_sel.t / ms, s_E_sel.s_AMPA[0], label='ampa')
-plot(s_E_sel.t / ms, s_E_sel.s_NMDA[0], label='nmda')
-legend()
 
-subplot(322)
+suptitle('old')
+
+subplot(211)
 title('rates')
-plot(r_E.t / ms, r_E.smooth_rate(width=10 * ms) / Hz, label='pyramidal neuron')
+plot(r_E_sel.t / ms, r_E_sel.smooth_rate(width=10 * ms) / Hz, label='selective')
+plot(r_E.t / ms, r_E.smooth_rate(width=10 * ms) / Hz, label='nonselective')
 plot(r_I.t / ms, r_I.smooth_rate(width=10 * ms) / Hz, label='interneuron')
 legend()
 
-subplot(323)
-title('pyramidal neuron parameters')
-plot(s_E.t / ms, s_E.s_GABA[0], label='gaba')
-plot(s_E.t / ms, s_E.s_AMPA_ext[0], label='ext')
-plot(s_E.t / ms, s_E.s_AMPA[0], label='ampa')
-plot(s_E.t / ms, s_E.s_NMDA[0], label='nmda')
-legend()
-
-subplot(324)
-title('interneuron parameters')
-plot(s_I.t / ms, s_I.s_GABA[0], label='gaba')
-plot(s_I.t / ms, s_I.s_AMPA_ext[0], label='ext')
-plot(s_I.t / ms, s_I.s_AMPA[0], label='ampa')
-plot(s_I.t / ms, s_I.s_NMDA[0], label='nmda')
-legend()
-
-subplot(325)
-title('pyramidal spikes (10)')
+subplot(212)
+title('spikes')
 plot(sp_E_sel.t / ms, sp_E_sel.i, '.', markersize=5, label='selective')
 plot(sp_E.t / ms, sp_E.i, '.', markersize=5, label='nonselective')
+plot(sp_I.t / ms, sp_I.i, '.', markersize=5, label='interneuron')
 legend()
-
-subplot(326)
-title('interneuron spikes (10)')
-plot(sp_I.t / ms, sp_I.i, '.', markersize=5)
 
 show()

@@ -53,15 +53,15 @@ g_AMPA_rec_I = 0*0.081 * nS * 800. / N_E
 tau_AMPA = 2. * ms
 
 # NMDA (excitatory)
-g_NMDA_E = 0 * 0.327 * nS * 800. / N_E
-g_NMDA_I = 0 * 0.258 * nS * 800. / N_E
+g_NMDA_E = 0*0.01 * 0.327 * nS * 800. / N_E
+g_NMDA_I = 0*0.01 * 0.258 * nS * 800. / N_E
 tau_NMDA_rise = 2. * ms
 tau_NMDA_decay = 100. * ms
 alpha = 0. / ms # 0.5 / ms
 Mg2 = 0. # 1.
 
 # GABAergic (inhibitory)
-g_GABA_E = 0*1.25 * nS * 200. / N_I
+g_GABA_E = 0.01*1.25 * nS * 200. / N_I
 g_GABA_I = 0*0.973 * nS * 200. / N_I
 tau_GABA = 10. * ms
 
@@ -70,35 +70,26 @@ f = 0.1
 p = 1
 N_sub = int(N_E * f)
 N_non = int(N_E * (1. - f * p))
-w_plus = 2.1
+w_plus = 1#2.1
 w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
-
-E_params = MFParams({
-    #NP.GAMMA: 0.280112,
-    #NP.BETA: 0.062,
+E_params = {
     NP.GM: g_m_E,
     NP.CM: C_m_E,
     NP.VL: V_L,
     NP.VTHR: V_thr,
     NP.VRES: V_reset,
     NP.TAU_RP: tau_rp_E
-})
+}
 
-I_params = MFParams({
-    #gamma: 0.280112,
-    #beta: 0.062,
+I_params = {
     NP.GM: g_m_I,
     NP.CM: C_m_I,
     NP.VL: V_L,
     NP.VTHR: V_thr,
     NP.VRES: V_reset,
-    NP.TAU_RP: tau_rp_I
-})
-
-nu_e = 0.01
-nu_i = 0.01
-
+    NP.TAU_RP: tau_rp_I,
+}
 
 # NMDA
 pop_e1 = MFLinearPop("E", N_non, E_params)
@@ -172,8 +163,6 @@ source_ie_ampa = MFLinearSource('EI AMPA', pop_i, {
     SP.TAU: tau_AMPA,
 }, pop_e2)
 
-print(g_GABA_I)
-
 # I->I GABA
 source_ii_gaba = MFLinearSource('II GABA', pop_i, {
     SP.GM: g_GABA_I,
@@ -199,13 +188,16 @@ system = MFSystem("Brunel Wang simplified")
 system.pops += [pop_e1, pop_e2, pop_i]
 
 solver = MFSolverRatesVoltages(system, solver='mse')
-print(solver.state)
 solver.run()
 
+print(pop_e2.brian2_model())
+print()
+print(pop_i.brian2_model())
+print()
 
-sp1 = SpikeMonitor(pop_e1.brian2[:40])
-sp2 = SpikeMonitor(pop_e2.brian2[:40])
-sp3 = SpikeMonitor(pop_i.brian2[:40])
+sp1 = SpikeMonitor(pop_e1.brian2[:10])
+sp2 = SpikeMonitor(pop_e2.brian2[:10])
+sp3 = SpikeMonitor(pop_i.brian2[:10])
 rate1 = PopulationRateMonitor(pop_e1.brian2)
 rate2 = PopulationRateMonitor(pop_e2.brian2)
 rate3 = PopulationRateMonitor(pop_i.brian2)
@@ -238,23 +230,21 @@ net.add(rate3)
 net.add(s)
 net.run(2000 * ms)
 
+suptitle('new')
 
-
-subplot(311)
-plot(rate1.t / ms, rate1.smooth_rate(width=25 * ms) / Hz, label='pyramidal')
-plot(rate2.t / ms, rate2.smooth_rate(width=25 * ms) / Hz, label='pyramidal')
-plot(rate3.t / ms, rate3.smooth_rate(width=25 * ms) / Hz, label='interneuron')
+subplot(211)
+title('rates')
+plot(rate1.t / ms, rate1.smooth_rate(width=10 * ms) / Hz, label='pyramidal')
+plot(rate2.t / ms, rate2.smooth_rate(width=10 * ms) / Hz, label='pyramidal')
+plot(rate3.t / ms, rate3.smooth_rate(width=10 * ms) / Hz, label='interneuron')
 legend()
 
-subplot(312)
+subplot(212)
+title('spikes')
 plot(sp1.t / ms, sp1.i, '.', markersize=5, label='pyramidal')
 plot(sp2.t / ms, sp2.i, '.', markersize=5, label='pyramidal')
 plot(sp3.t / ms, sp3.i, '.', markersize=5, label='interneuron')
 legend()
-
-subplot(313)
-#plot(sp3.t / ms, sp3.i, '.', markersize=5)
-plot(s.t / ms, s.v[0] / mV)
 
 show()
 

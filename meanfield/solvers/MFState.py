@@ -99,7 +99,7 @@ class MFState(object):
         return bstate, any(err_states), err_states
 
     def __repr__(self):
-        return "MFState<" + ", ".join(["%s: %.1f" % (c.name, c.free) for c in self.constraints]) + ">"
+        return "MFState<" + ", ".join(["%s: %.3f" % (c.name, c.free) for c in self.constraints]) + ">"
 
     def __call__(self, value, fun=lambda x: x):
         self.state = value

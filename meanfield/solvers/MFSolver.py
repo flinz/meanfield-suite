@@ -97,15 +97,7 @@ class MFSolver(object):
 
             bounds = [[c.bound_down, c.bound_up] for c in self.mfstate.constraints]
 
-            xs = np.linspace(0, 200, 2000) * units.Hz
-            sq = lambda y: np.sum(np.array(y) ** 2)
-
-            def f(x):
-                v = self.mfstate(x, fun=sq)
-                return v
-
-            plt.plot(xs, [f([x]) for x in xs])
-            plt.show()
+            plotting = False
 
             # solve
             if self.solver == "gradient":  # own implementation
@@ -116,14 +108,43 @@ class MFSolver(object):
             elif self.solver == "mse":
                 sq = lambda y: np.sum(np.array(y) ** 2)
                 #print(self.mfstate)
+                xs2 = []
+                ys2 = []
                 def f(x):
                     v = self.mfstate(x, fun=sq)
-
+                    xs2.append(np.array(x)[0])
+                    ys2.append(v)
+                    #print(np.array(x)[0], v)
                     return v
-                sol = minimize(f, p_0, bounds=bounds, method='L-BFGS-B')
+
+                #sol = minimize(f, p_0, bounds=bounds, method='Nelder-Mead')
+                sol = minimize(f, p_0, bounds=bounds, method='L-BFGS-B', options={
+                    #'disp': None,
+                    #'maxls': 20,
+                    #'iprint': -1,
+                    #'gtol': 1e-05,
+                    'eps': 0.00001,
+                    #'maxiter': 15000,
+                    #'ftol': 2.220446049250313e-09,
+                    #'maxcor': 10,
+                    #'maxfun': 15000
+                })
+
+                # watch out nit
+
+                if plotting:
+                    xs = np.array(xs2)
+                    ys = np.array(ys2)
+                    plt.plot(xs[xs.argsort()], ys[xs.argsort()])
+                    plt.show()
+
+                    xs = np.linspace(0, 10, 200) * units.Hz
+                    plt.plot(xs, [f([x]) for x in xs], label='fun')
+                    #plt.axvline(sol.x, c='r', label='sol')
+                    plt.legend()
+                    plt.show()
+
                 abs_err = np.sqrt(sol.fun)
-
-
 
             else:  # scipy solvers
                 sol = root(self.mfstate, p_0, jac=None, method=self.solver, tol=tol)

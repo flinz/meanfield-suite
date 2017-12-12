@@ -124,18 +124,25 @@ class MFLinearPop(MFPop):
             1. + (0.5 * noise.params[SP.TAU] / tau_eff)) / sigma
 
         # Fourcauld Brunel 2002
-        beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma + 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff)
-        alpha = 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff) \
-                + (- self.mu - self.params[NP.VL] + self.params[NP.VTHR])/ sigma
+        #beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma + 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff)
+        #alpha = 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff) \
+        #        + (- self.mu - self.params[NP.VL] + self.params[NP.VTHR])/ sigma
 
-        def integrand(x):
-            if x < -20.:
-                return np.exp(20. ** 2) * (1. + erf(20.))
-            if x > 20.:
+        def integrand(x, max_exp=50):
+            if x < -max_exp:
+                return np.exp(-max_exp ** 2) * (1. + erf(-max_exp))
+            if x > max_exp:
                 return 0.
             return np.exp(x ** 2) * (1. + erf(x))
 
-        return 1. / (self.params[NP.TAU_RP] + tau_eff * np.sqrt(np.pi) * quad(integrand, beta, alpha)[0])
+
+        #import time
+        #s = time.time()
+        q = quad(integrand, beta, alpha, limit=10000)
+        #print(q)
+        #print('->', time.time() - s)
+
+        return 1. / (self.params[NP.TAU_RP] + tau_eff * np.sqrt(np.pi) * q[0])
 
     @property
     @check_units(result=units.Hz)
