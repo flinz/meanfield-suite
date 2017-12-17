@@ -55,7 +55,7 @@ class TestMFLinear3TSSource(object):
         })
         syn = MFLinear3TSSource('syn', pop, {
             SP.GM: 10 * nsiemens,
-            SP.VREV: 0 * volt,
+            SP.VREV: 0 * mvolt,
             SP.TAU: 0 * ms, # unused
             SP.TAU_RISE: 2 * ms,
             SP.TAU_D1: 20 * ms,

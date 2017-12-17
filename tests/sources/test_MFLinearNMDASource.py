@@ -1,4 +1,5 @@
-from brian2 import StateMonitor, defaultclock, Network, set_device
+import pytest
+from brian2 import StateMonitor, defaultclock, Network
 from brian2.units import *
 import numpy as np
 
@@ -32,6 +33,7 @@ enable_cpp()
 
 class TestMFLinearNMDASource(object):
 
+    @pytest.mark.skip(reason="need nmda impl")
     def test_simulation_theory(self):
 
         t = 3000 * ms
@@ -53,7 +55,7 @@ class TestMFLinearNMDASource(object):
         })
         syn = MFLinearNMDASource('syn', pop, {
             SP.GM: 10 * nsiemens,
-            SP.VREV: 0 * volt,
+            SP.VREV: 0 * mV,
             SP.TAU: 20 * ms,
             SP.TAU_NMDA: 30 * ms,
             SP.ALPHA: 1, # TODO git alpha ?

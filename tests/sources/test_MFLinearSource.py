@@ -54,7 +54,7 @@ class TestMFLinearSource(object):
         })
         syn = MFLinearSource('syn', pop, {
             SP.GM: 10 * nsiemens,
-            SP.VREV: 0 * volt,
+            SP.VREV: 0 * mV,
             SP.TAU: 20 * ms,
         }, poisson, Connection.one_to_one())
 

@@ -9,8 +9,8 @@ from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
 from meanfield.solvers.MFState import MFState
 
-
-class Tes_____tMF(object):
+@pytest.mark.skip(reason="need nmda impl")
+class TestMF(object):
 
     def setup_method(self):
         self.system = setup_brunel99()

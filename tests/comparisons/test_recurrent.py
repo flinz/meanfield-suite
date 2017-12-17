@@ -66,7 +66,7 @@ class TestRecurrent(object):
 
 
 
-        brian2_introspect(net)
+        brian2_introspect(net, globals())
 
 
         if False:
