@@ -40,9 +40,9 @@ class MFLinearSource(MFSource):
             target=self.pop.brian2,
             method='euler',
             model=model,
-            on_pre=on_pre
+            on_pre=on_pre,
+            name=self.ref
         )
-        print('COOOONNNNNECT', self.params[SP.W], self.from_pop, self.pop)
         self.connection.simulation(syn)
         syn.w[:] = self.params[SP.W]
         return syn

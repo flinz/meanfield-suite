@@ -23,7 +23,7 @@ class MFPoissonPop(MFPop):
 
     @lazyproperty
     def brian2(self):
-        return PoissonGroup(self.n, self.rate)
+        return PoissonGroup(self.n, self.rate, name=self.name)
 
     @property
     def rate_prediction(self):

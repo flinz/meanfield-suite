@@ -57,16 +57,17 @@ class MFLinearPop(MFPop):
 
     @lazyproperty
     def brian2(self):
-        P = NeuronGroup(
+        pop = NeuronGroup(
             self.n,
             self.brian2_model(),
             method='euler',
             threshold=self.brian2_threshold(),
             reset=self.brian2_reset(),
-            refractory=self.params[NP.TAU_RP]
+            refractory=self.params[NP.TAU_RP],
+            name=self.ref
         )
-        P.v = self.params[NP.VRES]
-        return P
+        pop.v = self.params[NP.VRES]
+        return pop
 
 
     @property

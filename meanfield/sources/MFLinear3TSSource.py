@@ -53,7 +53,8 @@ class MFLinear3TSSource(MFLinearSource):
             target=self.pop.brian2,
             method='euler',
             model=model,
-            on_pre=on_pre
+            on_pre=on_pre,
+            name=self.ref,
         )
         syn.connect(j='i')
         syn.w1[:] = 1

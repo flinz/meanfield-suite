@@ -2,13 +2,13 @@ from brian2 import *
 from meanfield.parameters import NP
 from meanfield.parameters import SP
 
-from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import Connection
 from meanfield.sources.MFLinearSource import MFLinearSource
 from meanfield.sources.MFStaticSource import MFStaticSource
+from meanfield.utils import brian2_introspect
 
 BrianLogger.log_level_debug()
 set_device('cpp_standalone')
@@ -47,22 +47,22 @@ C_I = N_I
 
 # AMPA (excitatory)
 g_AMPA_ext_E = 2.08 * nS
-g_AMPA_rec_E = 0*0.104 * nS * 800. / N_E
+g_AMPA_rec_E = 0.104 * nS * 800. / N_E
 g_AMPA_ext_I = 1.62 * nS
-g_AMPA_rec_I = 0*0.081 * nS * 800. / N_E
+g_AMPA_rec_I = 0.081 * nS * 800. / N_E
 tau_AMPA = 2. * ms
 
 # NMDA (excitatory)
-g_NMDA_E = 0*0.01 * 0.327 * nS * 800. / N_E
-g_NMDA_I = 0*0.01 * 0.258 * nS * 800. / N_E
+g_NMDA_E = 0.327 * nS * 800. / N_E
+g_NMDA_I = 0.258 * nS * 800. / N_E
 tau_NMDA_rise = 2. * ms
 tau_NMDA_decay = 100. * ms
 alpha = 0. / ms # 0.5 / ms
 Mg2 = 0. # 1.
 
 # GABAergic (inhibitory)
-g_GABA_E = 0.01*1.25 * nS * 200. / N_I
-g_GABA_I = 0*0.973 * nS * 200. / N_I
+g_GABA_E = 1.25 * nS * 200. / N_I
+g_GABA_I = 0.973 * nS * 200. / N_I
 tau_GABA = 10. * ms
 
 # subpopulations
@@ -126,60 +126,60 @@ pop_i.add_noise(source_i_noise)
 # E->E NMDA
 source_ee_nmda1 = MFLinearSource('EE NMDA 1', pop_e1, {
     SP.GM: g_NMDA_E,
-    SP.VREV: 0 * volt,
+    SP.VREV: 0 * mvolt,
     SP.TAU: tau_NMDA_decay,
 }, pop_e1, Connection.all_to_others())
 
 source_ee_nmda2 = MFLinearSource('EE NMDA 2', pop_e2, {
     SP.GM: g_NMDA_E,
-    SP.VREV: 0 * volt,
+    SP.VREV: 0 * mvolt,
     SP.TAU: tau_NMDA_decay,
 }, pop_e1)
 
 # E->E AMPA
 source_ee_ampa1 = MFLinearSource('EE AMPA 1', pop_e1, {
     SP.GM: g_AMPA_rec_E,
-    SP.VREV: 0 * volt,
+    SP.VREV: 0 * mvolt,
     SP.TAU: tau_AMPA,
 }, pop_e2)
 
 source_ee_ampa2 = MFLinearSource('EE AMPA 2', pop_e2, {
     SP.GM: g_AMPA_rec_E,
-    SP.VREV: 0 * volt,
+    SP.VREV: 0 * mvolt,
     SP.TAU: tau_AMPA,
 }, pop_e2, Connection.all_to_others())
 
 # E->I NMDA
 source_ie_nmda = MFLinearSource('EI NMDA', pop_i, {
     SP.GM: g_NMDA_I,
-    SP.VREV: 0 * volt,
+    SP.VREV: 0 * mvolt,
     SP.TAU: tau_NMDA_decay,
 }, pop_e1)
 
 # E->I AMPA
 source_ie_ampa = MFLinearSource('EI AMPA', pop_i, {
     SP.GM: g_AMPA_rec_E,
-    SP.VREV: 0 * volt,
+    SP.VREV: 0 * mvolt,
     SP.TAU: tau_AMPA,
 }, pop_e2)
 
 # I->I GABA
 source_ii_gaba = MFLinearSource('II GABA', pop_i, {
     SP.GM: g_GABA_I,
-    SP.VREV: -70 * volt,
+    SP.VREV: -70 * mvolt,
     SP.TAU: tau_GABA,
 }, pop_i, Connection.all_to_others())
 
 # I->E GABA
 source_ie_gaba1 = MFLinearSource('IE GABA 1', pop_e1, {
     SP.GM: g_GABA_E,
-    SP.VREV: -70 * volt,
+    SP.VREV: -70 * mvolt,
     SP.TAU: tau_GABA,
 }, pop_i)
 
 source_ie_gaba2 = MFLinearSource('IE GABA 2', pop_e2, {
     SP.GM: g_GABA_E,
-    SP.VREV: -70 * volt,
+    SP.VREV: -70 * mvolt,
     SP.TAU: tau_GABA,
 }, pop_i)
 
@@ -190,11 +190,6 @@ system.pops += [pop_e1, pop_e2, pop_i]
 solver = MFSolverRatesVoltages(system, solver='mse')
 solver.run()
 
-print(pop_e2.brian2_model())
-print()
-print(pop_i.brian2_model())
-print()
-
 sp1 = SpikeMonitor(pop_e1.brian2[:10])
 sp2 = SpikeMonitor(pop_e2.brian2[:10])
 sp3 = SpikeMonitor(pop_i.brian2[:10])
@@ -202,8 +197,6 @@ rate1 = PopulationRateMonitor(pop_e1.brian2)
 rate2 = PopulationRateMonitor(pop_e2.brian2)
 rate3 = PopulationRateMonitor(pop_i.brian2)
 s = StateMonitor(pop_i.brian2, ['v'], record=[100])
-
-system.print_introspect()
 
 net = Network()
 net.add(pop_e1.brian2)
@@ -228,25 +221,33 @@ net.add(rate1)
 net.add(rate2)
 net.add(rate3)
 net.add(s)
+
 net.run(2000 * ms)
 
-suptitle('new')
+brian2_introspect(net, globals())
+#print()
+#system.print_introspect()
 
-subplot(211)
-title('rates')
-plot(rate1.t / ms, rate1.smooth_rate(width=10 * ms) / Hz, label='pyramidal')
-plot(rate2.t / ms, rate2.smooth_rate(width=10 * ms) / Hz, label='pyramidal')
-plot(rate3.t / ms, rate3.smooth_rate(width=10 * ms) / Hz, label='interneuron')
-legend()
 
-subplot(212)
-title('spikes')
-plot(sp1.t / ms, sp1.i, '.', markersize=5, label='pyramidal')
-plot(sp2.t / ms, sp2.i, '.', markersize=5, label='pyramidal')
-plot(sp3.t / ms, sp3.i, '.', markersize=5, label='interneuron')
-legend()
+if True:
 
-show()
+    suptitle('new')
+
+    subplot(211)
+    title('rates')
+    plot(rate1.t / ms, rate1.smooth_rate(width=10 * ms) / Hz, label='pyramidal')
+    plot(rate2.t / ms, rate2.smooth_rate(width=10 * ms) / Hz, label='pyramidal')
+    plot(rate3.t / ms, rate3.smooth_rate(width=10 * ms) / Hz, label='interneuron')
+    legend()
+
+    subplot(212)
+    title('spikes')
+    plot(sp1.t / ms, sp1.i, '.', markersize=5, label='pyramidal')
+    plot(sp2.t / ms, sp2.i, '.', markersize=5, label='pyramidal')
+    plot(sp3.t / ms, sp3.i, '.', markersize=5, label='interneuron')
+    legend()
+
+    show()
 
 
 

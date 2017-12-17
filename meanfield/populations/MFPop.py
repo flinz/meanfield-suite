@@ -3,12 +3,15 @@ from abc import abstractproperty, abstractmethod
 from brian2 import units, check_units
 
 from meanfield.parameters.MFParams import MFParams
+from meanfield.utils import name2identifier
 
 
 class MFPop(object):
 
     def __init__(self, name, n, params=None):
         self.name = name
+        self.ref = name2identifier(name)
+
         self.n = n
         if params:
             if isinstance(params, MFParams):

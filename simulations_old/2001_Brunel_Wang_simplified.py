@@ -5,6 +5,9 @@ Journal of Computational Neuroscience 11, 63-85, 2001.
 """
 
 from brian2 import *
+
+from utils import brian2_introspect
+
 BrianLogger.log_level_debug()
 
 # neurons
@@ -41,22 +44,22 @@ C_I = N_I
 
 # AMPA (excitatory)
 g_AMPA_ext_E = 2.08 * nS
-g_AMPA_rec_E = 0*0.104 * nS * 800. / N_E
+g_AMPA_rec_E = 0.104 * nS * 800. / N_E
 g_AMPA_ext_I = 1.62 * nS
-g_AMPA_rec_I = 0*0.081 * nS * 800. / N_E
+g_AMPA_rec_I = 0.081 * nS * 800. / N_E
 tau_AMPA = 2. * ms
 
 # NMDA (excitatory)
-g_NMDA_E = 0*0.01 * 0.327 * nS * 800. / N_E
-g_NMDA_I = 0*0.01 * 0.258 * nS * 800. / N_E
+g_NMDA_E = 0.327 * nS * 800. / N_E
+g_NMDA_I = 0.258 * nS * 800. / N_E
 tau_NMDA_rise = 2. * ms
 tau_NMDA_decay = 100. * ms
 alpha = 0. / ms # 0.5 / ms
 Mg2 = 0. # 1.
 
 # GABAergic (inhibitory)
-g_GABA_E = 0.01*1.25 * nS * 200. / N_I
-g_GABA_I = 0*0.973 * nS * 200. / N_I
+g_GABA_E = 1.25 * nS * 200. / N_I
+g_GABA_I = 0.973 * nS * 200. / N_I
 tau_GABA = 10. * ms
 
 # subpopulations
@@ -74,7 +77,7 @@ dv / dt = (- g_m_E * (v - V_L) - I_syn) / C_m_E : volt (unless refractory)
 I_syn = I_AMPA_ext + I_AMPA_rec + I_NMDA_rec + I_GABA_rec : amp
 
 I_AMPA_ext = g_AMPA_ext_E * (v - V_E) * s_AMPA_ext : amp
-I_AMPA_rec = g_AMPA_rec_E * (v - V_E) * 1 * s_AMPA : amp
+I_AMPA_rec = g_AMPA_rec_E * (v - V_E) * s_AMPA : amp
 ds_AMPA_ext / dt = - s_AMPA_ext / tau_AMPA : 1
 ds_AMPA / dt = - s_AMPA / tau_AMPA : 1
 
@@ -85,8 +88,7 @@ I_GABA_rec = g_GABA_E * (v - V_I) * s_GABA : amp
 ds_GABA / dt = - s_GABA / tau_GABA : 1
 '''
 
-print(Equations(eqs_E, **globals()))
-print()
+#print(Equations(eqs_E, **globals()))
 
 eqs_I = '''
 dv / dt = (- g_m_I * (v - V_L) - I_syn) / C_m_I : volt (unless refractory)
@@ -94,7 +96,7 @@ dv / dt = (- g_m_I * (v - V_L) - I_syn) / C_m_I : volt (unless refractory)
 I_syn = I_AMPA_ext + I_AMPA_rec + I_NMDA_rec + I_GABA_rec : amp
 
 I_AMPA_ext = g_AMPA_ext_I * (v - V_E) * s_AMPA_ext : amp
-I_AMPA_rec = g_AMPA_rec_I * (v - V_E) * 1 * s_AMPA : amp
+I_AMPA_rec = g_AMPA_rec_I * (v - V_E) * s_AMPA : amp
 ds_AMPA_ext / dt = - s_AMPA_ext / tau_AMPA : 1
 ds_AMPA / dt = - s_AMPA / tau_AMPA : 1
 
@@ -105,7 +107,7 @@ I_GABA_rec = g_GABA_I * (v - V_I) * s_GABA : amp
 ds_GABA / dt = - s_GABA / tau_GABA : 1
 '''
 
-print(Equations(eqs_I, **globals()))
+#print(Equations(eqs_I, **globals()))
 
 
 P_E = NeuronGroup(N_E, eqs_E, method='euler', threshold='v > V_thr', reset='v = V_reset;', refractory=tau_rp_E)
@@ -178,6 +180,8 @@ r_I = PopulationRateMonitor(P_I)
 
 run(2000 * ms)
 
+magic_network._update_magic_objects(0)
+brian2_introspect(magic_network, globals())
 
 suptitle('old')
 

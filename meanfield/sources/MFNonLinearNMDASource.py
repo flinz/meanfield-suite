@@ -62,7 +62,14 @@ class MFNonLinearNMDASource(MFLinearNMDASource):
         eqs_pre = '''
         {} += 1
         '''.format(self.post_nonlinear_name)
-        C = Synapses(self.from_pop.brian2, self.pop.brian2, method='euler', model=model, on_pre=eqs_pre)
+        C = Synapses(
+            self.from_pop.brian2,
+            self.pop.brian2,
+            method='euler',
+            model=model,
+            on_pre=eqs_pre,
+            name=self.ref,
+        )
         C.connect()
         C.w[:] = 1
         return C

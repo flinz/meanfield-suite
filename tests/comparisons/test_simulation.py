@@ -15,10 +15,20 @@ from meanfield.utils import brian2_introspect
 
 enable_cpp()
 
-class TestRecurrent(object):
+class TestSimulation(object):
 
-    def test_old(self):
-        pass
+    def test_brian2_simulation(self):
+
+        eqs = '''
+        I_rec = (9.73 * psiemens) * (v - (-70. * volt)) * s_rec : amp
+        I_noise = (2. * nsiemens) * (v - (0. * volt)) * s_noise : amp
+        I = I_rec + I_noise : amp
+        dv/dt = int(not_refractory)*((- (25. * nsiemens) * (v - (-70. * mvolt)) - I) / (0.5 * nfarad)) : volt (unless refractory)
+        ds_rec/dt = - s_rec / (10. * msecond) : 1
+        ds_noise/dt = - s_noise / (2. * msecond) : 1
+        '''
+
+
 
     def test_simulation_theory(self):
 
@@ -56,30 +66,31 @@ class TestRecurrent(object):
         sol = solver.run()
         theory = sol.state[0]
 
-        rate = PopulationRateMonitor(pop.brian2)
+        rm = PopulationRateMonitor(pop.brian2)
 
         net = Network()
         net.add(pop.brian2)
         net.add(noise.brian2)
         net.add(rec.brian2)
-        net.add(rate)
+        net.add(rm)
+        net.run(t)
 
-
+        print(pop.brian2)
+        print(noise.brian2)
+        print(rec.brian2)
 
         brian2_introspect(net)
+        system.introspect()
 
+        stable_t = int(t / dt * 0.1)
+        isolated = np.array(rm.rate)[stable_t:-stable_t]
+        print(isolated.mean())
 
-        if False:
-            net.run(t)
-            stable_t = int(t / dt * 0.1)
-            isolated = np.array(rate.rate)[stable_t:-stable_t]
-            print(isolated.mean())
-
-            plt.plot(rate.t / ms, rate.smooth_rate(width=25 * ms) / Hz)
-            plt.plot(np.ones(10000) * isolated.mean(), label='mean')
-            plt.plot(np.ones(10000) * theory, label='theory')
-            plt.legend()
-            plt.show()
+        plt.plot(rm.t / ms, rm.smooth_rate(width=25 * ms) / Hz)
+        plt.plot(np.ones(10000) * isolated.mean(), label='mean')
+        plt.plot(np.ones(10000) * theory, label='theory')
+        plt.legend()
+        plt.show()
 
 
 
