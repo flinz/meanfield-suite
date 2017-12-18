@@ -118,17 +118,18 @@ class MFSolver(object):
                     return v
 
                 #sol = minimize(f, p_0, bounds=bounds, method='Nelder-Mead')
-                sol = minimize(f, p_0, bounds=bounds, method='L-BFGS-B', options={
+                sol = minimize(f, p_0, bounds=bounds, method='L-BFGS-B')
+                #, options={
                     #'disp': None,
                     #'maxls': 20,
                     #'iprint': -1,
                     #'gtol': 1e-05,
-                    'eps': 0.00001,
+                #    'eps': 0.00001,
                     #'maxiter': 15000,
                     #'ftol': 2.220446049250313e-09,
                     #'maxcor': 10,
                     #'maxfun': 15000
-                })
+                #})
 
                 # watch out nit
 

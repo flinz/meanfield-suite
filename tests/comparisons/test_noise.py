@@ -31,7 +31,7 @@ class TestNoise(object):
         })
         pop.rate = 10 * Hz
 
-        noise = MFStaticSource("noise", pop, 1000, 4.3 * Hz, {
+        noise = MFStaticSource("noise", pop, 1000, 3 * Hz, {
             SP.GM: 2 * nS,
             SP.VREV: 0 * volt,
             SP.TAU: 2. * ms,
@@ -44,7 +44,7 @@ class TestNoise(object):
         solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
         sol = solver.run()
 
-        if False:
+        if True:
             theory = sol.state[0]
             rate = PopulationRateMonitor(pop.brian2)
 
@@ -58,13 +58,16 @@ class TestNoise(object):
             isolated = np.array(rate.rate)[stable_t:-stable_t]
             print(isolated.mean())
 
-            plt.plot(rate.t / ms, rate.smooth_rate(width=25 * ms) / Hz)
-            plt.plot(np.ones(10000) * isolated.mean(), label='mean')
-            plt.plot(np.ones(10000) * theory, label='theory')
+            plt.plot(rate.t / ms, rate.smooth_rate(width=50 * ms) / Hz)
+            plt.plot(np.ones(10000) * isolated.mean(), label='simulation mean')
+            plt.plot(np.ones(10000) * theory, label='theory mean')
+            plt.ylabel('Population rate (Hz) per 100')
+            plt.xlabel('Simulation time (ms)')
+            plt.title('Poisson noise 3 Hz per 1000')
             plt.legend()
             plt.show()
 
-    def te2st_theory(self):
+    def test_theory(self):
 
         def for_rate(rate):
             pop = MFLinearPop("pop", 100, {
@@ -92,9 +95,11 @@ class TestNoise(object):
             sol = solver.run()
             return sol.state[0]
 
-        #rates = np.linspace(1, 10, 50)
-        #dom = np.array([for_rate(r) for r in rates])
-        #plt.plot(rates, dom)
-        #plt.show()
+        rates = np.linspace(1, 10, 20)
+        dom = np.array([for_rate(r) for r in rates])
+        plt.plot(rates, dom)
+        plt.xlabel('Noise rate (Hz) per 1000')
+        plt.ylabel('Population rate (Hz) per 100')
+        plt.show()
 
 

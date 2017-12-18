@@ -53,8 +53,8 @@ g_AMPA_rec_I = 0.081 * nS * 800. / N_E
 tau_AMPA = 2. * ms
 
 # NMDA (excitatory)
-g_NMDA_E = 0.327 * nS * 800. / N_E
-g_NMDA_I = 0.258 * nS * 800. / N_E
+g_NMDA_E = 0.01 * 0.327 * nS * 800. / N_E
+g_NMDA_I = 0.01 * 0.258 * nS * 800. / N_E
 tau_NMDA_rise = 2. * ms
 tau_NMDA_decay = 100. * ms
 alpha = 0. / ms # 0.5 / ms
@@ -188,7 +188,7 @@ system = MFSystem("Brunel Wang simplified")
 system.pops += [pop_e1, pop_e2, pop_i]
 
 solver = MFSolverRatesVoltages(system, solver='mse')
-solver.run()
+sol = solver.run()
 
 sp1 = SpikeMonitor(pop_e1.brian2[:10])
 sp2 = SpikeMonitor(pop_e2.brian2[:10])
@@ -224,27 +224,31 @@ net.add(s)
 
 net.run(2000 * ms)
 
-brian2_introspect(net, globals())
+#brian2_introspect(net, globals())
 #print()
 #system.print_introspect()
 
 
 if True:
 
-    suptitle('new')
+    #suptitle('new')
 
-    subplot(211)
-    title('rates')
-    plot(rate1.t / ms, rate1.smooth_rate(width=10 * ms) / Hz, label='pyramidal')
-    plot(rate2.t / ms, rate2.smooth_rate(width=10 * ms) / Hz, label='pyramidal')
-    plot(rate3.t / ms, rate3.smooth_rate(width=10 * ms) / Hz, label='interneuron')
+    #subplot(211)
+    plot(rate1.t / ms, rate1.smooth_rate(width=50 * ms) / Hz, label='simulation pyramidal')
+    plot(rate2.t / ms, rate2.smooth_rate(width=50 * ms) / Hz, label='simulation pyramidal')
+    plot(rate3.t / ms, rate3.smooth_rate(width=50 * ms) / Hz, label='simulation interneuron')
+    plot(ones(2000) * sol.state[0], label='theory pyramidal')
+    plot(ones(2000) * sol.state[1], label='theory pyramidal')
+    plot(ones(2000) * sol.state[2], label='theory interneuron')
+    plt.ylabel('Population rate (Hz)')
+    plt.xlabel('Simulation time (ms)')
     legend()
 
-    subplot(212)
-    title('spikes')
-    plot(sp1.t / ms, sp1.i, '.', markersize=5, label='pyramidal')
-    plot(sp2.t / ms, sp2.i, '.', markersize=5, label='pyramidal')
-    plot(sp3.t / ms, sp3.i, '.', markersize=5, label='interneuron')
-    legend()
+    #subplot(212)
+    #title('spikes')
+    #plot(sp1.t / ms, sp1.i, '.', markersize=5, label='pyramidal')
+    #plot(sp2.t / ms, sp2.i, '.', markersize=5, label='pyramidal')
+    #plot(sp3.t / ms, sp3.i, '.', markersize=5, label='interneuron')
+    #legend()
 
     show()
