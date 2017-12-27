@@ -2,7 +2,7 @@ from brian2 import *
 from meanfield.parameters import PP
 from meanfield.parameters import IP
 
-from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.inputs.MFStaticInput import MFStaticInput
@@ -74,7 +74,7 @@ nu_e = 0.01
 nu_i = 0.01
 
 
-exc = MFLinearPop("exc", N_non, {
+exc = MFLinearPopulation("exc", N_non, {
     PP.GM: g_m_E,
     PP.CM: C_m_E,
     PP.VL: V_L,
@@ -85,7 +85,7 @@ exc = MFLinearPop("exc", N_non, {
 exc.rate_ms = nu_e * Hz
 exc.v_mean = -52. * mV
 
-ini = MFLinearPop("ini", N_I, {
+ini = MFLinearPopulation("ini", N_I, {
     PP.GM: g_m_I,
     PP.CM: C_m_I,
     PP.VL: V_L,

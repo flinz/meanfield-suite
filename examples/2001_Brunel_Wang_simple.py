@@ -2,7 +2,7 @@ from brian2 import *
 from meanfield.parameters import PP
 from meanfield.parameters import IP
 
-from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import Connection
@@ -92,13 +92,13 @@ I_params = {
 }
 
 # NMDA
-pop_e1 = MFLinearPop("E", N_non, E_params)
+pop_e1 = MFLinearPopulation("E", N_non, E_params)
 
 # AMPA
-pop_e2 = MFLinearPop("Edown", N_sub, E_params)
+pop_e2 = MFLinearPopulation("Edown", N_sub, E_params)
 
 # GABA
-pop_i = MFLinearPop("I", N_I, I_params)
+pop_i = MFLinearPopulation("I", N_I, I_params)
 
 
 # noise pops

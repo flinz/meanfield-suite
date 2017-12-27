@@ -6,14 +6,14 @@ from meanfield.inputs.MFLinearNMDAInput import MFLinearNMDAInput
 from meanfield.utils import lazyproperty
 from meanfield.parameters import IP
 from meanfield.parameters.MFParams import MFParams
-from meanfield.populations.MFPop import MFPop
+from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.parameters import Connection
 from meanfield.parameters.Connection import ConnectionStrategy
 
 
 class MFNonLinearNMDAInput(MFLinearNMDAInput):
 
-    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop, connection: ConnectionStrategy=Connection.all_to_all()):
+    def __init__(self, name: str, pop: MFPopulation, params: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
         super().__init__(name, pop, params, from_pop, connection)
         defaults = {
 

@@ -7,7 +7,7 @@ import numpy as np
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import PP
 from meanfield.parameters import IP
-from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.inputs.MFLinearInput import MFLinearInput
@@ -24,7 +24,7 @@ class TestRecurrent(object):
         dt = 0.01 * ms
         defaultclock.dt = dt
 
-        pop = MFLinearPop("pop", 100, {
+        pop = MFLinearPopulation("pop", 100, {
             PP.GM: 25. * nS,
             PP.CM: 0.5 * nF,
             PP.VL: -70. * mV,
@@ -87,7 +87,7 @@ class TestRecurrent(object):
         enable_cpp()
 
         def for_rate(rate):
-            pop = MFLinearPop("pop", 100, {
+            pop = MFLinearPopulation("pop", 100, {
                 PP.GM: 25. * nS,
                 PP.CM: 0.5 * nF,
                 PP.VL: -70. * mV,

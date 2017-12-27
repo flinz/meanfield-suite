@@ -2,7 +2,7 @@ from brian2.units import *
 
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import PP, IP
-from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.inputs.Synapses import Synapse
@@ -58,7 +58,7 @@ def setup_brunel99_nmda():
     initials = {'nu_plus': 25 * Hz, 'nu_min': 1.5 * Hz, 'nu_i': 9 * Hz}
 
     system = MFSystem('Brunel')
-    pop_e1 = MFLinearPop('Eup', 800 * ff , {
+    pop_e1 = MFLinearPopulation('Eup', 800 * ff, {
         PP.GM: params_standard['E']['g_L'],
         PP.VL: params_standard['E']['V_L'],
         PP.CM: params_standard['E']['C_m'],
@@ -66,7 +66,7 @@ def setup_brunel99_nmda():
         PP.VRES: params_standard['E']['V_reset'],
         PP.TAU_RP: params_standard['E']['tau_AMPA']
     })
-    pop_e2 = MFLinearPop('Edown', 800 * (1. - ff), {
+    pop_e2 = MFLinearPopulation('Edown', 800 * (1. - ff), {
         PP.GM: params_standard['E']['g_L'],
         PP.VL: params_standard['E']['V_L'],
         PP.CM: params_standard['E']['C_m'],
@@ -74,7 +74,7 @@ def setup_brunel99_nmda():
         PP.VRES: params_standard['E']['V_reset'],
         PP.TAU_RP: params_standard['E']['tau_AMPA']
     })
-    pop_i = MFLinearPop('I', 200, {
+    pop_i = MFLinearPopulation('I', 200, {
         PP.GM: params_standard['I']['g_L'],
         PP.VL: params_standard['I']['V_L'],
         PP.CM: params_standard['I']['C_m'],
@@ -239,7 +239,7 @@ def setup_brunel99(w_plus_val=2.5):
     initials = {'nu_plus': 25 * Hz, 'nu_min': 1.5 * Hz, 'nu_i': 9 * Hz}
 
     system = MFSystem('Brunel')
-    pop_e1 = MFLinearPop('Eup', 800 * ff , {
+    pop_e1 = MFLinearPopulation('Eup', 800 * ff, {
         PP.GM: params_standard['E']['g_L'],
         PP.VL: params_standard['E']['V_L'],
         PP.CM: params_standard['E']['C_m'],
@@ -248,7 +248,7 @@ def setup_brunel99(w_plus_val=2.5):
         PP.TAU_RP: params_standard['E']['tau_AMPA']
     })
     #pop_e1.n = 800
-    pop_e2 = MFLinearPop('Edown', 800 * (1. - ff), {
+    pop_e2 = MFLinearPopulation('Edown', 800 * (1. - ff), {
         PP.GM: params_standard['E']['g_L'],
         PP.VL: params_standard['E']['V_L'],
         PP.CM: params_standard['E']['C_m'],
@@ -257,7 +257,7 @@ def setup_brunel99(w_plus_val=2.5):
         PP.TAU_RP: params_standard['E']['tau_AMPA']
     })
     #pop_e2.n = 800
-    pop_i = MFLinearPop('I', 200, {
+    pop_i = MFLinearPopulation('I', 200, {
         PP.GM: params_standard['I']['g_L'],
         PP.VL: params_standard['I']['V_L'],
         PP.CM: params_standard['I']['C_m'],
@@ -424,7 +424,7 @@ def setup_EI(has_nmda=False):
         mult = 1.
 
     system = MFSystem('EI')
-    pop_e = MFLinearPop('E', 800, {
+    pop_e = MFLinearPopulation('E', 800, {
         PP.GM: params_standard['E']['g_L'],
         PP.VL: params_standard['E']['V_L'],
         PP.CM: params_standard['E']['C_m'],
@@ -433,7 +433,7 @@ def setup_EI(has_nmda=False):
         PP.TAU_RP: params_standard['E']['tau_AMPA']
     })
     #pop_e.n = 800
-    pop_i = MFLinearPop('I', 200, {
+    pop_i = MFLinearPopulation('I', 200, {
         PP.GM: params_standard['I']['g_L'],
         PP.VL: params_standard['I']['V_L'],
         PP.CM: params_standard['I']['C_m'],

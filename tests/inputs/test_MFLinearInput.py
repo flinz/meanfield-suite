@@ -2,9 +2,9 @@ from brian2 import StateMonitor, Network, defaultclock
 from brian2.units import *
 import numpy as np
 
-from meanfield.populations.MFLinearPop import MFLinearPop
+from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.inputs.MFLinearInput import MFLinearInput
-from meanfield.populations.MFPoissonPop import MFPoissonPop
+from meanfield.populations.MFPoissonPopulation import MFPoissonPopulation
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import PP
@@ -39,12 +39,12 @@ class TestMFLinearInput(object):
         dt = 0.01 * ms
         n = 100
 
-        poisson = MFPoissonPop('poisson', n, 10 * Hz, {
+        poisson = MFPoissonPopulation('poisson', n, 10 * Hz, {
             PP.GM: 0 * nsiemens,
             PP.VRES: 0 * mV,
             PP.TAU_RP: 0 * ms
         })
-        pop = MFLinearPop('pop', n, {
+        pop = MFLinearPopulation('pop', n, {
             PP.GM: 10 * nsiemens,
             PP.VL: 0 * mV,
             PP.CM: 5 * nfarad,

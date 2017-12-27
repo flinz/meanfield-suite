@@ -1,11 +1,11 @@
 from brian2 import check_units, units, PoissonGroup
 
-from meanfield.populations.MFPop import MFPop
+from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import lazyproperty
 from meanfield.parameters import PP
 
 
-class MFPoissonPop(MFPop):
+class MFPoissonPopulation(MFPopulation):
     @check_units(rate=units.Hz)
     def __init__(self, name, n, rate, params):
         super().__init__(name, n, params)

@@ -11,5 +11,5 @@ def run_around_tests():
     device.activate()
     # workaround for cpp generation errors when running multiple tests in a row (reinit might take some time?)
     # Network.__instances__() shows multiple instance of the network containing same objects
-    sleep(0.5)
+    sleep(1)
 

@@ -4,12 +4,12 @@ import numpy as np
 from brian2 import units, Equations, NeuronGroup, check_units
 from scipy.integrate import quad
 
-from meanfield.populations.MFPop import MFPop
+from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import lazyproperty
 from meanfield.parameters import PP, IP
 
 
-class MFLinearPop(MFPop):
+class MFLinearPopulation(MFPopulation):
     """pop: similar neurons"""
 
     def __init__(self, name, n, params):
@@ -29,32 +29,6 @@ class MFLinearPop(MFPop):
         self.params.fill(defaults)
         self.params.verify(expectations)
 
-    def brian2_model(self):
-        eqs = Equations(
-            'dv / dt = (- g * (v - vl) - I) / cm : volt (unless refractory)',
-            g=self.params[PP.GM],
-            vl=self.params[PP.VL],
-            cm=self.params[PP.CM]
-        )
-
-        total = []
-        for s in self.inputs + self.noises:
-            eqs += s.brian2_model()
-            total.append(s.current_name)
-
-        if len(total):
-            eqs += 'I = {} : amp'.format(' + '.join(total))
-        else:
-            eqs += 'I = 0 : amp'
-
-        return eqs
-
-    def brian2_threshold(self):
-        return 'v > {} * mV'.format(self.params[PP.VTHR] / units.mV)
-
-    def brian2_reset(self):
-        return 'v = {} * mV'.format(self.params[PP.VRES] / units.mV)
-
     @lazyproperty
     def brian2(self):
         pop = NeuronGroup(
@@ -68,6 +42,32 @@ class MFLinearPop(MFPop):
         )
         pop.v = self.params[PP.VRES]
         return pop
+
+    def brian2_model(self):
+        eqs = Equations(
+            'dv / dt = (- g * (v - vl) - I) / cm : volt (unless refractory)',
+            g=self.params[PP.GM],
+            vl=self.params[PP.VL],
+            cm=self.params[PP.CM]
+        )
+
+        all_currents = []
+        for s in self.inputs + self.noises:
+            eqs += s.brian2_model()
+            all_currents.append(s.current_name)
+
+        if len(all_currents):
+            eqs += 'I = {} : amp'.format(' + '.join(all_currents))
+        else:
+            eqs += 'I = 0 : amp'
+
+        return eqs
+
+    def brian2_threshold(self):
+        return 'v > {} * mV'.format(self.params[PP.VTHR] / units.mV)
+
+    def brian2_reset(self):
+        return 'v = {} * mV'.format(self.params[PP.VRES] / units.mV)
 
 
     @property

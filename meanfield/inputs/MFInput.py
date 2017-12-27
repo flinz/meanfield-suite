@@ -6,14 +6,14 @@ from brian2 import units, check_units, Equations
 from meanfield.parameters.MFParams import MFParams
 from meanfield.utils import name2identifier, lazyproperty
 from meanfield.parameters import IP, PP
-from meanfield.populations.MFPop import MFPop
+from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.parameters.Connection import ConnectionStrategy
 
 
 class MFInput(object):
     """Source: a synapse coupled to pops"""
 
-    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], connection: ConnectionStrategy, add_as_input=True):
+    def __init__(self, name: str, pop: MFPopulation, params: Union[Dict, MFParams], connection: ConnectionStrategy, add_as_input=True):
 
         self.name = name
         self.ref = name2identifier(name)
@@ -37,6 +37,11 @@ class MFInput(object):
         if add_as_input:
             self.pop.add_input(self)  # TODO consistent
 
+    def __repr__(self):
+        return "{} [{}] ({}, {})".format(self.__class__.__name__, self.name, self.params, self.connection)
+
+    # Theory
+
     @property
     @check_units(result=units.siemens)
     def conductance(self):
@@ -51,13 +56,7 @@ class MFInput(object):
     def g_dyn(self):
         pass
 
-    @property
-    def current_name(self):
-        return 'I_' + self.ref
-
-    @property
-    def post_variable_name(self):
-        return 's_' + self.ref
+    # Simulation
 
     @abstractmethod
     def brian2(self):
@@ -78,6 +77,11 @@ class MFInput(object):
             tau=self.params[IP.TAU],
         )
 
-    def __repr__(self):
-        return "{} [{}] ({}, {})".format(self.__class__.__name__, self.name, self.params, self.connection)
+    @property
+    def current_name(self):
+        return 'I_' + self.ref
+
+    @property
+    def post_variable_name(self):
+        return 's_' + self.ref
 

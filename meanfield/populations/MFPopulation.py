@@ -6,7 +6,7 @@ from meanfield.parameters.MFParams import MFParams
 from meanfield.utils import name2identifier
 
 
-class MFPop(object):
+class MFPopulation(object):
 
     def __init__(self, name, n, params=None):
         self.name = name
@@ -58,22 +58,6 @@ class MFPop(object):
     def v_mean(self, value):
         self._v_mean = value
 
-    @abstractmethod
-    def rate_prediction(self):
-        pass
-
-    @abstractmethod
-    def v_mean_prediction(self):
-        pass
-
-    @abstractmethod
-    def brian2(self):
-        pass
-
-    @abstractmethod
-    def brian2_model(self):
-        pass
-
     def introspect(self, indent=0) -> str:
         builder = []
         spaces = ' ' * indent
@@ -87,6 +71,26 @@ class MFPop(object):
 
         return '\n'.join(builder)
 
-
     def __repr__(self):
         return '{} [{}] ({} noises, {} inputs, n: {}, rate: {}, v_mean: {})'.format(self.__class__.__name__, self.name, len(self.noises), len(self.inputs), self.n, self.rate, self.v_mean)
+
+    # Theory
+
+    @abstractmethod
+    def rate_prediction(self):
+        pass
+
+    @abstractmethod
+    def v_mean_prediction(self):
+        pass
+
+    # Simulation
+
+    @abstractmethod
+    def brian2(self):
+        pass
+
+    @abstractmethod
+    def brian2_model(self):
+        pass
+

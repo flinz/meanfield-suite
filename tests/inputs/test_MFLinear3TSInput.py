@@ -3,8 +3,8 @@ from brian2.units import *
 import numpy as np
 
 from meanfield.inputs.MFLinear3TSInput import MFLinear3TSInput
-from meanfield.populations.MFLinearPop import MFLinearPop
-from meanfield.populations.MFPoissonPop import MFPoissonPop
+from meanfield.populations.MFLinearPopulation import MFLinearPopulation
+from meanfield.populations.MFPoissonPopulation import MFPoissonPopulation
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import PP
@@ -40,12 +40,12 @@ class TestMFLinear3TSInput(object):
 
         alpha = 0.5
 
-        poisson = MFPoissonPop('poisson', n, n * 10 * Hz, {
+        poisson = MFPoissonPopulation('poisson', n, n * 10 * Hz, {
             PP.GM: 1 * nsiemens,
             PP.VRES: 0 * mV,
             PP.TAU_RP: 2 * ms
         })
-        pop = MFLinearPop('pop', n, {
+        pop = MFLinearPopulation('pop', n, {
             PP.GM: 10 * nsiemens,
             PP.VL: 0 * mV,
             PP.CM: 5 * nfarad,
