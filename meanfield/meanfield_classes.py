@@ -136,13 +136,13 @@ def setup_brunel99_nmda():
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: w_plus
-    }, from_pop=pop_e1)#, synapse=syn_ee_nmda)
+    }, origin=pop_e1)#, synapse=syn_ee_nmda)
     source_ee_nmda12 = MFLinearInput('EE Nmda12', pop_e1, {
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: w_min
-    }, from_pop=pop_e2)#, synapse=syn_ee_nmda)
+    }, origin=pop_e2)#, synapse=syn_ee_nmda)
     #source_ee_nmda1.g_base = params_standard['E']['gNMDA']
     #source_ee_nmda1.g_dyn = lambda: (
     #        ff * w_plus * syn_ee_nmda(pop_e1.rate_ms) + (1. - ff) * w_min * syn_ee_nmda(pop_e2.rate_ms)
@@ -154,13 +154,13 @@ def setup_brunel99_nmda():
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: w_min
-    }, from_pop=pop_e1)#, synapse=syn_ee_nmda)
+    }, origin=pop_e1)#, synapse=syn_ee_nmda)
     source_ee_nmda22 = MFLinearInput('EE Nmda22', pop_e2, {
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: (w_plus * ff + (1. - 2. * ff) * w_min) / (1 - ff)
-    }, from_pop=pop_e2)#, synapse=syn_ee_nmda)
+    }, origin=pop_e2)#, synapse=syn_ee_nmda)
     #source_ee_nmda2.g_base = params_standard['E']['gNMDA']
     #source_ee_nmda2.g_dyn = lambda: (
     #        ff * w_min * syn_ee_nmda(pop_e1.rate_ms) + (ff * w_plus + (1. - 2.*ff) * w_min) * syn_ee_nmda(pop_e2.rate_ms)
@@ -174,13 +174,13 @@ def setup_brunel99_nmda():
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: 1
-    }, from_pop=pop_e1)#, synapse=syn_ie_nmda)
+    }, origin=pop_e1)#, synapse=syn_ie_nmda)
     source_ie_nmda2 = MFLinearInput('IE Nmda2', pop_i, {
         IP.GM: params_standard['I']['gNMDA'],
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: 1
-    }, from_pop=pop_e2)#, synapse=syn_ie_nmda)
+    }, origin=pop_e2)#, synapse=syn_ie_nmda)
     #source_ie_nmda.g_base = params_standard['I']['gNMDA']
     #source_ie_nmda.g_dyn = lambda: (
     #        ff * syn_ie_nmda(pop_e1.rate_ms) + (1. - ff) * syn_ie_nmda(pop_e2.rate_ms)
@@ -200,7 +200,7 @@ def setup_brunel99_nmda():
         IP.GM: params_standard['I']['gGABA'],
         IP.VREV: -70 * mV,
         IP.TAU: syn_spec_gaba['tau_syn_d1'],
-    }, from_pop=pop_i)#, synapse=syn_ii_gaba)
+    }, origin=pop_i)#, synapse=syn_ii_gaba)
     #source_ii_gaba.g_base = params_standard['I']['gGABA']
     #source_ii_gaba.g_dyn = lambda: syn_ii_gaba(pop_i.rate_ms) * pop_i.n
     #source_ii_gaba.E_rev = -70.
@@ -211,7 +211,7 @@ def setup_brunel99_nmda():
         IP.GM: params_standard['E']['gGABA'],
         IP.VREV: -70 * mV,
         IP.TAU: syn_spec_gaba['tau_syn_d1'],
-    }, from_pop=pop_i)#, synapse=syn_ei_gaba)
+    }, origin=pop_i)#, synapse=syn_ei_gaba)
     #source_ei_gaba1.g_base = params_standard['E']['gGABA']
     #source_ei_gaba1.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
     #source_ei_gaba1.E_rev = -70.
@@ -220,7 +220,7 @@ def setup_brunel99_nmda():
         IP.GM: params_standard['E']['gGABA'],
         IP.VREV: -70 * mV,
         IP.TAU: syn_spec_gaba['tau_syn_d1'],
-    }, from_pop=pop_i)#, synapse=syn_ei_gaba)
+    }, origin=pop_i)#, synapse=syn_ei_gaba)
     #source_ei_gaba2.g_base = params_standard['E']['gGABA']
     #source_ei_gaba2.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
     #source_ei_gaba2.E_rev = -70.
@@ -322,13 +322,13 @@ def setup_brunel99(w_plus_val=2.5):
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: w_plus
-    }, from_pop=pop_e1)#, synapse=syn_ee_nmda)
+    }, origin=pop_e1)#, synapse=syn_ee_nmda)
     source_ee_nmda12 = MFLinearInput('EE Nmda12', pop_e1, {
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: w_min
-    }, from_pop=pop_e2)#, synapse=syn_ee_nmda)
+    }, origin=pop_e2)#, synapse=syn_ee_nmda)
     #source_ee_nmda1.g_base = params_standard['E']['gNMDA']
     #source_ee_nmda1.g_dyn = lambda: (
     #        ff * w_plus * syn_ee_nmda(pop_e1.rate_ms) + (1. - ff) * w_min * syn_ee_nmda(pop_e2.rate_ms)
@@ -340,13 +340,13 @@ def setup_brunel99(w_plus_val=2.5):
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: w_min
-    }, from_pop=pop_e1)#, synapse=syn_ee_nmda)
+    }, origin=pop_e1)#, synapse=syn_ee_nmda)
     source_ee_nmda22 = MFLinearInput('EE Nmda22', pop_e2, {
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: (w_plus * ff + (1. - 2. * ff) * w_min) / (1 - ff)
-    }, from_pop=pop_e2)#, synapse=syn_ee_nmda)
+    }, origin=pop_e2)#, synapse=syn_ee_nmda)
     #source_ee_nmda2.g_base = params_standard['E']['gNMDA']
     #source_ee_nmda2.g_dyn = lambda: (
     #        ff * w_min * syn_ee_nmda(pop_e1.rate_ms) + (ff * w_plus + (1. - 2.*ff) * w_min) * syn_ee_nmda(pop_e2.rate_ms)
@@ -360,13 +360,13 @@ def setup_brunel99(w_plus_val=2.5):
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: 1
-    }, from_pop=pop_e1)#, synapse=syn_ie_nmda)
+    }, origin=pop_e1)#, synapse=syn_ie_nmda)
     source_ie_nmda2 = MFLinearInput('IE Nmda2', pop_i, {
         IP.GM: params_standard['I']['gNMDA'],
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],
         IP.W: 1
-    }, from_pop=pop_e2)#, synapse=syn_ie_nmda)
+    }, origin=pop_e2)#, synapse=syn_ie_nmda)
     #source_ie_nmda.g_base = params_standard['I']['gNMDA']
     #source_ie_nmda.g_dyn = lambda: (
     #        ff * syn_ie_nmda(pop_e1.rate_ms) + (1. - ff) * syn_ie_nmda(pop_e2.rate_ms)
@@ -386,7 +386,7 @@ def setup_brunel99(w_plus_val=2.5):
         IP.GM: params_standard['I']['gGABA'],
         IP.VREV: -70 * mV,
         IP.TAU: syn_spec_gaba['tau_syn_d1'],
-    }, from_pop=pop_i)#, synapse=syn_ii_gaba)
+    }, origin=pop_i)#, synapse=syn_ii_gaba)
     #source_ii_gaba.g_base = params_standard['I']['gGABA']
     #source_ii_gaba.g_dyn = lambda: syn_ii_gaba(pop_i.rate_ms) * pop_i.n
     #source_ii_gaba.E_rev = -70.
@@ -397,7 +397,7 @@ def setup_brunel99(w_plus_val=2.5):
         IP.GM: params_standard['E']['gGABA'],
         IP.VREV: -70 * mV,
         IP.TAU: syn_spec_gaba['tau_syn_d1'],
-    }, from_pop=pop_i)#, synapse=syn_ei_gaba)
+    }, origin=pop_i)#, synapse=syn_ei_gaba)
     #source_ei_gaba1.g_base = params_standard['E']['gGABA']
     #source_ei_gaba1.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
     #source_ei_gaba1.E_rev = -70.
@@ -406,7 +406,7 @@ def setup_brunel99(w_plus_val=2.5):
         IP.GM: params_standard['E']['gGABA'],
         IP.VREV: -70 * mV,
         IP.TAU: syn_spec_gaba['tau_syn_d1'],
-    }, from_pop=pop_i)#, synapse=syn_ei_gaba)
+    }, origin=pop_i)#, synapse=syn_ei_gaba)
     #source_ei_gaba2.g_base = params_standard['E']['gGABA']
     #source_ei_gaba2.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
     #source_ei_gaba2.E_rev = -70.
@@ -484,7 +484,7 @@ def setup_EI(has_nmda=False):
         IP.GM: params_standard['E']['gNMDA'] * mult,
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],  # not sure
-    }, from_pop=pop_e)#, synapse=syn_ee_nmda)
+    }, origin=pop_e)#, synapse=syn_ee_nmda)
     #source_ee_nmda.g_base = params_standard['E']['gNMDA'] * mult
     #source_ee_nmda.g_dyn = lambda: syn_ee_nmda(pop_e.rate_ms) * pop_e.n
     #source_ee_nmda.is_nmda = has_nmda
@@ -495,7 +495,7 @@ def setup_EI(has_nmda=False):
         IP.GM: params_standard['I']['gNMDA'] * mult,
         IP.VREV: 0 * mV,
         IP.TAU: syn_spec_nmda['tau_syn_d1'],  # not sure
-    }, from_pop=pop_e)#, synapse=syn_ie_nmda)
+    }, origin=pop_e)#, synapse=syn_ie_nmda)
     #source_ie_nmda.g_base = params_standard['I']['gNMDA'] * mult
     #source_ie_nmda.g_dyn = lambda: syn_ie_nmda(pop_e.rate_ms) * pop_e.n
     #source_ie_nmda.is_nmda = has_nmda
@@ -512,7 +512,7 @@ def setup_EI(has_nmda=False):
         IP.GM: params_standard['I']['gGABA'],
         IP.VREV: -70 * mV,
         IP.TAU: syn_spec_gaba['tau_syn_d1'],  # not sure
-    }, from_pop=pop_i)#, synapse=syn_ii_gaba)
+    }, origin=pop_i)#, synapse=syn_ii_gaba)
     #source_ii_gaba.g_base = params_standard['I']['gGABA']
     #source_ii_gaba.g_dyn = lambda: syn_ii_gaba(pop_i.rate_ms) * pop_i.n
     #source_ii_gaba.E_rev = -70.
@@ -523,7 +523,7 @@ def setup_EI(has_nmda=False):
         IP.GM: params_standard['E']['gGABA'],
         IP.VREV: -70 * mV,
         IP.TAU: syn_spec_gaba['tau_syn_d1'],  # not sure
-    }, from_pop=pop_i)#, synapse=syn_ei_gaba)
+    }, origin=pop_i)#, synapse=syn_ei_gaba)
     #source_ei_gaba.g_base = params_standard['E']['gGABA']
     #source_ei_gaba.g_dyn = lambda: syn_ei_gaba(pop_i.rate_ms) * pop_i.n
     #source_ei_gaba.E_rev = -70.

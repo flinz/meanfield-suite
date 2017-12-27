@@ -34,18 +34,18 @@ class TestRecurrent(object):
         })
         pop.rate = 10 * Hz
 
-        noise = MFStaticInput("noise", pop, 1000, 5 * Hz, {
+        noise = MFStaticInput(1000, 5 * Hz, pop, {
             IP.GM: 2 * nS,
             IP.VREV: 0 * volt,
             IP.TAU: 2. * ms,
         })
         pop.add_noise(noise)
 
-        rec = MFLinearInput("rec", pop, {
+        rec = MFLinearInput(pop, pop, {
             IP.GM: 0.973 / 100 * nS,
             IP.VREV: -70 * volt,
             IP.TAU: 10. * ms,
-        }, pop)
+        })
 
         system = MFSystem("pop noise rec")
         system.pops += [pop]

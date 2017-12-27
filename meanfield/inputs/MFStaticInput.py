@@ -19,8 +19,8 @@ class MFStaticInput(MFInput):
     defaults = MappingProxyType({})
 
     @check_units(rate=units.hertz, n=1)
-    def __init__(self, name: str, pop: MFPopulation, n: int, rate: units.hertz, parameters: Union[Dict, MFParams], connection: ConnectionStrategy=Connection.all_to_all()):
-        super().__init__(name, pop, parameters, connection, add_as_input=False)
+    def __init__(self, n: int, rate: units.hertz, target: MFPopulation, parameters: Union[Dict, MFParams], **kwargs):
+        super().__init__(target, parameters, **kwargs, add_as_input=False)
 
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
@@ -38,5 +38,5 @@ class MFStaticInput(MFInput):
 
     @lazyproperty
     def brian2(self):
-        return PoissonInput(self.pop.brian2, self.post_variable_name, self.n, self.rate, 1)
+        return PoissonInput(self.target.brian2, self.post_variable_name, self.n, self.rate, 1)
 

@@ -53,7 +53,7 @@ class TestMFLinear3TSInput(object):
             PP.VRES: 0 * mV,
             PP.TAU_RP: 15 * ms
         })
-        syn = MFLinear3TSInput('syn', pop, {
+        syn = MFLinear3TSInput(poisson, pop, {
             IP.GM: 10 * nsiemens,
             IP.VREV: 0 * mvolt,
             IP.TAU: 0 * ms, # unused
@@ -61,13 +61,13 @@ class TestMFLinear3TSInput(object):
             IP.TAU_D1: 20 * ms,
             IP.TAU_D2: 30 * ms,
             IP.ALPHA: alpha
-        }, poisson)
+        })
 
         system = MFSystem('test')
         system.pops += [pop]
         solver = MFSolverRatesVoltages(system, solver='mse')
         solver.run()
-        theory = syn.g_dyn() / syn.from_pop.n
+        theory = syn.g_dyn() / syn.origin.n
 
         print([syn.post_variable_name_1, syn.post_variable_name_2, syn.post_variable_name_3, syn.post_variable_name_4])
         print(syn.brian2)

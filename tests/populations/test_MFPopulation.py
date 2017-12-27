@@ -39,7 +39,7 @@ class TestMFPop(object):
 
     def test_model_gen_with_one_source(self):
         pop = MFLinearPopulation(1, params_pop)
-        _ = MFInput('test', pop, params_source, Connection.all_to_all())
+        _ = MFInput(pop, params_source, connection=Connection.all_to_all(), name='test')
 
         assert_equations(
             pop.brian2_model(),
@@ -53,8 +53,8 @@ class TestMFPop(object):
 
     def test_model_gen_with_two_sources(self):
         pop = MFLinearPopulation(1, params_pop)
-        MFInput('test1', pop, params_source, Connection.all_to_all())
-        MFInput('test2', pop, params_source, Connection.all_to_all())
+        MFInput(pop, params_source, connection=Connection.all_to_all(), name='test1')
+        MFInput(pop, params_source, connection=Connection.all_to_all(), name='test2')
 
         assert_equations(
             pop.brian2_model(),

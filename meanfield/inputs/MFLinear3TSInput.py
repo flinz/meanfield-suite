@@ -23,8 +23,8 @@ class MFLinear3TSInput(MFLinearInput):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, name: str, pop: MFPopulation, parameters: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
-        super().__init__(name, pop, parameters, from_pop, connection)
+    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], **kwargs):
+        super().__init__(origin, target, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
@@ -38,7 +38,7 @@ class MFLinear3TSInput(MFLinearInput):
             - self[IP.ALPHA] * self[IP.TAU_D1] * self[IP.TAU_RISE] / (self[IP.TAU_D1] + self[IP.TAU_RISE]),
             - (1. - self[IP.ALPHA]) * self[IP.TAU_D2] * self[IP.TAU_RISE] / (self[IP.TAU_D2] + self[IP.TAU_RISE])
         ]
-        return self.from_pop.n * self.from_pop.rate * sum(taus)
+        return self.origin.n * self.origin.rate * sum(taus)
 
     # Simulation
 
@@ -57,8 +57,8 @@ class MFLinear3TSInput(MFLinearInput):
         {} += w4
         '''.format(self.post_variable_name_1, self.post_variable_name_2, self.post_variable_name_3, self.post_variable_name_4)
         syn = Synapses(
-            source=self.from_pop.brian2,
-            target=self.pop.brian2,
+            source=self.origin.brian2,
+            target=self.target.brian2,
             method='euler',
             model=model,
             on_pre=on_pre,

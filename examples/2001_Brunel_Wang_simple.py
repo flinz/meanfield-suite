@@ -102,86 +102,86 @@ pop_i = MFLinearPopulation(N_I, I_params, name="I")
 
 
 # noise pops
-source_e_noise1 = MFStaticInput("E_noise1", pop_e1, C_ext, rate, {
+source_e_noise1 = MFStaticInput(C_ext, rate, pop_e1, {
     IP.GM: g_AMPA_ext_E,
     IP.VREV: 0 * mV,
     IP.TAU: tau_AMPA,
-})
+}, name="E_noise1")
 pop_e1.add_noise(source_e_noise1)
 
-source_e_noise2 = MFStaticInput("E_noise2", pop_e2, C_ext, rate, {
+source_e_noise2 = MFStaticInput(C_ext, rate, pop_e2, {
     IP.GM: g_AMPA_ext_E,
     IP.VREV: 0 * mV,
     IP.TAU: tau_AMPA,
-})
+}, name="E_noise2")
 pop_e2.add_noise(source_e_noise2)
 
-source_i_noise = MFStaticInput("I_noise", pop_i, C_ext, rate, {
+source_i_noise = MFStaticInput(C_ext, rate, pop_i, {
     IP.GM: g_AMPA_ext_I,
     IP.VREV: 0 * mV,
     IP.TAU: tau_AMPA,
-})
+}, name="I_noise")
 pop_i.add_noise(source_i_noise)
 
 # E->E NMDA
-source_ee_nmda1 = MFLinearInput('EE NMDA 1', pop_e1, {
+source_ee_nmda1 = MFLinearInput(pop_e1, pop_e1, {
     IP.GM: g_NMDA_E,
     IP.VREV: 0 * mV,
     IP.TAU: tau_NMDA_decay,
-}, pop_e1, Connection.all_to_others())
+}, name='EE NMDA 1', connection=Connection.all_to_others())
 
-source_ee_nmda2 = MFLinearInput('EE NMDA 2', pop_e2, {
+source_ee_nmda2 = MFLinearInput(pop_e1, pop_e2, {
     IP.GM: g_NMDA_E,
     IP.VREV: 0 * mV,
     IP.TAU: tau_NMDA_decay,
-}, pop_e1)
+}, name='EE NMDA 2')
 
 # E->E AMPA
-source_ee_ampa1 = MFLinearInput('EE AMPA 1', pop_e1, {
+source_ee_ampa1 = MFLinearInput(pop_e2, pop_e1, {
     IP.GM: g_AMPA_rec_E,
     IP.VREV: 0 * mvolt,
     IP.TAU: tau_AMPA,
-}, pop_e2)
+}, name='EE AMPA 1')
 
-source_ee_ampa2 = MFLinearInput('EE AMPA 2', pop_e2, {
+source_ee_ampa2 = MFLinearInput(pop_e2, pop_e2, {
     IP.GM: g_AMPA_rec_E,
     IP.VREV: 0 * mvolt,
     IP.TAU: tau_AMPA,
-}, pop_e2, Connection.all_to_others())
+}, name='EE AMPA 2', connection=Connection.all_to_others())
 
 # E->I NMDA
-source_ie_nmda = MFLinearInput('EI NMDA', pop_i, {
+source_ie_nmda = MFLinearInput(pop_e1, pop_i, {
     IP.GM: g_NMDA_I,
     IP.VREV: 0 * mvolt,
     IP.TAU: tau_NMDA_decay,
-}, pop_e1)
+}, name='EI NMDA')
 
 # E->I AMPA
-source_ie_ampa = MFLinearInput('EI AMPA', pop_i, {
+source_ie_ampa = MFLinearInput(pop_e2, pop_i, {
     IP.GM: g_AMPA_rec_E,
     IP.VREV: 0 * mvolt,
     IP.TAU: tau_AMPA,
-}, pop_e2)
+}, name='EI AMPA')
 
 # I->I GABA
-source_ii_gaba = MFLinearInput('II GABA', pop_i, {
+source_ii_gaba = MFLinearInput(pop_i, pop_i, {
     IP.GM: g_GABA_I,
     IP.VREV: -70 * mvolt,
     IP.TAU: tau_GABA,
-}, pop_i, Connection.all_to_others())
+}, name='II GABA', connection=Connection.all_to_others())
 
 # I->E GABA
-source_ie_gaba1 = MFLinearInput('IE GABA 1', pop_e1, {
+source_ie_gaba1 = MFLinearInput(pop_i, pop_e1, {
     IP.GM: g_GABA_E,
     IP.VREV: -70 * mvolt,
     IP.TAU: tau_GABA,
-}, pop_i)
+}, name='IE GABA 1')
 
-source_ie_gaba2 = MFLinearInput('IE GABA 2', pop_e2, {
+source_ie_gaba2 = MFLinearInput(pop_i, pop_e2, {
     IP.GM: g_GABA_E,
     IP.VREV: -70 * mvolt,
     IP.TAU: tau_GABA,
-}, pop_i)
+}, name='IE GABA 2')
 
 
 system = MFSystem("Brunel Wang simplified")

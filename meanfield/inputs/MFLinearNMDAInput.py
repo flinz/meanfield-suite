@@ -1,3 +1,4 @@
+from types import MappingProxyType
 from typing import Union, Dict
 
 from brian2 import units, Equations, check_units, np
@@ -12,25 +13,27 @@ from meanfield.parameters.Connection import ConnectionStrategy
 
 class MFLinearNMDAInput(MFLinearInput):
 
-    def __init__(self, name: str, pop: MFPopulation, parameters: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
-        super().__init__(name, pop, parameters, from_pop)
+    arguments = MappingProxyType({
+        IP.TAU_NMDA: units.second,
+        IP.ALPHA: 1,
+        IP.BETA: 1,  # TODO beta 1/v ?
+        IP.GAMMA: 1,
+    })
 
-        defaults = {}
-        expectations = {
-            IP.TAU_NMDA: units.second,
-            IP.ALPHA: 1,
-            IP.BETA: 1, # TODO beta 1/v ?
-            IP.GAMMA: 1,
-        }
-        self.parameters.fill(defaults)
-        self.parameters.verify(expectations)
+    defaults = MappingProxyType({})
+
+    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], **kwargs):
+        super().__init__(origin, target, parameters, **kwargs)
+
+        self.parameters.fill(self.defaults)
+        self.parameters.verify(self.arguments)
 
     # Theory
 
     @property
     def J(self):
         """Linearization factor for NMDA"""
-        return 1 + self.parameters[PP.GAMMA] * np.exp(-self.parameters[PP.BETA] * self.pop.v_mean / units.volt)
+        return 1 + self.parameters[PP.GAMMA] * np.exp(-self.parameters[PP.BETA] * self.target.v_mean / units.volt)
 
     @property
     @check_units(result=1)
@@ -40,7 +43,7 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     @check_units(result=1)
     def rho2(self):
-        return (self.J - 1) / self.J ** 2 * self.parameters[PP.BETA] * (self.pop.v_mean - self.parameters[IP.VREV]) / units.volt # TODO unitless?
+        return (self.J - 1) / self.J ** 2 * self.parameters[PP.BETA] * (self.target.v_mean - self.parameters[IP.VREV]) / units.volt # TODO unitless?
 
     @property
     @check_units(result=units.siemens)
@@ -50,8 +53,8 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     def voltage_conductance(self):
         return self.g_dyn() * self.g_base * (
-                self.rho1 * (self.parameters[IP.VREV] - self.pop.params[PP.VL]) +
-                self.rho2 * (self.pop.v_mean - self.pop.params[PP.VL])
+                self.rho1 * (self.parameters[IP.VREV] - self.target.params[PP.VL]) +
+                self.rho2 * (self.target.v_mean - self.target.params[PP.VL])
         )
 
     # Simulation

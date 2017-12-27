@@ -22,8 +22,8 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, name: str, pop: MFPopulation, parameters: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
-        super().__init__(name, pop, parameters, from_pop, connection)
+    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], **kwargs):
+        super().__init__(origin, target, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
@@ -57,8 +57,8 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
         {} += 1
         '''.format(self.post_nonlinear_name)
         C = Synapses(
-            self.from_pop.brian2,
-            self.pop.brian2,
+            self.origin.brian2,
+            self.target.brian2,
             method='euler',
             model=model,
             on_pre=eqs_pre,

@@ -5,10 +5,11 @@ from typing import Union, Dict
 from brian2 import units, check_units, Equations
 
 from meanfield.parameters.MFParams import MFParams
-from meanfield.utils import create_identifier, lazyproperty
+from meanfield.utils import create_identifier, lazyproperty, create_name
 from meanfield.parameters import IP, PP
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.parameters.Connection import ConnectionStrategy
+from meanfield.parameters import Connection
 
 
 class MFInput(object):
@@ -22,10 +23,10 @@ class MFInput(object):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, name: str, pop: MFPopulation, parameters: Union[Dict, MFParams], connection: ConnectionStrategy, add_as_input=True):
+    def __init__(self, target: MFPopulation, parameters: Union[Dict, MFParams]=None, name: str=None, connection: ConnectionStrategy=Connection.all_to_all(), add_as_input: bool=True):
 
-        self.name = name
-        self.ref = create_identifier(name)
+        self.name = name if name else create_name(self)
+        self.ref = create_identifier(self.name)
 
         self.parameters = MFParams({}) if not parameters else MFParams(parameters)
         self.parameters.fill(self.defaults)
@@ -36,9 +37,9 @@ class MFInput(object):
         self.connection = connection
 
         # link to pop
-        self.pop = pop
+        self.target = target
         if add_as_input:
-            self.pop.add_input(self)  # TODO consistent
+            self.target.add_input(self)  # TODO consistent
 
     def __getitem__(self, key):
         return self.parameters[key]
@@ -56,7 +57,7 @@ class MFInput(object):
     @property
     @check_units(result=units.amp)
     def voltage_conductance(self):
-        return self.conductance * (self[IP.VREV] - self.pop[PP.VL])
+        return self.conductance * (self[IP.VREV] - self.target[PP.VL])
 
     @abstractmethod
     def g_dyn(self):

@@ -44,7 +44,7 @@ class TestMFLinearNMDAInput(object):
             PP.VRES: 0 * mV,
             PP.TAU_RP: 0 * ms
         })
-        pop = MFLinearPopulation('pop', n, {
+        pop = MFLinearPopulation(n, {
             PP.GM: 10 * nsiemens,
             PP.VL: 0 * mV,
             PP.CM: 5 * nfarad,
@@ -52,7 +52,7 @@ class TestMFLinearNMDAInput(object):
             PP.VRES: 0 * mV,
             PP.TAU_RP: 15 * ms
         })
-        syn = MFLinearNMDAInput('syn', pop, {
+        syn = MFLinearNMDAInput(poisson, pop, {
             IP.GM: 10 * nsiemens,
             IP.VREV: 0 * mV,
             IP.TAU: 20 * ms,
@@ -60,13 +60,13 @@ class TestMFLinearNMDAInput(object):
             IP.ALPHA: 1, # TODO git alpha ?
             IP.BETA: 1,
             IP.GAMMA: 1,
-        }, poisson)
+        })
 
         system = MFSystem('test')
         system.pops += [pop]
         solver = MFSolverRatesVoltages(system, solver='mse')
         solver.run()
-        theory = syn.g_dyn() / syn.from_pop.n
+        theory = syn.g_dyn() / syn.origin.n
 
         m = StateMonitor(syn.brian2, syn.post_variable_name, record=range(100))
         defaultclock.dt = dt

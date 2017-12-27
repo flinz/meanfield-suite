@@ -32,7 +32,7 @@ class TestNoise(object):
         })
         pop.rate = 10 * Hz
 
-        noise = MFStaticInput("noise", pop, 1000, 3 * Hz, {
+        noise = MFStaticInput(1000, 3 * Hz, pop, {
             IP.GM: 2 * nS,
             IP.VREV: 0 * volt,
             IP.TAU: 2. * ms,
