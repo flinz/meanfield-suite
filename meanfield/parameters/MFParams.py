@@ -10,12 +10,18 @@ class MissingParameterError(Exception):
 class MFParams(object):
 
     def __init__(self, params):
+
+        if isinstance(params, MFParams):
+            params = params.underlying
+
         self.underlying = dict(params)
         self.accesses = set()
 
     def __getitem__(self, key):
         self.accesses.add(key)
         return self.underlying[key]
+
+    # FIXME overload addition
 
     def all_keys_consumed(self):
         return self.accesses == set(self.underlying.keys())

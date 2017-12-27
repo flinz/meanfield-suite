@@ -1,4 +1,5 @@
 from abc import abstractproperty, abstractmethod
+from types import MappingProxyType
 
 from brian2 import units, check_units
 
@@ -8,18 +9,22 @@ from meanfield.utils import name2identifier
 
 class MFPopulation(object):
 
+    arguments = MappingProxyType({})
+
+    defaults = MappingProxyType({})
+
     def __init__(self, name, n, params=None):
         self.name = name
         self.ref = name2identifier(name)
-
         self.n = n
-        if params:
-            if isinstance(params, MFParams):
-                self.params = params
-            else:
-                self.params = MFParams(params)
+
+        if not params:
+            self.parameters = MFParams({})
         else:
-            self.params = MFParams({})
+            self.parameters = MFParams(params)
+
+        self.parameters.fill(self.defaults)
+        self.parameters.verify(self.arguments)
 
         self.inputs = []
         self.noises = []
@@ -27,6 +32,9 @@ class MFPopulation(object):
         # base estimation
         self._rate = 200 * units.Hz
         self._v_mean = -55. * units.mV
+
+    def __getitem__(self, key):
+        return self.parameters[key]
 
     def add_noise(self, noise):
         if len(self.noises):

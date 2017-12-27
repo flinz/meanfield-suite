@@ -1,33 +1,34 @@
 from math import erf
+from types import MappingProxyType
 
 import numpy as np
 from brian2 import units, Equations, NeuronGroup, check_units
 from scipy.integrate import quad
 
+from meanfield.parameters import PP, IP
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import lazyproperty
-from meanfield.parameters import PP, IP
 
 
 class MFLinearPopulation(MFPopulation):
     """pop: similar neurons"""
 
+    arguments = MappingProxyType({
+        PP.GM: units.siemens,
+        PP.VL: units.volt,
+        PP.CM: units.farad,
+        PP.VTHR: units.volt,
+        PP.VRES: units.volt,
+        PP.TAU_RP: units.second
+    })
+
+    defaults = MappingProxyType({})
+
     def __init__(self, name, n, params):
         super().__init__(name, n, params)
 
-        defaults = {
-        }
-        expectations = {
-            PP.GM: units.siemens,
-            PP.VL: units.volt,
-            PP.CM: units.farad,
-            PP.VTHR: units.volt,
-            PP.VRES: units.volt,
-            PP.TAU_RP: units.second
-        }
-
-        self.params.fill(defaults)
-        self.params.verify(expectations)
+        self.parameters.fill(self.defaults)
+        self.parameters.verify(self.arguments)
 
     # Theory
 
@@ -38,7 +39,7 @@ class MFLinearPopulation(MFPopulation):
         Gm * SE in [1]
         Units of S
         """
-        return self.params[PP.GM] + np.sum(s.conductance for s in self.inputs + self.noises)
+        return self[PP.GM] + np.sum(s.conductance for s in self.inputs + self.noises)
 
     @property
     @check_units(result=units.second)
@@ -46,7 +47,7 @@ class MFLinearPopulation(MFPopulation):
         """
         Seconds
         """
-        return self.params[PP.CM] / self.total_cond
+        return self[PP.CM] / self.total_cond
 
     @property
     @check_units(result=units.volt)
@@ -65,8 +66,9 @@ class MFLinearPopulation(MFPopulation):
         if not len(self.noises):
             return 0. * units.volt ** 2
 
+        # only single source of noise supported
         noise = self.noises[0]
-        return (noise.g_base / self.params[PP.CM] * (self.v_mean - noise.params[IP.VREV])) ** 2 * self.tau_eff * noise.g_dyn() * noise.params[IP.TAU]
+        return (noise.g_base / self[PP.CM] * (self.v_mean - noise.params[IP.VREV])) ** 2 * self.tau_eff * noise.g_dyn() * noise.params[IP.TAU]
 
     @property
     @check_units(result=units.Hz)
@@ -83,10 +85,10 @@ class MFLinearPopulation(MFPopulation):
         noise = self.noises[0]
 
         # Brunel Wang 2001 / Brunel Sergi 1998
-        beta = (self.params[PP.VRES] - self.params[PP.VL] - self.mu) / sigma
+        beta = (self[PP.VRES] - self[PP.VL] - self.mu) / sigma
         alpha = -0.5 * noise.params[IP.TAU] / tau_eff \
                 + 1.03 * np.sqrt(noise.params[IP.TAU] / tau_eff) \
-                + (- self.mu - self.params[PP.VL] + self.params[PP.VTHR]) * (
+                + (- self.mu - self[PP.VL] + self[PP.VTHR]) * (
                         1. + (0.5 * noise.params[IP.TAU] / tau_eff)) / sigma
 
         # Fourcauld Brunel 2002
@@ -94,7 +96,7 @@ class MFLinearPopulation(MFPopulation):
         # alpha = 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff) \
         #        + (- self.mu - self.params[NP.VL] + self.params[NP.VTHR])/ sigma
 
-        def integrand(x, max_exp=50):
+        def integrand(x, max_exp=20):
             if x < -max_exp:
                 return np.exp(-max_exp ** 2) * (1. + erf(-max_exp))
             if x > max_exp:
@@ -107,7 +109,7 @@ class MFLinearPopulation(MFPopulation):
         # print(q)
         # print('->', time.time() - s)
 
-        return 1. / (self.params[PP.TAU_RP] + tau_eff * np.sqrt(np.pi) * q[0])
+        return 1. / (self[PP.TAU_RP] + tau_eff * np.sqrt(np.pi) * q[0])
 
     @property
     @check_units(result=units.volt)
@@ -115,7 +117,7 @@ class MFLinearPopulation(MFPopulation):
         """
         Volt
         """
-        return self.params[PP.VL] + self.mu - (self.params[PP.VTHR] - self.params[PP.VRES]) * self.rate * self.tau_eff
+        return self[PP.VL] + self.mu - (self[PP.VTHR] - self[PP.VRES]) * self.rate * self.tau_eff
 
     # Simulation
 
@@ -125,20 +127,20 @@ class MFLinearPopulation(MFPopulation):
             self.n,
             self.brian2_model(),
             method='euler',
-            threshold='v > {} * mV'.format(self.params[PP.VTHR] / units.mV),
-            reset='v = {} * mV'.format(self.params[PP.VRES] / units.mV),
-            refractory=self.params[PP.TAU_RP],
+            threshold='v > {} * mV'.format(self[PP.VTHR] / units.mV),
+            reset='v = {} * mV'.format(self[PP.VRES] / units.mV),
+            refractory=self[PP.TAU_RP],
             name=self.ref
         )
-        pop.v = self.params[PP.VRES]
+        pop.v = self[PP.VRES]
         return pop
 
     def brian2_model(self):
         eqs = Equations(
             'dv / dt = (- g * (v - vl) - I) / cm : volt (unless refractory)',
-            g=self.params[PP.GM],
-            vl=self.params[PP.VL],
-            cm=self.params[PP.CM]
+            g=self[PP.GM],
+            vl=self[PP.VL],
+            cm=self[PP.CM]
         )
 
         all_currents = []

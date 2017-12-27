@@ -50,7 +50,7 @@ class MFInput(object):
     @property
     @check_units(result=units.amp)
     def voltage_conductance(self):
-        return self.conductance * (self.params[IP.VREV] - self.pop.params[PP.VL])
+        return self.conductance * (self.params[IP.VREV] - self.pop.parameters[PP.VL])
 
     @abstractmethod
     def g_dyn(self):
