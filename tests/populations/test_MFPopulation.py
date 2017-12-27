@@ -27,7 +27,7 @@ params_source = {
 class TestMFPop(object):
 
     def test_model_gen_without_source(self):
-        pop = MFLinearPopulation("test", 1, params_pop)
+        pop = MFLinearPopulation(1, params_pop)
 
         assert_equations(
             pop.brian2_model(),
@@ -38,7 +38,7 @@ class TestMFPop(object):
         )
 
     def test_model_gen_with_one_source(self):
-        pop = MFLinearPopulation("test", 1, params_pop)
+        pop = MFLinearPopulation(1, params_pop)
         _ = MFInput('test', pop, params_source, Connection.all_to_all())
 
         assert_equations(
@@ -52,7 +52,7 @@ class TestMFPop(object):
         )
 
     def test_model_gen_with_two_sources(self):
-        pop = MFLinearPopulation("test", 1, params_pop)
+        pop = MFLinearPopulation(1, params_pop)
         MFInput('test1', pop, params_source, Connection.all_to_all())
         MFInput('test2', pop, params_source, Connection.all_to_all())
 

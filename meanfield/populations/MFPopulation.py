@@ -1,10 +1,11 @@
 from abc import abstractproperty, abstractmethod
 from types import MappingProxyType
+from typing import Union, Optional
 
-from brian2 import units, check_units
+from brian2 import units, check_units, Equations, BrianObject
 
 from meanfield.parameters.MFParams import MFParams
-from meanfield.utils import name2identifier
+from meanfield.utils import create_identifier, create_name
 
 
 class MFPopulation(object):
@@ -13,10 +14,11 @@ class MFPopulation(object):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, name, n, parameters=None):
+    @check_units(n=1)
+    def __init__(self, n: int, parameters: Optional[Union[dict, MFParams]]=None, name: str=None):
 
-        self.name = name
-        self.ref = name2identifier(name)
+        self.name = name if name else create_name(self)
+        self.ref = create_identifier(self.name)
         self.n = n
 
         self.parameters = MFParams({}) if not parameters else MFParams(parameters)
@@ -33,34 +35,34 @@ class MFPopulation(object):
     def __getitem__(self, key):
         return self.parameters[key]
 
-    def add_noise(self, noise):
+    def add_noise(self, noise) -> None:
         if len(self.noises):
             raise NotImplementedError('multiple noise not supported yet')
 
         self.noises.append(noise)
 
-    def add_input(self, input):
+    def add_input(self, input) -> None:
         # TODO control source and no duplicate
         self.inputs.append(input)
 
     @property
     @check_units(result=units.Hz)
-    def rate(self):
+    def rate(self) -> units.Hz:
         return self._rate
 
     @rate.setter
     @check_units(value=units.Hz)
-    def rate(self, value):
+    def rate(self, value) -> units.Hz:
         self._rate = value
 
     @property
     @check_units(result=units.volt)
-    def v_mean(self):
+    def v_mean(self) -> units.volt:
         return self._v_mean
 
     @v_mean.setter
     @check_units(value=units.volt)
-    def v_mean(self, value):
+    def v_mean(self, value) -> units.volt:
         self._v_mean = value
 
     def introspect(self, indent=0) -> str:
@@ -76,26 +78,28 @@ class MFPopulation(object):
 
         return '\n'.join(builder)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '{} [{}] ({} noises, {} inputs, n: {}, rate: {}, v_mean: {})'.format(self.__class__.__name__, self.name, len(self.noises), len(self.inputs), self.n, self.rate, self.v_mean)
 
     # Theory
 
     @abstractmethod
-    def rate_prediction(self):
+    @check_units(result=units.Hz)
+    def rate_prediction(self) -> units.Hz:
         pass
 
     @abstractmethod
-    def v_mean_prediction(self):
+    @check_units(result=units.volt)
+    def v_mean_prediction(self) -> units.volt:
         pass
 
     # Simulation
 
     @abstractmethod
-    def brian2(self):
+    def brian2(self) -> BrianObject:
         pass
 
     @abstractmethod
-    def brian2_model(self):
+    def brian2_model(self) -> Optional[Equations]:
         pass
 

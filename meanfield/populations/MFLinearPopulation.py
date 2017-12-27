@@ -1,13 +1,15 @@
 from math import erf
 from types import MappingProxyType
+from typing import Union, Optional
 
 import numpy as np
-from brian2 import units, Equations, NeuronGroup, check_units
+from brian2 import units, Equations, NeuronGroup, check_units, BrianObject
 from scipy.integrate import quad
 
 from meanfield.parameters import PP, IP
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import lazyproperty
+from meanfield.parameters.MFParams import MFParams
 
 
 class MFLinearPopulation(MFPopulation):
@@ -24,8 +26,8 @@ class MFLinearPopulation(MFPopulation):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, name, n, parameters):
-        super().__init__(name, n, parameters)
+    def __init__(self, n: int, parameters: Union[dict, MFParams], **kwargs):
+        super().__init__(n, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
@@ -34,7 +36,7 @@ class MFLinearPopulation(MFPopulation):
 
     @property
     @check_units(result=units.siemens)
-    def total_cond(self):
+    def total_cond(self) -> units.siemens:
         """
         Gm * SE in [1]
         Units of S
@@ -43,7 +45,7 @@ class MFLinearPopulation(MFPopulation):
 
     @property
     @check_units(result=units.second)
-    def tau_eff(self):
+    def tau_eff(self) -> units.second:
         """
         Seconds
         """
@@ -51,7 +53,7 @@ class MFLinearPopulation(MFPopulation):
 
     @property
     @check_units(result=units.volt)
-    def mu(self):
+    def mu(self) -> units.volt:
         """
         Volt
         """
@@ -59,7 +61,7 @@ class MFLinearPopulation(MFPopulation):
 
     @property
     @check_units(result=units.volt ** 2)
-    def sigma_square(self):
+    def sigma_square(self) -> units.volt ** 2:
         """
         Volt^2
         """
@@ -72,7 +74,7 @@ class MFLinearPopulation(MFPopulation):
 
     @property
     @check_units(result=units.Hz)
-    def rate_prediction(self):
+    def rate_prediction(self) -> units.Hz:
         '''
         phi_firing_func
         '''
@@ -113,7 +115,7 @@ class MFLinearPopulation(MFPopulation):
 
     @property
     @check_units(result=units.volt)
-    def v_mean_prediction(self):
+    def v_mean_prediction(self) -> units.volt:
         """
         Volt
         """
@@ -122,7 +124,7 @@ class MFLinearPopulation(MFPopulation):
     # Simulation
 
     @lazyproperty
-    def brian2(self):
+    def brian2(self) -> BrianObject:
         pop = NeuronGroup(
             self.n,
             self.brian2_model(),
@@ -135,7 +137,7 @@ class MFLinearPopulation(MFPopulation):
         pop.v = self[PP.VRES]
         return pop
 
-    def brian2_model(self):
+    def brian2_model(self) -> Optional[Equations]:
         eqs = Equations(
             'dv / dt = (- g * (v - vl) - I) / cm : volt (unless refractory)',
             g=self[PP.GM],

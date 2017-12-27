@@ -92,13 +92,13 @@ I_params = {
 }
 
 # NMDA
-pop_e1 = MFLinearPopulation("E", N_non, E_params)
+pop_e1 = MFLinearPopulation(N_non, E_params, name="E")
 
 # AMPA
-pop_e2 = MFLinearPopulation("Edown", N_sub, E_params)
+pop_e2 = MFLinearPopulation(N_sub, E_params, name="Edown")
 
 # GABA
-pop_i = MFLinearPopulation("I", N_I, I_params)
+pop_i = MFLinearPopulation(N_I, I_params, name="I")
 
 
 # noise pops

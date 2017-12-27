@@ -1,8 +1,18 @@
 from brian2 import NeuronGroup, Synapses, PoissonInput, magic_network, Equations
 
 
-def name2identifier(name):
-    return name.replace(' ', '_')
+def create_identifier(name):
+    return name.replace(' ', '_').replace('-', '_')
+
+create_name_counter = '__counter'
+
+def create_name(cls):
+    if type(cls) is not type:
+        cls = cls.__class__
+
+    count = getattr(cls, create_name_counter) if hasattr(cls, create_name_counter) else 0
+    setattr(cls, create_name_counter, count + 1)
+    return f'{cls.__name__}_{count}'
 
 
 def lazyproperty(fun):

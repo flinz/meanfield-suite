@@ -5,7 +5,7 @@ from typing import Union, Dict
 from brian2 import units, check_units, Equations
 
 from meanfield.parameters.MFParams import MFParams
-from meanfield.utils import name2identifier, lazyproperty
+from meanfield.utils import create_identifier, lazyproperty
 from meanfield.parameters import IP, PP
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.parameters.Connection import ConnectionStrategy
@@ -25,7 +25,7 @@ class MFInput(object):
     def __init__(self, name: str, pop: MFPopulation, parameters: Union[Dict, MFParams], connection: ConnectionStrategy, add_as_input=True):
 
         self.name = name
-        self.ref = name2identifier(name)
+        self.ref = create_identifier(name)
 
         self.parameters = MFParams({}) if not parameters else MFParams(parameters)
         self.parameters.fill(self.defaults)
@@ -45,8 +45,6 @@ class MFInput(object):
 
     def __repr__(self):
         return "{} [{}] ({}, {})".format(self.__class__.__name__, self.name, self.parameters, self.connection)
-
-
 
     # Theory
 

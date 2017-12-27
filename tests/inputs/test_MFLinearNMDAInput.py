@@ -39,7 +39,7 @@ class TestMFLinearNMDAInput(object):
         dt = 0.01 * ms
         n = 100
 
-        poisson = MFPoissonPopulation('poisson', n, n * 10 * Hz, {
+        poisson = MFPoissonPopulation(n, n * 10 * Hz, {
             PP.GM: 0 * nsiemens,
             PP.VRES: 0 * mV,
             PP.TAU_RP: 0 * ms

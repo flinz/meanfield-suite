@@ -29,7 +29,7 @@ class TestMFInput(object):
 
     def test_model_gen(self):
         enable_cpp()
-        pop = MFLinearPopulation("test", 1, params_pop)
+        pop = MFLinearPopulation(1, params_pop)
         source = MFInput('test', pop, params_source, Connection.all_to_all())
 
         assert_equations(

@@ -24,7 +24,7 @@ class TestRecurrent(object):
         dt = 0.01 * ms
         defaultclock.dt = dt
 
-        pop = MFLinearPopulation("pop", 100, {
+        pop = MFLinearPopulation(100, {
             PP.GM: 25. * nS,
             PP.CM: 0.5 * nF,
             PP.VL: -70. * mV,
