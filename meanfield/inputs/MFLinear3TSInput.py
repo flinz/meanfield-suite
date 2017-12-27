@@ -25,6 +25,8 @@ class MFLinear3TSInput(MFLinearInput):
         self.params.fill(defaults)
         self.params.verify(expectations)
 
+    # Theory
+
     def g_dyn(self):
         taus = [
             self.params[IP.ALPHA] * self.params[IP.TAU_D1],
@@ -33,6 +35,8 @@ class MFLinear3TSInput(MFLinearInput):
             - (1. - self.params[IP.ALPHA]) * self.params[IP.TAU_D2] * self.params[IP.TAU_RISE] / (self.params[IP.TAU_D2] + self.params[IP.TAU_RISE])
         ]
         return self.from_pop.n * self.from_pop.rate * sum(taus)
+
+    # Simulation
 
     @lazyproperty
     def brian2(self):

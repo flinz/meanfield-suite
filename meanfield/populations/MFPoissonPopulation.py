@@ -21,9 +21,7 @@ class MFPoissonPopulation(MFPopulation):
         self.params.fill(defaults)
         self.params.verify(expectations)
 
-    @lazyproperty
-    def brian2(self):
-        return PoissonGroup(self.n, self.rate, name=self.name)
+    # Theory
 
     @property
     def rate_prediction(self):
@@ -32,3 +30,9 @@ class MFPoissonPopulation(MFPopulation):
     @property
     def v_mean_prediction(self):
         return None
+
+    # Population
+
+    @lazyproperty
+    def brian2(self):
+        return PoissonGroup(self.n, self.rate, name=self.name)

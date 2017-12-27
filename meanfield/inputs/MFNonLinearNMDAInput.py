@@ -26,18 +26,10 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
         self.params.fill(defaults)
         self.params.verify(expectations)
 
-    def brian2_model(self):
-        return Equations(
-            '''
-            I = g * (v - ve) / (1 + gamma * exp(- beta * v) ) * s_post : amp
-            s_post: 1
-            ''',
-            s_post=self.post_variable_name + '_post',
-            I=self.current_name,
-            g=self.params[IP.GM],
-            ve=self.params[IP.VE],
-            beta=self.params[IP.BETA]
-        )
+    # Theory
+
+
+    # Simulation
 
     @property
     def post_nonlinear_name(self):
@@ -73,3 +65,17 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
         C.connect()
         C.w[:] = 1
         return C
+
+
+    def brian2_model(self):
+        return Equations(
+            '''
+            I = g * (v - ve) / (1 + gamma * exp(- beta * v) ) * s_post : amp
+            s_post: 1
+            ''',
+            s_post=self.post_variable_name + '_post',
+            I=self.current_name,
+            g=self.params[IP.GM],
+            ve=self.params[IP.VE],
+            beta=self.params[IP.BETA]
+        )

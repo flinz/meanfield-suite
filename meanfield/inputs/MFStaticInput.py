@@ -20,9 +20,13 @@ class MFStaticInput(MFInput):
         self.rate = rate
         self.n = n
 
+    # Theory
+
     @check_units(result=1)
     def g_dyn(self):
         return self.rate * self.n * self.params[IP.TAU]
+
+    # Simulation
 
     @lazyproperty
     def brian2(self):

@@ -25,6 +25,8 @@ class MFLinearNMDAInput(MFLinearInput):
         self.params.fill(defaults)
         self.params.verify(expectations)
 
+    # Theory
+
     @property
     def J(self):
         """Linearization factor for NMDA"""
@@ -51,6 +53,8 @@ class MFLinearNMDAInput(MFLinearInput):
                 self.rho1 * (self.params[IP.VREV] - self.pop.params[PP.VL]) +
                 self.rho2 * (self.pop.v_mean - self.pop.params[PP.VL])
         )
+
+    # Simulation
 
     def brian2_model(self):
         return Equations(

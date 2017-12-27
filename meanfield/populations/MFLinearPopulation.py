@@ -29,46 +29,7 @@ class MFLinearPopulation(MFPopulation):
         self.params.fill(defaults)
         self.params.verify(expectations)
 
-    @lazyproperty
-    def brian2(self):
-        pop = NeuronGroup(
-            self.n,
-            self.brian2_model(),
-            method='euler',
-            threshold=self.brian2_threshold(),
-            reset=self.brian2_reset(),
-            refractory=self.params[PP.TAU_RP],
-            name=self.ref
-        )
-        pop.v = self.params[PP.VRES]
-        return pop
-
-    def brian2_model(self):
-        eqs = Equations(
-            'dv / dt = (- g * (v - vl) - I) / cm : volt (unless refractory)',
-            g=self.params[PP.GM],
-            vl=self.params[PP.VL],
-            cm=self.params[PP.CM]
-        )
-
-        all_currents = []
-        for s in self.inputs + self.noises:
-            eqs += s.brian2_model()
-            all_currents.append(s.current_name)
-
-        if len(all_currents):
-            eqs += 'I = {} : amp'.format(' + '.join(all_currents))
-        else:
-            eqs += 'I = 0 : amp'
-
-        return eqs
-
-    def brian2_threshold(self):
-        return 'v > {} * mV'.format(self.params[PP.VTHR] / units.mV)
-
-    def brian2_reset(self):
-        return 'v = {} * mV'.format(self.params[PP.VRES] / units.mV)
-
+    # Theory
 
     @property
     @check_units(result=units.siemens)
@@ -107,8 +68,12 @@ class MFLinearPopulation(MFPopulation):
         noise = self.noises[0]
         return (noise.g_base / self.params[PP.CM] * (self.v_mean - noise.params[IP.VREV])) ** 2 * self.tau_eff * noise.g_dyn() * noise.params[IP.TAU]
 
+    @property
     @check_units(result=units.Hz)
-    def phi_firing_func(self):
+    def rate_prediction(self):
+        '''
+        phi_firing_func
+        '''
         # FIXME no noise
         if not len(self.noises):
             return 0 * units.Hz
@@ -122,11 +87,11 @@ class MFLinearPopulation(MFPopulation):
         alpha = -0.5 * noise.params[IP.TAU] / tau_eff \
                 + 1.03 * np.sqrt(noise.params[IP.TAU] / tau_eff) \
                 + (- self.mu - self.params[PP.VL] + self.params[PP.VTHR]) * (
-            1. + (0.5 * noise.params[IP.TAU] / tau_eff)) / sigma
+                        1. + (0.5 * noise.params[IP.TAU] / tau_eff)) / sigma
 
         # Fourcauld Brunel 2002
-        #beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma + 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff)
-        #alpha = 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff) \
+        # beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma + 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff)
+        # alpha = 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff) \
         #        + (- self.mu - self.params[NP.VL] + self.params[NP.VTHR])/ sigma
 
         def integrand(x, max_exp=50):
@@ -136,19 +101,13 @@ class MFLinearPopulation(MFPopulation):
                 return 0.
             return np.exp(x ** 2) * (1. + erf(x))
 
-
-        #import time
-        #s = time.time()
+        # import time
+        # s = time.time()
         q = quad(integrand, beta, alpha, limit=10000)
-        #print(q)
-        #print('->', time.time() - s)
+        # print(q)
+        # print('->', time.time() - s)
 
         return 1. / (self.params[PP.TAU_RP] + tau_eff * np.sqrt(np.pi) * q[0])
-
-    @property
-    @check_units(result=units.Hz)
-    def rate_prediction(self):
-        return self.phi_firing_func()
 
     @property
     @check_units(result=units.volt)
@@ -158,3 +117,38 @@ class MFLinearPopulation(MFPopulation):
         """
         return self.params[PP.VL] + self.mu - (self.params[PP.VTHR] - self.params[PP.VRES]) * self.rate * self.tau_eff
 
+    # Simulation
+
+    @lazyproperty
+    def brian2(self):
+        pop = NeuronGroup(
+            self.n,
+            self.brian2_model(),
+            method='euler',
+            threshold='v > {} * mV'.format(self.params[PP.VTHR] / units.mV),
+            reset='v = {} * mV'.format(self.params[PP.VRES] / units.mV),
+            refractory=self.params[PP.TAU_RP],
+            name=self.ref
+        )
+        pop.v = self.params[PP.VRES]
+        return pop
+
+    def brian2_model(self):
+        eqs = Equations(
+            'dv / dt = (- g * (v - vl) - I) / cm : volt (unless refractory)',
+            g=self.params[PP.GM],
+            vl=self.params[PP.VL],
+            cm=self.params[PP.CM]
+        )
+
+        all_currents = []
+        for s in self.inputs + self.noises:
+            eqs += s.brian2_model()
+            all_currents.append(s.current_name)
+
+        if len(all_currents):
+            eqs += 'I = {} : amp'.format(' + '.join(all_currents))
+        else:
+            eqs += 'I = 0 : amp'
+
+        return eqs

@@ -27,9 +27,13 @@ class MFLinearInput(MFInput):
 
         self.from_pop = from_pop
 
+    # Theory
+
     @check_units(result=1)
     def g_dyn(self):
         return self.connection.theory(self.from_pop.n) * self.from_pop.rate * self.params[IP.TAU] * self.params[IP.W]
+
+    # Simulation
 
     @lazyproperty
     def brian2(self):
