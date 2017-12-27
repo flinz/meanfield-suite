@@ -24,8 +24,8 @@ class MFLinearPopulation(MFPopulation):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, name, n, params):
-        super().__init__(name, n, params)
+    def __init__(self, name, n, parameters):
+        super().__init__(name, n, parameters)
 
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
@@ -68,7 +68,7 @@ class MFLinearPopulation(MFPopulation):
 
         # only single source of noise supported
         noise = self.noises[0]
-        return (noise.g_base / self[PP.CM] * (self.v_mean - noise.params[IP.VREV])) ** 2 * self.tau_eff * noise.g_dyn() * noise.params[IP.TAU]
+        return (noise.g_base / self[PP.CM] * (self.v_mean - noise[IP.VREV])) ** 2 * self.tau_eff * noise.g_dyn() * noise[IP.TAU]
 
     @property
     @check_units(result=units.Hz)
@@ -86,15 +86,15 @@ class MFLinearPopulation(MFPopulation):
 
         # Brunel Wang 2001 / Brunel Sergi 1998
         beta = (self[PP.VRES] - self[PP.VL] - self.mu) / sigma
-        alpha = -0.5 * noise.params[IP.TAU] / tau_eff \
-                + 1.03 * np.sqrt(noise.params[IP.TAU] / tau_eff) \
+        alpha = -0.5 * noise[IP.TAU] / tau_eff \
+                + 1.03 * np.sqrt(noise[IP.TAU] / tau_eff) \
                 + (- self.mu - self[PP.VL] + self[PP.VTHR]) * (
-                        1. + (0.5 * noise.params[IP.TAU] / tau_eff)) / sigma
+                        1. + (0.5 * noise[IP.TAU] / tau_eff)) / sigma
 
         # Fourcauld Brunel 2002
-        # beta = (self.params[NP.VRES] - self.params[NP.VL] - self.mu) / sigma + 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff)
-        # alpha = 1.03 * np.sqrt(noise.params[SP.TAU] / tau_eff) \
-        #        + (- self.mu - self.params[NP.VL] + self.params[NP.VTHR])/ sigma
+        # beta = (self[NP.VRES] - self[NP.VL] - self.mu) / sigma + 1.03 * np.sqrt(noise[SP.TAU] / tau_eff)
+        # alpha = 1.03 * np.sqrt(noise[SP.TAU] / tau_eff) \
+        #        + (- self.mu - self[NP.VL] + self[NP.VTHR])/ sigma
 
         def integrand(x, max_exp=20):
             if x < -max_exp:

@@ -1,3 +1,4 @@
+from types import MappingProxyType
 from typing import Union, Dict
 
 from brian2 import Equations, Synapses, units
@@ -12,27 +13,30 @@ from meanfield.parameters.Connection import ConnectionStrategy
 
 
 class MFLinear3TSInput(MFLinearInput):
-    def __init__(self, name: str, pop: MFPopulation, params: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
-        super().__init__(name, pop, params, from_pop, connection)
 
-        defaults = {}
-        expectations = {
-            IP.TAU_RISE: units.second,
-            IP.TAU_D1: units.second,
-            IP.TAU_D2: units.second,
-            IP.ALPHA: 1
-        }
-        self.params.fill(defaults)
-        self.params.verify(expectations)
+    arguments = MappingProxyType({
+        IP.TAU_RISE: units.second,
+        IP.TAU_D1: units.second,
+        IP.TAU_D2: units.second,
+        IP.ALPHA: 1
+    })
+
+    defaults = MappingProxyType({})
+
+    def __init__(self, name: str, pop: MFPopulation, parameters: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
+        super().__init__(name, pop, parameters, from_pop, connection)
+
+        self.parameters.fill(self.defaults)
+        self.parameters.verify(self.arguments)
 
     # Theory
 
     def g_dyn(self):
         taus = [
-            self.params[IP.ALPHA] * self.params[IP.TAU_D1],
-            (1. - self.params[IP.ALPHA]) * self.params[IP.TAU_D2],
-            - self.params[IP.ALPHA] * self.params[IP.TAU_D1] * self.params[IP.TAU_RISE] / (self.params[IP.TAU_D1] + self.params[IP.TAU_RISE]),
-            - (1. - self.params[IP.ALPHA]) * self.params[IP.TAU_D2] * self.params[IP.TAU_RISE] / (self.params[IP.TAU_D2] + self.params[IP.TAU_RISE])
+            self[IP.ALPHA] * self[IP.TAU_D1],
+            (1. - self[IP.ALPHA]) * self[IP.TAU_D2],
+            - self[IP.ALPHA] * self[IP.TAU_D1] * self[IP.TAU_RISE] / (self[IP.TAU_D1] + self[IP.TAU_RISE]),
+            - (1. - self[IP.ALPHA]) * self[IP.TAU_D2] * self[IP.TAU_RISE] / (self[IP.TAU_D2] + self[IP.TAU_RISE])
         ]
         return self.from_pop.n * self.from_pop.rate * sum(taus)
 
@@ -85,8 +89,8 @@ class MFLinear3TSInput(MFLinearInput):
 
     def brian2_model(self):
 
-        tau_mix1 = (self.params[IP.TAU_RISE] * self.params[IP.TAU_D1]) / (self.params[IP.TAU_RISE] + self.params[IP.TAU_D1])
-        tau_mix2 = (self.params[IP.TAU_RISE] * self.params[IP.TAU_D2]) / (self.params[IP.TAU_RISE] + self.params[IP.TAU_D2])
+        tau_mix1 = (self[IP.TAU_RISE] * self[IP.TAU_D1]) / (self[IP.TAU_RISE] + self[IP.TAU_D1])
+        tau_mix2 = (self[IP.TAU_RISE] * self[IP.TAU_D2]) / (self[IP.TAU_RISE] + self[IP.TAU_D2])
 
         return Equations(
             '''
@@ -97,16 +101,16 @@ class MFLinear3TSInput(MFLinearInput):
             ds4 / dt = - s4 / tau_mix2 : 1
             ''',
             I=self.current_name,
-            g=self.params[IP.GM],
+            g=self[IP.GM],
             s1=self.post_variable_name_1,
             s2=self.post_variable_name_2,
             s3=self.post_variable_name_3,
             s4=self.post_variable_name_4,
-            vrev=self.params[IP.VREV],
-            tau_d1=self.params[IP.TAU_D1],
-            tau_d2=self.params[IP.TAU_D2],
+            vrev=self[IP.VREV],
+            tau_d1=self[IP.TAU_D1],
+            tau_d2=self[IP.TAU_D2],
             tau_mix1=tau_mix1,
             tau_mix2=tau_mix2,
-            a=self.params[IP.ALPHA]
+            a=self[IP.ALPHA]
         )
 

@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from types import MappingProxyType
 from typing import Union, Dict
 
 from brian2 import units, check_units, Equations
@@ -13,22 +14,24 @@ from meanfield.parameters.Connection import ConnectionStrategy
 class MFInput(object):
     """Source: a synapse coupled to pops"""
 
-    def __init__(self, name: str, pop: MFPopulation, params: Union[Dict, MFParams], connection: ConnectionStrategy, add_as_input=True):
+    arguments = MappingProxyType({
+        IP.GM: units.siemens,
+        IP.VREV: units.volt,
+        IP.TAU: units.second,  # TODO : tau subclass?
+    })
+
+    defaults = MappingProxyType({})
+
+    def __init__(self, name: str, pop: MFPopulation, parameters: Union[Dict, MFParams], connection: ConnectionStrategy, add_as_input=True):
 
         self.name = name
         self.ref = name2identifier(name)
-        self.params = MFParams(params)
 
-        defaults = {}
-        expectations = {
-            IP.GM: units.siemens,
-            IP.VREV: units.volt,
-            IP.TAU: units.second,  # TODO : tau subclass?
-        }
-        self.params.fill(defaults)
-        self.params.verify(expectations)
+        self.parameters = MFParams({}) if not parameters else MFParams(parameters)
+        self.parameters.fill(self.defaults)
+        self.parameters.verify(self.arguments)
 
-        self.g_base = params[IP.GM]  # TODO : parametrize, solve for ? => general setter checking for units
+        self.g_base = parameters[IP.GM]  # TODO : parametrize, solve for ? => general setter checking for units
 
         self.connection = connection
 
@@ -37,8 +40,13 @@ class MFInput(object):
         if add_as_input:
             self.pop.add_input(self)  # TODO consistent
 
+    def __getitem__(self, key):
+        return self.parameters[key]
+
     def __repr__(self):
-        return "{} [{}] ({}, {})".format(self.__class__.__name__, self.name, self.params, self.connection)
+        return "{} [{}] ({}, {})".format(self.__class__.__name__, self.name, self.parameters, self.connection)
+
+
 
     # Theory
 
@@ -50,7 +58,7 @@ class MFInput(object):
     @property
     @check_units(result=units.amp)
     def voltage_conductance(self):
-        return self.conductance * (self.params[IP.VREV] - self.pop.parameters[PP.VL])
+        return self.conductance * (self[IP.VREV] - self.pop[PP.VL])
 
     @abstractmethod
     def g_dyn(self):
@@ -71,10 +79,10 @@ class MFInput(object):
             ds / dt = - s / tau : 1
             ''',
             I=self.current_name,
-            g=self.params[IP.GM],
+            g=self[IP.GM],
             s=self.post_variable_name,
-            vrev=self.params[IP.VREV],
-            tau=self.params[IP.TAU],
+            vrev=self[IP.VREV],
+            tau=self[IP.TAU],
         )
 
     @property

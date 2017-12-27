@@ -13,16 +13,13 @@ class MFPopulation(object):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, name, n, params=None):
+    def __init__(self, name, n, parameters=None):
+
         self.name = name
         self.ref = name2identifier(name)
         self.n = n
 
-        if not params:
-            self.parameters = MFParams({})
-        else:
-            self.parameters = MFParams(params)
-
+        self.parameters = MFParams({}) if not parameters else MFParams(parameters)
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
 

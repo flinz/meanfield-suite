@@ -1,3 +1,4 @@
+from types import MappingProxyType
 from typing import Union, Dict
 
 from brian2 import check_units, Equations, Synapses
@@ -13,17 +14,19 @@ from meanfield.utils import lazyproperty
 
 class MFLinearInput(MFInput):
 
-    def __init__(self, name: str, pop: MFPopulation, params: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
-        super().__init__(name, pop, params, connection)
+    arguments = MappingProxyType({
+        IP.W: 1,
+    })
 
-        defaults = {
-            IP.W: 1,
-        }
-        expectations = {
-            IP.W: 1,
-        }
-        self.params.fill(defaults)
-        self.params.verify(expectations)
+    defaults = MappingProxyType({
+        IP.W: 1,
+    })
+
+    def __init__(self, name: str, pop: MFPopulation, parameters: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
+        super().__init__(name, pop, parameters, connection)
+
+        self.parameters.fill(self.defaults)
+        self.parameters.verify(self.arguments)
 
         self.from_pop = from_pop
 
@@ -31,7 +34,7 @@ class MFLinearInput(MFInput):
 
     @check_units(result=1)
     def g_dyn(self):
-        return self.connection.theory(self.from_pop.n) * self.from_pop.rate * self.params[IP.TAU] * self.params[IP.W]
+        return self.connection.theory(self.from_pop.n) * self.from_pop.rate * self[IP.TAU] * self[IP.W]
 
     # Simulation
 
@@ -48,6 +51,6 @@ class MFLinearInput(MFInput):
             name=self.ref
         )
         self.connection.simulation(syn)
-        syn.w[:] = self.params[IP.W]
+        syn.w[:] = self[IP.W]
         return syn
 

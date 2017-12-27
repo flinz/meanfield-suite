@@ -18,8 +18,8 @@ class MFPoissonPopulation(MFPopulation):
     defaults = MappingProxyType({})
 
     @check_units(rate=units.Hz)
-    def __init__(self, name, n, rate, params):
-        super().__init__(name, n, params)
+    def __init__(self, name, n, rate, parameters):
+        super().__init__(name, n, parameters)
         self.rate = rate
 
         self.parameters.fill(self.defaults)

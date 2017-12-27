@@ -1,3 +1,4 @@
+from types import MappingProxyType
 from typing import Dict, Union
 
 from brian2 import Equations, Synapses, check_units
@@ -13,18 +14,19 @@ from meanfield.parameters.Connection import ConnectionStrategy
 
 class MFNonLinearNMDAInput(MFLinearNMDAInput):
 
-    def __init__(self, name: str, pop: MFPopulation, params: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
-        super().__init__(name, pop, params, from_pop, connection)
-        defaults = {
+    arguments = MappingProxyType({
+        IP.TAU_NMDA: 1.,
+        IP.TAU_NMDA_RISE: 1.,
+        IP.BETA: 1.,
+    })
 
-        }
-        expectations = {
-            IP.TAU_NMDA: 1.,
-            IP.TAU_NMDA_RISE: 1.,
-            IP.BETA: 1.,
-        }
-        self.params.fill(defaults)
-        self.params.verify(expectations)
+    defaults = MappingProxyType({})
+
+    def __init__(self, name: str, pop: MFPopulation, parameters: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
+        super().__init__(name, pop, parameters, from_pop, connection)
+
+        self.parameters.fill(self.defaults)
+        self.parameters.verify(self.arguments)
 
     # Theory
 
@@ -47,9 +49,9 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
             s_post=self.post_variable_name + '_post',
             s=self.post_variable_name,
             x=self.post_nonlinear_name,
-            tau_decay=self.params[IP.TAU_NMDA],
-            tau_rise=self.params[IP.TAU_NMDA_RISE],
-            alpha=self.params[IP.ALPHA], # TODO ALPHA ? 1 / ms
+            tau_decay=self[IP.TAU_NMDA],
+            tau_rise=self[IP.TAU_NMDA_RISE],
+            alpha=self[IP.ALPHA], # TODO ALPHA ? 1 / ms
         )
         eqs_pre = '''
         {} += 1
@@ -75,7 +77,7 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
             ''',
             s_post=self.post_variable_name + '_post',
             I=self.current_name,
-            g=self.params[IP.GM],
-            ve=self.params[IP.VE],
-            beta=self.params[IP.BETA]
+            g=self[IP.GM],
+            ve=self[IP.VE],
+            beta=self[IP.BETA]
         )

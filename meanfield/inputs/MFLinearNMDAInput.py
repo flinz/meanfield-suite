@@ -12,8 +12,8 @@ from meanfield.parameters.Connection import ConnectionStrategy
 
 class MFLinearNMDAInput(MFLinearInput):
 
-    def __init__(self, name: str, pop: MFPopulation, params: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
-        super().__init__(name, pop, params, from_pop)
+    def __init__(self, name: str, pop: MFPopulation, parameters: Union[Dict, MFParams], from_pop: MFPopulation, connection: ConnectionStrategy=Connection.all_to_all()):
+        super().__init__(name, pop, parameters, from_pop)
 
         defaults = {}
         expectations = {
@@ -22,15 +22,15 @@ class MFLinearNMDAInput(MFLinearInput):
             IP.BETA: 1, # TODO beta 1/v ?
             IP.GAMMA: 1,
         }
-        self.params.fill(defaults)
-        self.params.verify(expectations)
+        self.parameters.fill(defaults)
+        self.parameters.verify(expectations)
 
     # Theory
 
     @property
     def J(self):
         """Linearization factor for NMDA"""
-        return 1 + self.params[PP.GAMMA] * np.exp(-self.params[PP.BETA] * self.pop.v_mean / units.volt)
+        return 1 + self.parameters[PP.GAMMA] * np.exp(-self.parameters[PP.BETA] * self.pop.v_mean / units.volt)
 
     @property
     @check_units(result=1)
@@ -40,7 +40,7 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     @check_units(result=1)
     def rho2(self):
-        return (self.J - 1) / self.J ** 2 * self.params[PP.BETA] * (self.pop.v_mean - self.params[IP.VREV]) / units.volt # TODO unitless?
+        return (self.J - 1) / self.J ** 2 * self.parameters[PP.BETA] * (self.pop.v_mean - self.parameters[IP.VREV]) / units.volt # TODO unitless?
 
     @property
     @check_units(result=units.siemens)
@@ -50,7 +50,7 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     def voltage_conductance(self):
         return self.g_dyn() * self.g_base * (
-                self.rho1 * (self.params[IP.VREV] - self.pop.params[PP.VL]) +
+                self.rho1 * (self.parameters[IP.VREV] - self.pop.params[PP.VL]) +
                 self.rho2 * (self.pop.v_mean - self.pop.params[PP.VL])
         )
 
@@ -63,12 +63,12 @@ class MFLinearNMDAInput(MFLinearInput):
             ds / dt = - s / tau_decay : 1
             ''',
             I=self.current_name,
-            g=self.params[IP.GM],
+            g=self.parameters[IP.GM],
             s=self.post_variable_name,
             s_post=self.post_variable_name + '_post',
-            vrev=self.params[IP.VREV],
-            tau_decay=self.params[IP.TAU_NMDA],
-            gamma=self.params[IP.GAMMA],
-            beta=self.params[IP.BETA] / units.mV,
+            vrev=self.parameters[IP.VREV],
+            tau_decay=self.parameters[IP.TAU_NMDA],
+            gamma=self.parameters[IP.GAMMA],
+            beta=self.parameters[IP.BETA] / units.mV,
         )
 
