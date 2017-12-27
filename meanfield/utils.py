@@ -32,32 +32,32 @@ def brian2_introspect(net, globals):
         ))
         print(Equations(str(pop.user_equations), **globals))
 
-    def introspect_source(source):
+    def introspect_input(input):
         print("{} [{}]".format(
-            source.__class__.__name__,
-            source.name,
+            input.__class__.__name__,
+            input.name,
         ))
 
-    sources = {}
+    inputs = {}
 
     for source in net.objects:
         if isinstance(source, Synapses):
-            if source.target.id not in sources:
-                sources[source.target.id] = []
-            sources[source.target.id].append(source)
+            if source.target.id not in inputs:
+                inputs[source.target.id] = []
+            inputs[source.target.id].append(source)
 
         if isinstance(source, PoissonInput):
-            if source._group.id not in sources:
-                sources[source._group.id] = []
-            sources[source._group.id].append(source)
+            if source._group.id not in inputs:
+                inputs[source._group.id] = []
+            inputs[source._group.id].append(source)
 
     for population in net.objects:
         if isinstance(population, NeuronGroup):
             introspect_population(population)
             print()
 
-            for source in sources.get(population.id, []):
-                introspect_source(source)
+            for source in inputs.get(population.id, []):
+                introspect_input(source)
 
             print()
 

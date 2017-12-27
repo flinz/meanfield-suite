@@ -2,33 +2,33 @@ from brian2 import StateMonitor, defaultclock, Network
 from brian2.units import *
 import numpy as np
 
-from meanfield.sources.MFLinear3TSSource import MFLinear3TSSource
+from meanfield.inputs.MFLinear3TSInput import MFLinear3TSInput
 from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.populations.MFPoissonPop import MFPoissonPop
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
-from meanfield.parameters import NP
-from meanfield.parameters import SP
+from meanfield.parameters import PP
+from meanfield.parameters import IP
 from tests.utils import enable_cpp
 
 params_pop = {
-    NP.GAMMA: 0.280112,
-    NP.BETA: 0.062,
-    NP.GM: 25. * nS,
-    NP.CM: 0.5 * nF,  # * 1e3,
-    NP.VL: -70. * mV,
-    NP.VTHR: -50. * mV,
-    NP.VRES: -55. * mV,
-    NP.TAU_RP: 2. * ms
+    PP.GAMMA: 0.280112,
+    PP.BETA: 0.062,
+    PP.GM: 25. * nS,
+    PP.CM: 0.5 * nF,  # * 1e3,
+    PP.VL: -70. * mV,
+    PP.VTHR: -50. * mV,
+    PP.VRES: -55. * mV,
+    PP.TAU_RP: 2. * ms
 }
 
 params_source = {
-    SP.GM: 0 * siemens,
-    SP.VE: 0 * volt,
-    SP.TAU: 10 * ms,
+    IP.GM: 0 * siemens,
+    IP.VE: 0 * volt,
+    IP.TAU: 10 * ms,
 }
 
-class TestMFLinear3TSSource(object):
+class TestMFLinear3TSInput(object):
 
     def test_simulation_theory(self):
 
@@ -41,26 +41,26 @@ class TestMFLinear3TSSource(object):
         alpha = 0.5
 
         poisson = MFPoissonPop('poisson', n, n * 10 * Hz, {
-            NP.GM: 1 * nsiemens,
-            NP.VRES: 0 * mV,
-            NP.TAU_RP: 2 * ms
+            PP.GM: 1 * nsiemens,
+            PP.VRES: 0 * mV,
+            PP.TAU_RP: 2 * ms
         })
         pop = MFLinearPop('pop', n, {
-            NP.GM: 10 * nsiemens,
-            NP.VL: 0 * mV,
-            NP.CM: 5 * nfarad,
-            NP.VTHR: 0 * mV,
-            NP.VRES: 0 * mV,
-            NP.TAU_RP: 15 * ms
+            PP.GM: 10 * nsiemens,
+            PP.VL: 0 * mV,
+            PP.CM: 5 * nfarad,
+            PP.VTHR: 0 * mV,
+            PP.VRES: 0 * mV,
+            PP.TAU_RP: 15 * ms
         })
-        syn = MFLinear3TSSource('syn', pop, {
-            SP.GM: 10 * nsiemens,
-            SP.VREV: 0 * mvolt,
-            SP.TAU: 0 * ms, # unused
-            SP.TAU_RISE: 2 * ms,
-            SP.TAU_D1: 20 * ms,
-            SP.TAU_D2: 30 * ms,
-            SP.ALPHA: alpha
+        syn = MFLinear3TSInput('syn', pop, {
+            IP.GM: 10 * nsiemens,
+            IP.VREV: 0 * mvolt,
+            IP.TAU: 0 * ms, # unused
+            IP.TAU_RISE: 2 * ms,
+            IP.TAU_D1: 20 * ms,
+            IP.TAU_D2: 30 * ms,
+            IP.ALPHA: alpha
         }, poisson)
 
         system = MFSystem('test')
@@ -86,6 +86,7 @@ class TestMFLinear3TSSource(object):
         net.add(m3)
         net.add(m4)
 
+        # FIXME
         print(Network.__instances__())
         print(net.objects)
         net.run(t)

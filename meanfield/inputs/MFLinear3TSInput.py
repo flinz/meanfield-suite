@@ -2,35 +2,35 @@ from typing import Union, Dict
 
 from brian2 import Equations, Synapses, units
 
-from meanfield.sources.MFLinearSource import MFLinearSource
+from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.utils import lazyproperty
-from meanfield.parameters import SP
+from meanfield.parameters import IP
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPop import MFPop
 from meanfield.parameters import Connection
 from meanfield.parameters.Connection import ConnectionStrategy
 
 
-class MFLinear3TSSource(MFLinearSource):
+class MFLinear3TSInput(MFLinearInput):
     def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop, connection: ConnectionStrategy=Connection.all_to_all()):
         super().__init__(name, pop, params, from_pop, connection)
 
         defaults = {}
         expectations = {
-            SP.TAU_RISE: units.second,
-            SP.TAU_D1: units.second,
-            SP.TAU_D2: units.second,
-            SP.ALPHA: 1
+            IP.TAU_RISE: units.second,
+            IP.TAU_D1: units.second,
+            IP.TAU_D2: units.second,
+            IP.ALPHA: 1
         }
         self.params.fill(defaults)
         self.params.verify(expectations)
 
     def g_dyn(self):
         taus = [
-            self.params[SP.ALPHA] * self.params[SP.TAU_D1],
-            (1. - self.params[SP.ALPHA]) * self.params[SP.TAU_D2],
-            - self.params[SP.ALPHA] * self.params[SP.TAU_D1] * self.params[SP.TAU_RISE] / (self.params[SP.TAU_D1] + self.params[SP.TAU_RISE]),
-            - (1. - self.params[SP.ALPHA]) * self.params[SP.TAU_D2] * self.params[SP.TAU_RISE] / (self.params[SP.TAU_D2] + self.params[SP.TAU_RISE])
+            self.params[IP.ALPHA] * self.params[IP.TAU_D1],
+            (1. - self.params[IP.ALPHA]) * self.params[IP.TAU_D2],
+            - self.params[IP.ALPHA] * self.params[IP.TAU_D1] * self.params[IP.TAU_RISE] / (self.params[IP.TAU_D1] + self.params[IP.TAU_RISE]),
+            - (1. - self.params[IP.ALPHA]) * self.params[IP.TAU_D2] * self.params[IP.TAU_RISE] / (self.params[IP.TAU_D2] + self.params[IP.TAU_RISE])
         ]
         return self.from_pop.n * self.from_pop.rate * sum(taus)
 
@@ -81,8 +81,8 @@ class MFLinear3TSSource(MFLinearSource):
 
     def brian2_model(self):
 
-        tau_mix1 = (self.params[SP.TAU_RISE] * self.params[SP.TAU_D1]) / (self.params[SP.TAU_RISE] + self.params[SP.TAU_D1])
-        tau_mix2 = (self.params[SP.TAU_RISE] * self.params[SP.TAU_D2]) / (self.params[SP.TAU_RISE] + self.params[SP.TAU_D2])
+        tau_mix1 = (self.params[IP.TAU_RISE] * self.params[IP.TAU_D1]) / (self.params[IP.TAU_RISE] + self.params[IP.TAU_D1])
+        tau_mix2 = (self.params[IP.TAU_RISE] * self.params[IP.TAU_D2]) / (self.params[IP.TAU_RISE] + self.params[IP.TAU_D2])
 
         return Equations(
             '''
@@ -93,16 +93,16 @@ class MFLinear3TSSource(MFLinearSource):
             ds4 / dt = - s4 / tau_mix2 : 1
             ''',
             I=self.current_name,
-            g=self.params[SP.GM],
+            g=self.params[IP.GM],
             s1=self.post_variable_name_1,
             s2=self.post_variable_name_2,
             s3=self.post_variable_name_3,
             s4=self.post_variable_name_4,
-            vrev=self.params[SP.VREV],
-            tau_d1=self.params[SP.TAU_D1],
-            tau_d2=self.params[SP.TAU_D2],
+            vrev=self.params[IP.VREV],
+            tau_d1=self.params[IP.TAU_D1],
+            tau_d2=self.params[IP.TAU_D2],
             tau_mix1=tau_mix1,
             tau_mix2=tau_mix2,
-            a=self.params[SP.ALPHA]
+            a=self.params[IP.ALPHA]
         )
 

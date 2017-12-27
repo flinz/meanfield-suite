@@ -1,27 +1,27 @@
 from brian2.units import *
 
 from meanfield.populations.MFLinearPop import MFLinearPop
-from meanfield.sources.MFSource import MFSource
-from meanfield.parameters import NP
-from meanfield.parameters import SP
+from meanfield.inputs.MFInput import MFInput
+from meanfield.parameters import PP
+from meanfield.parameters import IP
 from meanfield.parameters import Connection
 from tests.utils import assert_equations
 
 params_pop = {
-    NP.GAMMA: 0.280112,
-    NP.BETA: 0.062,
-    NP.GM: 25. * nS,
-    NP.CM: 0.5 * nF,  # * 1e3,
-    NP.VL: -70. * mV,
-    NP.VTHR: -50. * mV,
-    NP.VRES: -55. * mV,
-    NP.TAU_RP: 2. * ms
+    PP.GAMMA: 0.280112,
+    PP.BETA: 0.062,
+    PP.GM: 25. * nS,
+    PP.CM: 0.5 * nF,  # * 1e3,
+    PP.VL: -70. * mV,
+    PP.VTHR: -50. * mV,
+    PP.VRES: -55. * mV,
+    PP.TAU_RP: 2. * ms
 }
 
 params_source = {
-    SP.GM: 0 * siemens,
-    SP.VREV: 0 * volt,
-    SP.TAU: 10 * ms,
+    IP.GM: 0 * siemens,
+    IP.VREV: 0 * volt,
+    IP.TAU: 10 * ms,
 }
 
 class TestMFPop(object):
@@ -39,7 +39,7 @@ class TestMFPop(object):
 
     def test_model_gen_with_one_source(self):
         pop = MFLinearPop("test", 1, params_pop)
-        _ = MFSource('test', pop, params_source, Connection.all_to_all())
+        _ = MFInput('test', pop, params_source, Connection.all_to_all())
 
         assert_equations(
             pop.brian2_model(),
@@ -53,8 +53,8 @@ class TestMFPop(object):
 
     def test_model_gen_with_two_sources(self):
         pop = MFLinearPop("test", 1, params_pop)
-        MFSource('test1', pop, params_source, Connection.all_to_all())
-        MFSource('test2', pop, params_source, Connection.all_to_all())
+        MFInput('test1', pop, params_source, Connection.all_to_all())
+        MFInput('test2', pop, params_source, Connection.all_to_all())
 
         assert_equations(
             pop.brian2_model(),

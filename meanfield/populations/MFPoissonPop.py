@@ -2,7 +2,7 @@ from brian2 import check_units, units, PoissonGroup
 
 from meanfield.populations.MFPop import MFPop
 from meanfield.utils import lazyproperty
-from meanfield.parameters import NP
+from meanfield.parameters import PP
 
 
 class MFPoissonPop(MFPop):
@@ -14,9 +14,9 @@ class MFPoissonPop(MFPop):
         defaults = {
         }
         expectations = {
-            NP.GM: units.siemens,
-            NP.VRES: units.volt,
-            NP.TAU_RP: units.second
+            PP.GM: units.siemens,
+            PP.VRES: units.volt,
+            PP.TAU_RP: units.second
         }
         self.params.fill(defaults)
         self.params.verify(expectations)

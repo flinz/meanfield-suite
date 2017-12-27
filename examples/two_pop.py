@@ -1,11 +1,11 @@
 from brian2 import *
-from meanfield.parameters import NP
-from meanfield.parameters import SP
+from meanfield.parameters import PP
+from meanfield.parameters import IP
 
 from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
-from meanfield.sources.MFStaticSource import MFStaticSource
+from meanfield.inputs.MFStaticInput import MFStaticInput
 
 BrianLogger.log_level_debug()
 set_device('cpp_standalone')
@@ -75,23 +75,23 @@ nu_i = 0.01
 
 
 exc = MFLinearPop("exc", N_non, {
-    NP.GM: g_m_E,
-    NP.CM: C_m_E,
-    NP.VL: V_L,
-    NP.VTHR: V_thr,
-    NP.VRES: V_reset,
-    NP.TAU_RP: tau_rp_E
+    PP.GM: g_m_E,
+    PP.CM: C_m_E,
+    PP.VL: V_L,
+    PP.VTHR: V_thr,
+    PP.VRES: V_reset,
+    PP.TAU_RP: tau_rp_E
 })
 exc.rate_ms = nu_e * Hz
 exc.v_mean = -52. * mV
 
 ini = MFLinearPop("ini", N_I, {
-    NP.GM: g_m_I,
-    NP.CM: C_m_I,
-    NP.VL: V_L,
-    NP.VTHR: V_thr,
-    NP.VRES: V_reset,
-    NP.TAU_RP: tau_rp_I
+    PP.GM: g_m_I,
+    PP.CM: C_m_I,
+    PP.VL: V_L,
+    PP.VTHR: V_thr,
+    PP.VRES: V_reset,
+    PP.TAU_RP: tau_rp_I
 })
 ini.rate_ms = nu_i * Hz
 ini.v_mean = -52. * mV
@@ -99,17 +99,17 @@ ini.v_mean = -52. * mV
 
 # noise
 
-source_e_noise = MFStaticSource("E noise", exc, C_ext, rate, {
-    SP.GM: g_AMPA_ext_E,
-    SP.VREV: 0 * volt,
-    SP.TAU: tau_AMPA,
+source_e_noise = MFStaticInput("E noise", exc, C_ext, rate, {
+    IP.GM: g_AMPA_ext_E,
+    IP.VREV: 0 * volt,
+    IP.TAU: tau_AMPA,
 })
 exc.add_noise(source_e_noise)
 
-source_i_noise = MFStaticSource("I noise", ini, C_ext, rate, {
-    SP.GM: g_AMPA_ext_I,
-    SP.VREV: 0 * volt,
-    SP.TAU: tau_AMPA,
+source_i_noise = MFStaticInput("I noise", ini, C_ext, rate, {
+    IP.GM: g_AMPA_ext_I,
+    IP.VREV: 0 * volt,
+    IP.TAU: tau_AMPA,
 })
 ini.add_noise(source_i_noise)
 

@@ -21,7 +21,7 @@ class MFPop(object):
         else:
             self.params = MFParams({})
 
-        self.sources = []
+        self.inputs = []
         self.noises = []
 
         # base estimation
@@ -34,9 +34,9 @@ class MFPop(object):
 
         self.noises.append(noise)
 
-    def add_source(self, source):
+    def add_input(self, input):
         # TODO control source and no duplicate
-        self.sources.append(source)
+        self.inputs.append(input)
 
     @property
     @check_units(result=units.Hz)
@@ -82,11 +82,11 @@ class MFPop(object):
         for noise in self.noises:
             builder.append('{}  - {}'.format(spaces, noise))
 
-        for source in self.sources:
-            builder.append('{}  - {}'.format(spaces, source))
+        for inputs in self.inputs:
+            builder.append('{}  - {}'.format(spaces, inputs))
 
         return '\n'.join(builder)
 
 
     def __repr__(self):
-        return '{} [{}] ({} noises, {} sources, n: {}, rate: {}, v_mean: {})'.format(self.__class__.__name__, self.name, len(self.noises), len(self.sources), self.n, self.rate, self.v_mean)
+        return '{} [{}] ({} noises, {} inputs, n: {}, rate: {}, v_mean: {})'.format(self.__class__.__name__, self.name, len(self.noises), len(self.inputs), self.n, self.rate, self.v_mean)

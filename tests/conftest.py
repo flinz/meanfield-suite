@@ -9,7 +9,7 @@ def run_around_tests():
     yield
     device.reinit()
     device.activate()
-    gc.collect()
     # workaround for cpp generation errors when running multiple tests in a row (reinit might take some time?)
-    sleep(2)
+    # Network.__instances__() shows multiple instance of the network containing same objects
+    sleep(0.5)
 

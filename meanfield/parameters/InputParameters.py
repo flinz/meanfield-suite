@@ -1,5 +1,5 @@
 
-class SourcesParameters(object):
+class InputParameters(object):
     ALPHA = 'alpha'
     BETA = 'beta'
     GAMMA = 'gamma'

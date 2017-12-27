@@ -1,5 +1,5 @@
-from .SourcesParameters import SourcesParameters
+from .InputParameters import InputParameters
 from .PopulationParameters import PopulationParameters
 
-NP = PopulationParameters
-SP = SourcesParameters
+PP = PopulationParameters
+IP = InputParameters

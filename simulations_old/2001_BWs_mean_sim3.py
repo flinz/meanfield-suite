@@ -4,7 +4,7 @@ from MFPop import MFLinearPop
 from MFSolver import MFSolverRatesVoltages
 from MFSource import MFDynamicSource, MFStaticSource
 from MFSystem import MFSystem
-from parameters import NP, SP
+from parameters import PP, IP
 
 BrianLogger.log_level_debug()
 
@@ -76,14 +76,14 @@ def mean():
     system = MFSystem("Brunel Wang simplified")
 
     e_params = {
-        NP.GAMMA: 0.280112,
-        NP.BETA: 0.062,
-        NP.GM: g_m_E,
-        NP.CM: C_m_E,# * 1e3,
-        NP.VL: V_L,
-        NP.VTHR: V_thr,
-        NP.VRES: V_reset,
-        NP.TAU_RP: tau_rp_E
+        PP.GAMMA: 0.280112,
+        PP.BETA: 0.062,
+        PP.GM: g_m_E,
+        PP.CM: C_m_E,# * 1e3,
+        PP.VL: V_L,
+        PP.VTHR: V_thr,
+        PP.VRES: V_reset,
+        PP.TAU_RP: tau_rp_E
     }
 
     pop_e1 = MFLinearPop("E", N_non, e_params)
@@ -95,14 +95,14 @@ def mean():
     pop_e2.v_mean = -52. * mV
 
     i_params = {
-        NP.GAMMA: 0.280112,
-        NP.BETA: 0.062,
-        NP.GM: g_m_I,
-        NP.CM: C_m_I,# * 1e3,
-        NP.VL: V_L,
-        NP.VTHR: V_thr,
-        NP.VRES: V_reset,
-        NP.TAU_RP: tau_rp_I
+        PP.GAMMA: 0.280112,
+        PP.BETA: 0.062,
+        PP.GM: g_m_I,
+        PP.CM: C_m_I,# * 1e3,
+        PP.VL: V_L,
+        PP.VTHR: V_thr,
+        PP.VRES: V_reset,
+        PP.TAU_RP: tau_rp_I
     }
 
     pop_i = MFLinearPop("I", N_I, i_params)
@@ -113,156 +113,156 @@ def mean():
 
     # noise pops
     source_e_noise1 = MFStaticSource("E_noise1", pop_e1, {
-        SP.GM: g_AMPA_ext_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_AMPA
+        IP.GM: g_AMPA_ext_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_AMPA
     }, rate, C_ext)
     pop_e1.noise = source_e_noise1
 
     source_e_noise2 = MFStaticSource("E_noise2", pop_e2, {
-        SP.GM: g_AMPA_ext_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_AMPA
+        IP.GM: g_AMPA_ext_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_AMPA
     }, rate, C_ext)
     pop_e2.noise = source_e_noise2
 
     source_i_noise = MFStaticSource("I_noise", pop_i, {
-        SP.GM: g_AMPA_ext_I,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_AMPA
+        IP.GM: g_AMPA_ext_I,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_AMPA
     }, rate, C_ext)
     pop_i.noise = source_i_noise
 
     # E->E NMDA 1.1
     source_ee_nmda11 = MFDynamicSource('EE NMDA 11', pop_e1, {
-        SP.GM: g_NMDA_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_NMDA_decay,
-        SP.W: w_plus,
-        SP.FRAC: f
+        IP.GM: g_NMDA_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_NMDA_decay,
+        IP.W: w_plus,
+        IP.FRAC: f
     }, from_pop=pop_e1)
     # source_ee_nmda1.is_nmda = True
     # E->E NMDA 1.2
     source_ee_nmda12 = MFDynamicSource('EE NMDA 12', pop_e1, {
-        SP.GM: g_NMDA_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_NMDA_decay,
-        SP.W: w_minus,
-        SP.FRAC: 1 - f
+        IP.GM: g_NMDA_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_NMDA_decay,
+        IP.W: w_minus,
+        IP.FRAC: 1 - f
     }, from_pop=pop_e2)
     # source_ee_nmda1.is_nmda = True
 
     # E->E NDMA 2.1
     source_ee_nmda21 = MFDynamicSource('EE NMDA 21', pop_e2, {
-        SP.GM: g_NMDA_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_NMDA_decay,
-        SP.W: w_minus,
-        SP.FRAC: f
+        IP.GM: g_NMDA_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_NMDA_decay,
+        IP.W: w_minus,
+        IP.FRAC: f
     }, from_pop=pop_e1)
     # source_ee_nmda2.is_nmda = True
     # E->E NDMA 2.2
     source_ee_nmda22 = MFDynamicSource('EE NMDA 22', pop_e2, {
-        SP.GM: g_NMDA_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_NMDA_decay,
-        SP.W: w_plus,
-        SP.FRAC: 1 - f
+        IP.GM: g_NMDA_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_NMDA_decay,
+        IP.W: w_plus,
+        IP.FRAC: 1 - f
     }, from_pop=pop_e2)
     # source_ee_nmda2.is_nmda = True
 
     # E->E AMPA 1
     source_ee_ampa11 = MFDynamicSource('EE AMPA 11', pop_e1, {
-        SP.GM: g_AMPA_rec_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_AMPA,
-        SP.W: w_plus,
-        SP.FRAC: f
+        IP.GM: g_AMPA_rec_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_AMPA,
+        IP.W: w_plus,
+        IP.FRAC: f
     }, from_pop=pop_e1)
 
     # E->E AMPA 2
     source_ee_ampa12 = MFDynamicSource('EE AMPA 12', pop_e1, {
-        SP.GM: g_AMPA_rec_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_AMPA,
-        SP.W: w_minus,
-        SP.FRAC: 1 - f
+        IP.GM: g_AMPA_rec_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_AMPA,
+        IP.W: w_minus,
+        IP.FRAC: 1 - f
     }, from_pop=pop_e2)
 
     source_ee_ampa21 = MFDynamicSource('EE AMPA 21', pop_e2, {
-        SP.GM: g_AMPA_rec_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_AMPA,
-        SP.W: w_minus,
-        SP.FRAC: f
+        IP.GM: g_AMPA_rec_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_AMPA,
+        IP.W: w_minus,
+        IP.FRAC: f
     }, from_pop=pop_e1)
     source_ee_ampa22 = MFDynamicSource('EE AMPA 22', pop_e2, {
-        SP.GM: g_AMPA_rec_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_AMPA,
-        SP.W: w_plus,
-        SP.FRAC: 1 - f
+        IP.GM: g_AMPA_rec_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_AMPA,
+        IP.W: w_plus,
+        IP.FRAC: 1 - f
     }, from_pop=pop_e2)
 
     # E->I NMDA
     source_ie_nmda1 = MFDynamicSource('EI NMDA 1', pop_i, {
-        SP.GM: g_NMDA_I,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_NMDA_decay,
-        SP.W: 1,
-        SP.FRAC: f
+        IP.GM: g_NMDA_I,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_NMDA_decay,
+        IP.W: 1,
+        IP.FRAC: f
     }, from_pop=pop_e1)
     # source_ie_nmda.is_nmda = True
 
     source_ie_nmda2 = MFDynamicSource('EI NMDA 2', pop_i, {
-        SP.GM: g_NMDA_I,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_NMDA_decay,
-        SP.W: 1,
-        SP.FRAC: 1 - f
+        IP.GM: g_NMDA_I,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_NMDA_decay,
+        IP.W: 1,
+        IP.FRAC: 1 - f
     }, from_pop=pop_e2)
     # source_ie_nmda.is_nmda = True
 
     # E->I AMPA
     source_ie_ampa1 = MFDynamicSource('EI AMPA 1', pop_i, {
-        SP.GM: g_AMPA_rec_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_AMPA,
-        SP.W: 1,
-        SP.FRAC: f
+        IP.GM: g_AMPA_rec_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_AMPA,
+        IP.W: 1,
+        IP.FRAC: f
     }, from_pop=pop_e1)
     source_ie_ampa2 = MFDynamicSource('EI AMPA 2', pop_i, {
-        SP.GM: g_AMPA_rec_E,
-        SP.VE: 0. * mV,
-        SP.TAU: tau_AMPA,
-        SP.W: 1,
-        SP.FRAC: 1 - f
+        IP.GM: g_AMPA_rec_E,
+        IP.VE: 0. * mV,
+        IP.TAU: tau_AMPA,
+        IP.W: 1,
+        IP.FRAC: 1 - f
     }, from_pop=pop_e2)
 
     # I->I GABA
     source_ii_gaba = MFDynamicSource('II GABA', pop_i, {
-        SP.GM: g_GABA_I,
-        SP.VE: -70. * mV,
-        SP.TAU: tau_GABA,
-        SP.W: 1,
-        SP.FRAC: 1
+        IP.GM: g_GABA_I,
+        IP.VE: -70. * mV,
+        IP.TAU: tau_GABA,
+        IP.W: 1,
+        IP.FRAC: 1
     }, from_pop=pop_i)
 
     # I->E GABA
     source_ie_gaba1 = MFDynamicSource('IE GABA 1', pop_e1, {
-        SP.GM: g_GABA_E,
-        SP.VE: -70. * mV,
-        SP.TAU: tau_GABA,
-        SP.W: 1,
-        SP.FRAC: 1
+        IP.GM: g_GABA_E,
+        IP.VE: -70. * mV,
+        IP.TAU: tau_GABA,
+        IP.W: 1,
+        IP.FRAC: 1
     }, from_pop=pop_i)
 
     source_ie_gaba2 = MFDynamicSource('IE GABA 2', pop_e2, {
-        SP.GM: g_GABA_E,
-        SP.VE: -70. * mV,
-        SP.TAU: tau_GABA,
-        SP.W: 1,
-        SP.FRAC: 1
+        IP.GM: g_GABA_E,
+        IP.VE: -70. * mV,
+        IP.TAU: tau_GABA,
+        IP.W: 1,
+        IP.FRAC: 1
     }, from_pop=pop_i)
 
     solver = MFSolverRatesVoltages(system, solver='mse')

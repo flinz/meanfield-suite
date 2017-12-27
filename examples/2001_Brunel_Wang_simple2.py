@@ -1,13 +1,13 @@
 from brian2 import *
-from meanfield.parameters import NP
-from meanfield.parameters import SP
+from meanfield.parameters import PP
+from meanfield.parameters import IP
 
 from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import Connection
-from meanfield.sources.MFLinearSource import MFLinearSource
-from meanfield.sources.MFStaticSource import MFStaticSource
+from meanfield.inputs.MFLinearInput import MFLinearInput
+from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.utils import brian2_introspect
 
 BrianLogger.log_level_debug()
@@ -53,30 +53,30 @@ tau_GABA = 10. * ms
 
 
 I_params = {
-    NP.GM: g_m_I,
-    NP.CM: C_m_I,
-    NP.VL: V_L,
-    NP.VTHR: V_thr,
-    NP.VRES: V_reset,
-    NP.TAU_RP: tau_rp_I,
+    PP.GM: g_m_I,
+    PP.CM: C_m_I,
+    PP.VL: V_L,
+    PP.VTHR: V_thr,
+    PP.VRES: V_reset,
+    PP.TAU_RP: tau_rp_I,
 }
 
 # GABA
 pop_i = MFLinearPop("I", N_I, I_params)
 
 
-source_i_noise = MFStaticSource("I_noise", pop_i, C_ext, rate, {
-    SP.GM: g_AMPA_ext_I,
-    SP.VREV: 0 * mvolt,
-    SP.TAU: tau_AMPA,
+source_i_noise = MFStaticInput("I_noise", pop_i, C_ext, rate, {
+    IP.GM: g_AMPA_ext_I,
+    IP.VREV: 0 * mvolt,
+    IP.TAU: tau_AMPA,
 })
 pop_i.add_noise(source_i_noise)
 
 # I->I GABA
-source_ii_gaba = MFLinearSource('II GABA', pop_i, {
-    SP.GM: g_GABA_I,
-    SP.VREV: -70 * mvolt,
-    SP.TAU: tau_GABA,
+source_ii_gaba = MFLinearInput('II GABA', pop_i, {
+    IP.GM: g_GABA_I,
+    IP.VREV: -70 * mvolt,
+    IP.TAU: tau_GABA,
 }, pop_i, Connection.all_to_others())
 
 

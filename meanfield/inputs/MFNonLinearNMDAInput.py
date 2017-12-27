@@ -2,16 +2,16 @@ from typing import Dict, Union
 
 from brian2 import Equations, Synapses, check_units
 
-from meanfield.sources.MFLinearNMDASource import MFLinearNMDASource
+from meanfield.inputs.MFLinearNMDAInput import MFLinearNMDAInput
 from meanfield.utils import lazyproperty
-from meanfield.parameters import SP
+from meanfield.parameters import IP
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPop import MFPop
 from meanfield.parameters import Connection
 from meanfield.parameters.Connection import ConnectionStrategy
 
 
-class MFNonLinearNMDASource(MFLinearNMDASource):
+class MFNonLinearNMDAInput(MFLinearNMDAInput):
 
     def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop, connection: ConnectionStrategy=Connection.all_to_all()):
         super().__init__(name, pop, params, from_pop, connection)
@@ -19,9 +19,9 @@ class MFNonLinearNMDASource(MFLinearNMDASource):
 
         }
         expectations = {
-            SP.TAU_NMDA: 1.,
-            SP.TAU_NMDA_RISE: 1.,
-            SP.BETA: 1.,
+            IP.TAU_NMDA: 1.,
+            IP.TAU_NMDA_RISE: 1.,
+            IP.BETA: 1.,
         }
         self.params.fill(defaults)
         self.params.verify(expectations)
@@ -34,9 +34,9 @@ class MFNonLinearNMDASource(MFLinearNMDASource):
             ''',
             s_post=self.post_variable_name + '_post',
             I=self.current_name,
-            g=self.params[SP.GM],
-            ve=self.params[SP.VE],
-            beta=self.params[SP.BETA]
+            g=self.params[IP.GM],
+            ve=self.params[IP.VE],
+            beta=self.params[IP.BETA]
         )
 
     @property
@@ -55,9 +55,9 @@ class MFNonLinearNMDASource(MFLinearNMDASource):
             s_post=self.post_variable_name + '_post',
             s=self.post_variable_name,
             x=self.post_nonlinear_name,
-            tau_decay=self.params[SP.TAU_NMDA],
-            tau_rise=self.params[SP.TAU_NMDA_RISE],
-            alpha=self.params[SP.ALPHA], # TODO ALPHA ? 1 / ms
+            tau_decay=self.params[IP.TAU_NMDA],
+            tau_rise=self.params[IP.TAU_NMDA_RISE],
+            alpha=self.params[IP.ALPHA], # TODO ALPHA ? 1 / ms
         )
         eqs_pre = '''
         {} += 1

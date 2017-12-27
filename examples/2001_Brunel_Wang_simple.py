@@ -1,13 +1,13 @@
 from brian2 import *
-from meanfield.parameters import NP
-from meanfield.parameters import SP
+from meanfield.parameters import PP
+from meanfield.parameters import IP
 
 from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import Connection
-from meanfield.sources.MFLinearSource import MFLinearSource
-from meanfield.sources.MFStaticSource import MFStaticSource
+from meanfield.inputs.MFLinearInput import MFLinearInput
+from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.utils import brian2_introspect
 
 BrianLogger.log_level_debug()
@@ -74,21 +74,21 @@ w_plus = 1#2.1
 w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
 E_params = {
-    NP.GM: g_m_E,
-    NP.CM: C_m_E,
-    NP.VL: V_L,
-    NP.VTHR: V_thr,
-    NP.VRES: V_reset,
-    NP.TAU_RP: tau_rp_E
+    PP.GM: g_m_E,
+    PP.CM: C_m_E,
+    PP.VL: V_L,
+    PP.VTHR: V_thr,
+    PP.VRES: V_reset,
+    PP.TAU_RP: tau_rp_E
 }
 
 I_params = {
-    NP.GM: g_m_I,
-    NP.CM: C_m_I,
-    NP.VL: V_L,
-    NP.VTHR: V_thr,
-    NP.VRES: V_reset,
-    NP.TAU_RP: tau_rp_I,
+    PP.GM: g_m_I,
+    PP.CM: C_m_I,
+    PP.VL: V_L,
+    PP.VTHR: V_thr,
+    PP.VRES: V_reset,
+    PP.TAU_RP: tau_rp_I,
 }
 
 # NMDA
@@ -102,85 +102,85 @@ pop_i = MFLinearPop("I", N_I, I_params)
 
 
 # noise pops
-source_e_noise1 = MFStaticSource("E_noise1", pop_e1, C_ext, rate, {
-    SP.GM: g_AMPA_ext_E,
-    SP.VREV: 0 * mV,
-    SP.TAU: tau_AMPA,
+source_e_noise1 = MFStaticInput("E_noise1", pop_e1, C_ext, rate, {
+    IP.GM: g_AMPA_ext_E,
+    IP.VREV: 0 * mV,
+    IP.TAU: tau_AMPA,
 })
 pop_e1.add_noise(source_e_noise1)
 
-source_e_noise2 = MFStaticSource("E_noise2", pop_e2, C_ext, rate, {
-    SP.GM: g_AMPA_ext_E,
-    SP.VREV: 0 * mV,
-    SP.TAU: tau_AMPA,
+source_e_noise2 = MFStaticInput("E_noise2", pop_e2, C_ext, rate, {
+    IP.GM: g_AMPA_ext_E,
+    IP.VREV: 0 * mV,
+    IP.TAU: tau_AMPA,
 })
 pop_e2.add_noise(source_e_noise2)
 
-source_i_noise = MFStaticSource("I_noise", pop_i, C_ext, rate, {
-    SP.GM: g_AMPA_ext_I,
-    SP.VREV: 0 * mV,
-    SP.TAU: tau_AMPA,
+source_i_noise = MFStaticInput("I_noise", pop_i, C_ext, rate, {
+    IP.GM: g_AMPA_ext_I,
+    IP.VREV: 0 * mV,
+    IP.TAU: tau_AMPA,
 })
 pop_i.add_noise(source_i_noise)
 
 # E->E NMDA
-source_ee_nmda1 = MFLinearSource('EE NMDA 1', pop_e1, {
-    SP.GM: g_NMDA_E,
-    SP.VREV: 0 * mV,
-    SP.TAU: tau_NMDA_decay,
+source_ee_nmda1 = MFLinearInput('EE NMDA 1', pop_e1, {
+    IP.GM: g_NMDA_E,
+    IP.VREV: 0 * mV,
+    IP.TAU: tau_NMDA_decay,
 }, pop_e1, Connection.all_to_others())
 
-source_ee_nmda2 = MFLinearSource('EE NMDA 2', pop_e2, {
-    SP.GM: g_NMDA_E,
-    SP.VREV: 0 * mV,
-    SP.TAU: tau_NMDA_decay,
+source_ee_nmda2 = MFLinearInput('EE NMDA 2', pop_e2, {
+    IP.GM: g_NMDA_E,
+    IP.VREV: 0 * mV,
+    IP.TAU: tau_NMDA_decay,
 }, pop_e1)
 
 # E->E AMPA
-source_ee_ampa1 = MFLinearSource('EE AMPA 1', pop_e1, {
-    SP.GM: g_AMPA_rec_E,
-    SP.VREV: 0 * mvolt,
-    SP.TAU: tau_AMPA,
+source_ee_ampa1 = MFLinearInput('EE AMPA 1', pop_e1, {
+    IP.GM: g_AMPA_rec_E,
+    IP.VREV: 0 * mvolt,
+    IP.TAU: tau_AMPA,
 }, pop_e2)
 
-source_ee_ampa2 = MFLinearSource('EE AMPA 2', pop_e2, {
-    SP.GM: g_AMPA_rec_E,
-    SP.VREV: 0 * mvolt,
-    SP.TAU: tau_AMPA,
+source_ee_ampa2 = MFLinearInput('EE AMPA 2', pop_e2, {
+    IP.GM: g_AMPA_rec_E,
+    IP.VREV: 0 * mvolt,
+    IP.TAU: tau_AMPA,
 }, pop_e2, Connection.all_to_others())
 
 # E->I NMDA
-source_ie_nmda = MFLinearSource('EI NMDA', pop_i, {
-    SP.GM: g_NMDA_I,
-    SP.VREV: 0 * mvolt,
-    SP.TAU: tau_NMDA_decay,
+source_ie_nmda = MFLinearInput('EI NMDA', pop_i, {
+    IP.GM: g_NMDA_I,
+    IP.VREV: 0 * mvolt,
+    IP.TAU: tau_NMDA_decay,
 }, pop_e1)
 
 # E->I AMPA
-source_ie_ampa = MFLinearSource('EI AMPA', pop_i, {
-    SP.GM: g_AMPA_rec_E,
-    SP.VREV: 0 * mvolt,
-    SP.TAU: tau_AMPA,
+source_ie_ampa = MFLinearInput('EI AMPA', pop_i, {
+    IP.GM: g_AMPA_rec_E,
+    IP.VREV: 0 * mvolt,
+    IP.TAU: tau_AMPA,
 }, pop_e2)
 
 # I->I GABA
-source_ii_gaba = MFLinearSource('II GABA', pop_i, {
-    SP.GM: g_GABA_I,
-    SP.VREV: -70 * mvolt,
-    SP.TAU: tau_GABA,
+source_ii_gaba = MFLinearInput('II GABA', pop_i, {
+    IP.GM: g_GABA_I,
+    IP.VREV: -70 * mvolt,
+    IP.TAU: tau_GABA,
 }, pop_i, Connection.all_to_others())
 
 # I->E GABA
-source_ie_gaba1 = MFLinearSource('IE GABA 1', pop_e1, {
-    SP.GM: g_GABA_E,
-    SP.VREV: -70 * mvolt,
-    SP.TAU: tau_GABA,
+source_ie_gaba1 = MFLinearInput('IE GABA 1', pop_e1, {
+    IP.GM: g_GABA_E,
+    IP.VREV: -70 * mvolt,
+    IP.TAU: tau_GABA,
 }, pop_i)
 
-source_ie_gaba2 = MFLinearSource('IE GABA 2', pop_e2, {
-    SP.GM: g_GABA_E,
-    SP.VREV: -70 * mvolt,
-    SP.TAU: tau_GABA,
+source_ie_gaba2 = MFLinearInput('IE GABA 2', pop_e2, {
+    IP.GM: g_GABA_E,
+    IP.VREV: -70 * mvolt,
+    IP.TAU: tau_GABA,
 }, pop_i)
 
 

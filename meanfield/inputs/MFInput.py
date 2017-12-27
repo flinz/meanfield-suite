@@ -5,15 +5,15 @@ from brian2 import units, check_units, Equations
 
 from meanfield.parameters.MFParams import MFParams
 from meanfield.utils import name2identifier, lazyproperty
-from meanfield.parameters import SP, NP
+from meanfield.parameters import IP, PP
 from meanfield.populations.MFPop import MFPop
 from meanfield.parameters.Connection import ConnectionStrategy
 
 
-class MFSource(object):
+class MFInput(object):
     """Source: a synapse coupled to pops"""
 
-    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], connection: ConnectionStrategy, add_as_source=True):
+    def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], connection: ConnectionStrategy, add_as_input=True):
 
         self.name = name
         self.ref = name2identifier(name)
@@ -21,21 +21,21 @@ class MFSource(object):
 
         defaults = {}
         expectations = {
-            SP.GM: units.siemens,
-            SP.VREV: units.volt,
-            SP.TAU: units.second,  # TODO : tau subclass?
+            IP.GM: units.siemens,
+            IP.VREV: units.volt,
+            IP.TAU: units.second,  # TODO : tau subclass?
         }
         self.params.fill(defaults)
         self.params.verify(expectations)
 
-        self.g_base = params[SP.GM]  # TODO : parametrize, solve for ? => general setter checking for units
+        self.g_base = params[IP.GM]  # TODO : parametrize, solve for ? => general setter checking for units
 
         self.connection = connection
 
         # link to pop
         self.pop = pop
-        if add_as_source:
-            self.pop.add_source(self)  # TODO consistent
+        if add_as_input:
+            self.pop.add_input(self)  # TODO consistent
 
     @property
     @check_units(result=units.siemens)
@@ -45,7 +45,7 @@ class MFSource(object):
     @property
     @check_units(result=units.amp)
     def voltage_conductance(self):
-        return self.conductance * (self.params[SP.VREV] - self.pop.params[NP.VL])
+        return self.conductance * (self.params[IP.VREV] - self.pop.params[PP.VL])
 
     @abstractmethod
     def g_dyn(self):
@@ -72,10 +72,10 @@ class MFSource(object):
             ds / dt = - s / tau : 1
             ''',
             I=self.current_name,
-            g=self.params[SP.GM],
+            g=self.params[IP.GM],
             s=self.post_variable_name,
-            vrev=self.params[SP.VREV],
-            tau=self.params[SP.TAU],
+            vrev=self.params[IP.VREV],
+            tau=self.params[IP.TAU],
         )
 
     def __repr__(self):

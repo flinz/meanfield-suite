@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from meanfield.MFSystem import MFSystem
-from meanfield.parameters import NP
-from meanfield.parameters import SP
+from meanfield.parameters import PP
+from meanfield.parameters import IP
 from meanfield.populations.MFLinearPop import MFLinearPop
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
-from meanfield.sources.MFStaticSource import MFStaticSource
+from meanfield.inputs.MFStaticInput import MFStaticInput
 from tests.utils import enable_cpp
 
 
@@ -23,19 +23,19 @@ class TestNoise(object):
         defaultclock.dt = dt
 
         pop = MFLinearPop("pop", 100, {
-            NP.GM: 25. * nS,
-            NP.CM: 0.5 * nF,
-            NP.VL: -70. * mV,
-            NP.VTHR: -50. * mV,
-            NP.VRES: -55. * mV,
-            NP.TAU_RP: 2. * ms
+            PP.GM: 25. * nS,
+            PP.CM: 0.5 * nF,
+            PP.VL: -70. * mV,
+            PP.VTHR: -50. * mV,
+            PP.VRES: -55. * mV,
+            PP.TAU_RP: 2. * ms
         })
         pop.rate = 10 * Hz
 
-        noise = MFStaticSource("noise", pop, 1000, 3 * Hz, {
-            SP.GM: 2 * nS,
-            SP.VREV: 0 * volt,
-            SP.TAU: 2. * ms,
+        noise = MFStaticInput("noise", pop, 1000, 3 * Hz, {
+            IP.GM: 2 * nS,
+            IP.VREV: 0 * volt,
+            IP.TAU: 2. * ms,
         })
         pop.add_noise(noise)
 
@@ -74,19 +74,19 @@ class TestNoise(object):
 
         def for_rate(rate):
             pop = MFLinearPop("pop", 100, {
-                NP.GM: 25. * nS,
-                NP.CM: 0.5 * nF,
-                NP.VL: -70. * mV,
-                NP.VTHR: -50. * mV,
-                NP.VRES: -55. * mV,
-                NP.TAU_RP: 2. * ms
+                PP.GM: 25. * nS,
+                PP.CM: 0.5 * nF,
+                PP.VL: -70. * mV,
+                PP.VTHR: -50. * mV,
+                PP.VRES: -55. * mV,
+                PP.TAU_RP: 2. * ms
             })
             pop.rate = 10 * Hz
 
-            noise = MFStaticSource("noise", pop, 1000, rate * Hz, {
-                SP.GM: 2 * nS,
-                SP.VREV: 0 * volt,
-                SP.TAU: 2. * ms,
+            noise = MFStaticInput("noise", pop, 1000, rate * Hz, {
+                IP.GM: 2 * nS,
+                IP.VREV: 0 * volt,
+                IP.TAU: 2. * ms,
             })
             pop.add_noise(noise)
 

@@ -2,25 +2,25 @@ from typing import Union, Dict
 
 from brian2 import units, Equations, check_units, np
 
-from meanfield.sources.MFLinearSource import MFLinearSource
-from meanfield.parameters import SP, NP
+from meanfield.inputs.MFLinearInput import MFLinearInput
+from meanfield.parameters import IP, PP
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPop import MFPop
 from meanfield.parameters import Connection
 from meanfield.parameters.Connection import ConnectionStrategy
 
 
-class MFLinearNMDASource(MFLinearSource):
+class MFLinearNMDAInput(MFLinearInput):
 
     def __init__(self, name: str, pop: MFPop, params: Union[Dict, MFParams], from_pop: MFPop, connection: ConnectionStrategy=Connection.all_to_all()):
         super().__init__(name, pop, params, from_pop)
 
         defaults = {}
         expectations = {
-            SP.TAU_NMDA: units.second,
-            SP.ALPHA: 1,
-            SP.BETA: 1, # TODO beta 1/v ?
-            SP.GAMMA: 1,
+            IP.TAU_NMDA: units.second,
+            IP.ALPHA: 1,
+            IP.BETA: 1, # TODO beta 1/v ?
+            IP.GAMMA: 1,
         }
         self.params.fill(defaults)
         self.params.verify(expectations)
@@ -28,7 +28,7 @@ class MFLinearNMDASource(MFLinearSource):
     @property
     def J(self):
         """Linearization factor for NMDA"""
-        return 1 + self.params[NP.GAMMA] * np.exp(-self.params[NP.BETA] * self.pop.v_mean / units.volt)
+        return 1 + self.params[PP.GAMMA] * np.exp(-self.params[PP.BETA] * self.pop.v_mean / units.volt)
 
     @property
     @check_units(result=1)
@@ -38,7 +38,7 @@ class MFLinearNMDASource(MFLinearSource):
     @property
     @check_units(result=1)
     def rho2(self):
-        return (self.J - 1) / self.J ** 2 * self.params[NP.BETA] * (self.pop.v_mean - self.params[SP.VREV]) / units.volt # TODO unitless?
+        return (self.J - 1) / self.J ** 2 * self.params[PP.BETA] * (self.pop.v_mean - self.params[IP.VREV]) / units.volt # TODO unitless?
 
     @property
     @check_units(result=units.siemens)
@@ -48,8 +48,8 @@ class MFLinearNMDASource(MFLinearSource):
     @property
     def voltage_conductance(self):
         return self.g_dyn() * self.g_base * (
-            self.rho1 * (self.params[SP.VREV] - self.pop.params[NP.VL]) +
-            self.rho2 * (self.pop.v_mean - self.pop.params[NP.VL])
+                self.rho1 * (self.params[IP.VREV] - self.pop.params[PP.VL]) +
+                self.rho2 * (self.pop.v_mean - self.pop.params[PP.VL])
         )
 
     def brian2_model(self):
@@ -59,12 +59,12 @@ class MFLinearNMDASource(MFLinearSource):
             ds / dt = - s / tau_decay : 1
             ''',
             I=self.current_name,
-            g=self.params[SP.GM],
+            g=self.params[IP.GM],
             s=self.post_variable_name,
             s_post=self.post_variable_name + '_post',
-            vrev=self.params[SP.VREV],
-            tau_decay=self.params[SP.TAU_NMDA],
-            gamma=self.params[SP.GAMMA],
-            beta=self.params[SP.BETA] / units.mV,
+            vrev=self.params[IP.VREV],
+            tau_decay=self.params[IP.TAU_NMDA],
+            gamma=self.params[IP.GAMMA],
+            beta=self.params[IP.BETA] / units.mV,
         )
 
