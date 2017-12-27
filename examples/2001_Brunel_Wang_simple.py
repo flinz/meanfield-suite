@@ -104,21 +104,21 @@ pop_i = MFLinearPop("I", N_I, I_params)
 # noise pops
 source_e_noise1 = MFStaticSource("E_noise1", pop_e1, C_ext, rate, {
     SP.GM: g_AMPA_ext_E,
-    SP.VREV: 0 * volt,
+    SP.VREV: 0 * mV,
     SP.TAU: tau_AMPA,
 })
 pop_e1.add_noise(source_e_noise1)
 
 source_e_noise2 = MFStaticSource("E_noise2", pop_e2, C_ext, rate, {
     SP.GM: g_AMPA_ext_E,
-    SP.VREV: 0 * volt,
+    SP.VREV: 0 * mV,
     SP.TAU: tau_AMPA,
 })
 pop_e2.add_noise(source_e_noise2)
 
 source_i_noise = MFStaticSource("I_noise", pop_i, C_ext, rate, {
     SP.GM: g_AMPA_ext_I,
-    SP.VREV: 0 * volt,
+    SP.VREV: 0 * mV,
     SP.TAU: tau_AMPA,
 })
 pop_i.add_noise(source_i_noise)
@@ -126,13 +126,13 @@ pop_i.add_noise(source_i_noise)
 # E->E NMDA
 source_ee_nmda1 = MFLinearSource('EE NMDA 1', pop_e1, {
     SP.GM: g_NMDA_E,
-    SP.VREV: 0 * mvolt,
+    SP.VREV: 0 * mV,
     SP.TAU: tau_NMDA_decay,
 }, pop_e1, Connection.all_to_others())
 
 source_ee_nmda2 = MFLinearSource('EE NMDA 2', pop_e2, {
     SP.GM: g_NMDA_E,
-    SP.VREV: 0 * mvolt,
+    SP.VREV: 0 * mV,
     SP.TAU: tau_NMDA_decay,
 }, pop_e1)
 

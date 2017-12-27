@@ -1,3 +1,4 @@
+import pytest
 from brian2 import PopulationRateMonitor, Network, defaultclock
 from brian2.units import *
 import matplotlib.pyplot as plt
@@ -44,7 +45,7 @@ class TestNoise(object):
         solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
         sol = solver.run()
 
-        if True:
+        if False:
             theory = sol.state[0]
             rate = PopulationRateMonitor(pop.brian2)
 
@@ -67,6 +68,7 @@ class TestNoise(object):
             plt.legend()
             plt.show()
 
+    @pytest.mark.skip(reason="plotting")
     def test_theory(self):
 
         def for_rate(rate):

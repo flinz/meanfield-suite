@@ -1,3 +1,4 @@
+import pytest
 from brian2 import PopulationRateMonitor, Network, defaultclock, NeuronGroup, Synapses, PoissonInput
 from brian2.units import *
 import matplotlib.pyplot as plt
@@ -69,7 +70,7 @@ class TestRecurrent(object):
         #brian2_introspect(net, globals())
 
 
-        if True:
+        if False:
             net.run(t)
             stable_t = int(t / dt * 0.1)
             isolated = np.array(rate.rate)[stable_t:-stable_t]
@@ -84,7 +85,7 @@ class TestRecurrent(object):
             plt.legend()
             plt.show()
 
-
+    @pytest.mark.skip(reason="plotting")
     def test_theory(self):
 
         def for_rate(rate):
