@@ -14,14 +14,11 @@ from meanfield.sources.MFLinearSource import MFLinearSource
 from tests.utils import enable_cpp
 from meanfield.utils import brian2_introspect
 
-enable_cpp()
 
 class TestRecurrent(object):
 
-    def test_old(self):
-        pass
-
     def test_simulation_theory(self):
+        enable_cpp()
 
         t = 10000 * ms
         dt = 0.01 * ms
@@ -87,6 +84,7 @@ class TestRecurrent(object):
 
     @pytest.mark.skip(reason="plotting")
     def test_theory(self):
+        enable_cpp()
 
         def for_rate(rate):
             pop = MFLinearPop("pop", 100, {

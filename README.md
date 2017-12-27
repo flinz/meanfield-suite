@@ -1,7 +1,8 @@
 # Meanfield
 
-Meanfield suite
+[![Build Status](https://travis-ci.org/flinz/meanfield-suite.svg?branch=master)](https://travis-ci.org/flinz/meanfield-suite)
 
+Working in progress. More to come soon.
 
 ## Modeling
 
@@ -9,7 +10,6 @@ Meanfield suite
 - build
 - compute
 - simulate
-
 
 ### Population
 

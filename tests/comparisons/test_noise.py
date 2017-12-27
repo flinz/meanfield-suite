@@ -12,11 +12,11 @@ from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.sources.MFStaticSource import MFStaticSource
 from tests.utils import enable_cpp
 
-enable_cpp()
 
 class TestNoise(object):
 
     def test_simulation_theory(self):
+        enable_cpp()
 
         t = 10000 * ms
         dt = 0.01 * ms
@@ -70,6 +70,7 @@ class TestNoise(object):
 
     @pytest.mark.skip(reason="plotting")
     def test_theory(self):
+        enable_cpp()
 
         def for_rate(rate):
             pop = MFLinearPop("pop", 100, {

@@ -24,11 +24,11 @@ params_source = {
     SP.TAU: 10 * ms,
 }
 
-enable_cpp()
 
 class TestMFSource(object):
 
     def test_model_gen(self):
+        enable_cpp()
         pop = MFLinearPop("test", 1, params_pop)
         source = MFSource('test', pop, params_source, Connection.all_to_all())
 

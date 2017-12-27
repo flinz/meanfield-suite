@@ -28,11 +28,11 @@ params_source = {
     SP.TAU: 10 * ms,
 }
 
-enable_cpp()
-
 class TestMFLinear3TSSource(object):
 
     def test_simulation_theory(self):
+
+        enable_cpp()
 
         t = 3000 * ms
         dt = 0.01 * ms
@@ -85,6 +85,8 @@ class TestMFLinear3TSSource(object):
         net.add(m2)
         net.add(m3)
         net.add(m4)
+
+        print(net.objects)
         net.run(t)
 
         stable_t = int(t / dt * 0.1)

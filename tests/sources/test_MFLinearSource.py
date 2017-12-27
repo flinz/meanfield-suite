@@ -29,11 +29,11 @@ params_source = {
     SP.TAU: 10 * ms,
 }
 
-enable_cpp()
 
 class TestMFLinearSource(object):
 
     def test_simulation_theory(self):
+        enable_cpp()
 
         t = 3000 * ms
         dt = 0.01 * ms
