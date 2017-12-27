@@ -10,4 +10,5 @@ def run_around_tests():
     device.reinit()
     device.activate()
     # workaround for cpp generation errors when running multiple tests in a row (reinit might take some time?)
-    sleep(0.5)
+    sleep(2)
+

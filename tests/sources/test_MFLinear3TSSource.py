@@ -86,6 +86,7 @@ class TestMFLinear3TSSource(object):
         net.add(m3)
         net.add(m4)
 
+        print(Network.__instances__())
         print(net.objects)
         net.run(t)
 
