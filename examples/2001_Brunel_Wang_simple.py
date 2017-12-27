@@ -1,14 +1,13 @@
 from brian2 import *
-from meanfield.parameters import PP
-from meanfield.parameters import IP
 
-from meanfield.populations.MFLinearPopulation import MFLinearPopulation
-from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.MFSystem import MFSystem
-from meanfield.parameters import Connection
 from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.inputs.MFStaticInput import MFStaticInput
-from meanfield.utils import brian2_introspect
+from meanfield.parameters import Connection
+from meanfield.parameters import IP
+from meanfield.parameters import PP
+from meanfield.populations.MFLinearPopulation import MFLinearPopulation
+from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 
 BrianLogger.log_level_debug()
 set_device('cpp_standalone')

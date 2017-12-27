@@ -7,9 +7,9 @@ from brian2 import units, Equations, NeuronGroup, check_units, BrianObject
 from scipy.integrate import quad
 
 from meanfield.parameters import PP, IP
+from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import lazyproperty
-from meanfield.parameters.MFParams import MFParams
 
 
 class MFLinearPopulation(MFPopulation):

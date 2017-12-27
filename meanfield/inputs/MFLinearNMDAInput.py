@@ -7,8 +7,6 @@ from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.parameters import IP, PP
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPopulation import MFPopulation
-from meanfield.parameters import Connection
-from meanfield.parameters.Connection import ConnectionStrategy
 
 
 class MFLinearNMDAInput(MFLinearInput):
@@ -33,7 +31,7 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     def J(self):
         """Linearization factor for NMDA"""
-        return 1 + self.parameters[PP.GAMMA] * np.exp(-self.parameters[PP.BETA] * self.target.v_mean / units.volt)
+        return 1 + self[PP.GAMMA] * np.exp(-self[PP.BETA] * self.target.v_mean / units.volt)
 
     @property
     @check_units(result=1)
@@ -43,35 +41,36 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     @check_units(result=1)
     def rho2(self):
-        return (self.J - 1) / self.J ** 2 * self.parameters[PP.BETA] * (self.target.v_mean - self.parameters[IP.VREV]) / units.volt # TODO unitless?
+        return (self.J - 1) / self.J ** 2 * self[PP.BETA] * (self.target.v_mean - self[IP.VREV]) / units.volt # TODO unitless?
 
     @property
     @check_units(result=units.siemens)
-    def conductance(self):
+    def conductance(self) -> units.siemens:
         return self.g_dyn() * self.g_base * (self.rho1 + self.rho2)
 
     @property
-    def voltage_conductance(self):
+    @check_units(result=units.amp)
+    def voltage_conductance(self) -> units.amp:
         return self.g_dyn() * self.g_base * (
-                self.rho1 * (self.parameters[IP.VREV] - self.target.params[PP.VL]) +
-                self.rho2 * (self.target.v_mean - self.target.params[PP.VL])
+                self.rho1 * (self[IP.VREV] - self.target[PP.VL]) +
+                self.rho2 * (self.target.v_mean - self.target[PP.VL])
         )
 
     # Simulation
 
-    def brian2_model(self):
+    def brian2_model(self) -> Equations:
         return Equations(
             '''
             I = g * (v - vrev ) / (1 + gamma * exp(- beta * v)) * s : amp
             ds / dt = - s / tau_decay : 1
             ''',
             I=self.current_name,
-            g=self.parameters[IP.GM],
+            g=self[IP.GM],
             s=self.post_variable_name,
             s_post=self.post_variable_name + '_post',
-            vrev=self.parameters[IP.VREV],
-            tau_decay=self.parameters[IP.TAU_NMDA],
-            gamma=self.parameters[IP.GAMMA],
-            beta=self.parameters[IP.BETA] / units.mV,
+            vrev=self[IP.VREV],
+            tau_decay=self[IP.TAU_NMDA],
+            gamma=self[IP.GAMMA],
+            beta=self[IP.BETA] / units.mV,
         )
 

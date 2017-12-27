@@ -1,4 +1,4 @@
-from abc import abstractproperty, abstractmethod
+from abc import abstractmethod
 from types import MappingProxyType
 from typing import Union, Optional
 

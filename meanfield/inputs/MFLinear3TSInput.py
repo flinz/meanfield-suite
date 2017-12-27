@@ -1,15 +1,13 @@
 from types import MappingProxyType
 from typing import Union, Dict
 
-from brian2 import Equations, Synapses, units
+from brian2 import Equations, Synapses, units, BrianObject
 
 from meanfield.inputs.MFLinearInput import MFLinearInput
-from meanfield.utils import lazyproperty
 from meanfield.parameters import IP
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPopulation import MFPopulation
-from meanfield.parameters import Connection
-from meanfield.parameters.Connection import ConnectionStrategy
+from meanfield.utils import lazyproperty
 
 
 class MFLinear3TSInput(MFLinearInput):
@@ -43,7 +41,7 @@ class MFLinear3TSInput(MFLinearInput):
     # Simulation
 
     @lazyproperty
-    def brian2(self):
+    def brian2(self) -> BrianObject:
         model = Equations('''
         w1 : 1
         w2 : 1
@@ -71,6 +69,7 @@ class MFLinear3TSInput(MFLinearInput):
         syn.w4[:] = 1
         return syn
 
+    # FIXME
     @property
     def post_variable_name_1(self):
         return self.post_variable_name + '_1'
@@ -87,7 +86,7 @@ class MFLinear3TSInput(MFLinearInput):
     def post_variable_name_4(self):
         return self.post_variable_name + '_4'
 
-    def brian2_model(self):
+    def brian2_model(self) -> Equations:
 
         tau_mix1 = (self[IP.TAU_RISE] * self[IP.TAU_D1]) / (self[IP.TAU_RISE] + self[IP.TAU_D1])
         tau_mix2 = (self[IP.TAU_RISE] * self[IP.TAU_D2]) / (self[IP.TAU_RISE] + self[IP.TAU_D2])

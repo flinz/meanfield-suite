@@ -1,14 +1,12 @@
 from types import MappingProxyType
 from typing import Union, Dict
 
-from brian2 import check_units, Equations, Synapses
+from brian2 import check_units, Equations, Synapses, BrianObject
 
-from meanfield.parameters import Connection
+from meanfield.inputs.MFInput import MFInput
 from meanfield.parameters import IP
-from meanfield.parameters.Connection import ConnectionStrategy
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPopulation import MFPopulation
-from meanfield.inputs.MFInput import MFInput
 from meanfield.utils import lazyproperty
 
 
@@ -39,7 +37,7 @@ class MFLinearInput(MFInput):
     # Simulation
 
     @lazyproperty
-    def brian2(self):
+    def brian2(self) -> BrianObject:
         model = Equations('w : 1')
         on_pre = '{} += w'.format(self.post_variable_name)
         syn = Synapses(

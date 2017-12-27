@@ -2,14 +2,14 @@ from abc import abstractmethod
 from types import MappingProxyType
 from typing import Union, Dict
 
-from brian2 import units, check_units, Equations
+from brian2 import units, check_units, Equations, BrianObject
 
-from meanfield.parameters.MFParams import MFParams
-from meanfield.utils import create_identifier, lazyproperty, create_name
-from meanfield.parameters import IP, PP
-from meanfield.populations.MFPopulation import MFPopulation
-from meanfield.parameters.Connection import ConnectionStrategy
 from meanfield.parameters import Connection
+from meanfield.parameters import IP, PP
+from meanfield.parameters.Connection import ConnectionStrategy
+from meanfield.parameters.MFParams import MFParams
+from meanfield.populations.MFPopulation import MFPopulation
+from meanfield.utils import create_identifier, create_name
 
 
 class MFInput(object):
@@ -44,19 +44,19 @@ class MFInput(object):
     def __getitem__(self, key):
         return self.parameters[key]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "{} [{}] ({}, {})".format(self.__class__.__name__, self.name, self.parameters, self.connection)
 
     # Theory
 
     @property
     @check_units(result=units.siemens)
-    def conductance(self):
+    def conductance(self) -> units.siemens:
         return self.g_dyn() * self.g_base
 
     @property
     @check_units(result=units.amp)
-    def voltage_conductance(self):
+    def voltage_conductance(self) -> units.amp:
         return self.conductance * (self[IP.VREV] - self.target[PP.VL])
 
     @abstractmethod
@@ -66,11 +66,11 @@ class MFInput(object):
     # Simulation
 
     @abstractmethod
-    def brian2(self):
+    def brian2(self) -> BrianObject:
         """Builds lazily Brian2 synapse component once."""
         pass
 
-    def brian2_model(self):
+    def brian2_model(self) -> Equations:
         """Returns Brian2 dynamic (Equations) affecting specified populations."""
         return Equations(
             '''
@@ -85,10 +85,10 @@ class MFInput(object):
         )
 
     @property
-    def current_name(self):
+    def current_name(self) -> str:
         return 'I_' + self.ref
 
     @property
-    def post_variable_name(self):
+    def post_variable_name(self) -> str:
         return 's_' + self.ref
 

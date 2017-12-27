@@ -1,7 +1,7 @@
 from types import MappingProxyType
 from typing import Dict, Union
 
-from brian2 import Equations, Synapses, check_units
+from brian2 import Equations, Synapses, check_units, BrianObject
 
 from meanfield.inputs.MFLinearNMDAInput import MFLinearNMDAInput
 from meanfield.utils import lazyproperty
@@ -30,7 +30,6 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
 
     # Theory
 
-
     # Simulation
 
     @property
@@ -38,7 +37,7 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
         return 'x_' + self.ref
 
     @lazyproperty
-    def brian2(self):
+    def brian2(self) -> BrianObject:
         model = Equations(
             '''
             w : 1
@@ -68,8 +67,7 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
         C.w[:] = 1
         return C
 
-
-    def brian2_model(self):
+    def brian2_model(self) -> Equations:
         return Equations(
             '''
             I = g * (v - ve) / (1 + gamma * exp(- beta * v) ) * s_post : amp

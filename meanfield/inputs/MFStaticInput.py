@@ -1,15 +1,13 @@
 from types import MappingProxyType
 from typing import Dict, Union
 
-from brian2 import units, check_units, PoissonInput
+from brian2 import units, check_units, PoissonInput, BrianObject
 
 from meanfield.inputs.MFInput import MFInput
-from meanfield.utils import lazyproperty
 from meanfield.parameters import IP
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPopulation import MFPopulation
-from meanfield.parameters import Connection
-from meanfield.parameters.Connection import ConnectionStrategy
+from meanfield.utils import lazyproperty
 
 
 class MFStaticInput(MFInput):
@@ -32,11 +30,11 @@ class MFStaticInput(MFInput):
 
     @check_units(result=1)
     def g_dyn(self):
-        return self.rate * self.n * self.parameters[IP.TAU]
+        return self.rate * self.n * self[IP.TAU]
 
     # Simulation
 
     @lazyproperty
-    def brian2(self):
+    def brian2(self) -> BrianObject:
         return PoissonInput(self.target.brian2, self.post_variable_name, self.n, self.rate, 1)
 
