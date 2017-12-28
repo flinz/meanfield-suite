@@ -28,6 +28,8 @@ class MFLinearInput(MFInput):
 
         self.origin = origin
 
+        target.add_input(self)
+
     # Theory
 
     @check_units(result=1)

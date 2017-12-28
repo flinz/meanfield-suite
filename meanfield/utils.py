@@ -15,8 +15,17 @@ def create_name(cls):
     return f'{cls.__name__}_{count}'
 
 
+lazy_attr = '__lazy_'
+
+
+def reset_lazyproperty(instance, property: str) -> None:
+    attr = f'{lazy_attr}{property}'
+    if hasattr(instance, attr):
+        delattr(instance, attr)
+
+
 def lazyproperty(fun):
-    attr = '_lazy_' + fun.__name__
+    attr = f'{lazy_attr}{fun.__name__}'
 
     @property
     def wrapper(self):

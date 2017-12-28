@@ -184,7 +184,7 @@ source_ie_gaba2 = MFLinearInput(pop_i, pop_e2, {
 
 
 system = MFSystem("Brunel Wang simplified")
-system.pops += [pop_e1, pop_e2, pop_i]
+system.populations += [pop_e1, pop_e2, pop_i]
 
 solver = MFSolverRatesVoltages(system, solver='mse')
 sol = solver.run()

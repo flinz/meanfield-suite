@@ -35,15 +35,17 @@ class MFPopulation(object):
     def __getitem__(self, key):
         return self.parameters[key]
 
-    def add_noise(self, noise) -> None:
+    def add_noise(self, noise) -> 'MFPopulation':
         if len(self.noises):
             raise NotImplementedError('multiple noise not supported yet')
 
         self.noises.append(noise)
+        return self
 
-    def add_input(self, input) -> None:
+    def add_input(self, input) -> 'MFPopulation':
         # TODO control source and no duplicate
         self.inputs.append(input)
+        return self
 
     @property
     @check_units(result=units.Hz)

@@ -188,7 +188,7 @@ class MFSolverRatesVoltages(MFSolver):
         constraints = []
         functions = []
 
-        for p in system.pops:
+        for p in system.populations:
 
             constraints.append(
                 MFConstraint(

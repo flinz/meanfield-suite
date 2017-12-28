@@ -106,7 +106,7 @@ pop_i.n = N_I
 pop_i.rate_ms = nu_i
 pop_i.v_mean = -52.
 
-system.pops += [pop_e1, pop_e2, pop_i]
+system.populations += [pop_e1, pop_e2, pop_i]
 
 # noise pops
 source_e_noise1 = MFSource("E_noise1", pop_e1)

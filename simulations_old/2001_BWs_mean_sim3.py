@@ -109,7 +109,7 @@ def mean():
     pop_i.rate = nu_i
     pop_i.v_mean = -52. * mV
 
-    system.pops += [pop_e1, pop_e2, pop_i]
+    system.populations += [pop_e1, pop_e2, pop_i]
 
     # noise pops
     source_e_noise1 = MFStaticSource("E_noise1", pop_e1, {
@@ -277,7 +277,7 @@ def mean():
     net.add(pop_e2.brian2)
     net.add(pop_i.brian2)
 
-    for p in system.pops:
+    for p in system.populations:
         for i, s in enumerate(p.sources):
             print(s.brian2)
             if s.brian2:

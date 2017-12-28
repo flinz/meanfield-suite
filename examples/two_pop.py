@@ -132,7 +132,7 @@ ini.add_noise(source_i_noise)
 
 
 system = MFSystem("Two pop")
-system.pops += [exc]
+system.populations += [exc]
 
 solver = MFSolverRatesVoltages(system, solver='mse')
 print(solver.state)

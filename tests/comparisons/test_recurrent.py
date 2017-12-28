@@ -39,7 +39,6 @@ class TestRecurrent(object):
             IP.VREV: 0 * volt,
             IP.TAU: 2. * ms,
         })
-        pop.add_noise(noise)
 
         rec = MFLinearInput(pop, pop, {
             IP.GM: 0.973 / 100 * nS,
@@ -47,8 +46,7 @@ class TestRecurrent(object):
             IP.TAU: 10. * ms,
         })
 
-        system = MFSystem("pop noise rec")
-        system.pops += [pop]
+        system = MFSystem(pop)
 
         solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
         sol = solver.run()
@@ -56,11 +54,9 @@ class TestRecurrent(object):
 
         rate = PopulationRateMonitor(pop.brian2)
 
-        net = Network()
-        net.add(pop.brian2)
-        net.add(noise.brian2)
-        net.add(rec.brian2)
+        net = system.collect_brian2_network()
         net.add(rate)
+        net.run(t)
 
 
 
@@ -68,7 +64,6 @@ class TestRecurrent(object):
 
 
         if False:
-            net.run(t)
             stable_t = int(t / dt * 0.1)
             isolated = np.array(rate.rate)[stable_t:-stable_t]
             print(isolated.mean())
@@ -111,7 +106,7 @@ class TestRecurrent(object):
             }, pop)
 
             system = MFSystem("pop noise rec")
-            system.pops += [pop]
+            system.populations += [pop]
 
             solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
             sol = solver.run()

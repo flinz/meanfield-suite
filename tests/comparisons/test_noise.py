@@ -40,7 +40,7 @@ class TestNoise(object):
         pop.add_noise(noise)
 
         system = MFSystem("pop noise")
-        system.pops += [pop]
+        system.populations += [pop]
 
         solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
         sol = solver.run()
@@ -91,7 +91,7 @@ class TestNoise(object):
             pop.add_noise(noise)
 
             system = MFSystem("pop noise")
-            system.pops += [pop]
+            system.populations += [pop]
 
             solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
             print(solver.state)

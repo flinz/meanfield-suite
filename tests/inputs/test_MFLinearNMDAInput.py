@@ -63,7 +63,7 @@ class TestMFLinearNMDAInput(object):
         })
 
         system = MFSystem('test')
-        system.pops += [pop]
+        system.populations += [pop]
         solver = MFSolverRatesVoltages(system, solver='mse')
         solver.run()
         theory = syn.g_dyn() / syn.origin.n

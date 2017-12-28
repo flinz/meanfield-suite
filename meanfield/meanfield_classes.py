@@ -89,7 +89,7 @@ def setup_brunel99_nmda():
     pop_i.rate = initials['nu_i']
     pop_i.v_mean = -55. * mV
 
-    system.pops += [pop_e1, pop_e2, pop_i]
+    system.populations += [pop_e1, pop_e2, pop_i]
 
     source_e_noise1 = MFStaticInput('E_noise1', pop_e1, params_standard['E']['Cext'], params_standard['E']['nu_ext'], {
         IP.GM: params_standard['E']['gAMPA'],
@@ -273,7 +273,7 @@ def setup_brunel99(w_plus_val=2.5):
     pop_i.rate = initials['nu_i']
     pop_i.v_mean = -55. * mV
 
-    system.pops += [pop_e1, pop_e2, pop_i]
+    system.populations += [pop_e1, pop_e2, pop_i]
 
     # noise pops
 
@@ -447,7 +447,7 @@ def setup_EI(has_nmda=False):
     pop_i.rate = initials['nu_i']
     pop_i.v_mean = -55. * mV
 
-    system.pops += [pop_e, pop_i]
+    system.populations += [pop_e, pop_i]
 
     # noise pops
     source_e_noise = MFStaticInput('E_noise', pop_e, params_standard['E']['Cext'], params_standard['E']['nu_ext'], {
