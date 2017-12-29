@@ -56,15 +56,15 @@ class TestMFLinear3TSInput(object):
         syn = MFLinear3TSInput(poisson, pop, {
             IP.GM: 10 * nsiemens,
             IP.VREV: 0 * mvolt,
-            IP.TAU: 0 * ms, # unused
+            IP.TAU: 0 * ms, # FIXME unused
             IP.TAU_RISE: 2 * ms,
             IP.TAU_D1: 20 * ms,
             IP.TAU_D2: 30 * ms,
             IP.ALPHA: alpha
         })
 
-        system = MFSystem('test')
-        system.populations += [pop]
+        system = MFSystem(pop, poisson)
+
         solver = MFSolverRatesVoltages(system, solver='mse')
         solver.run()
         theory = syn.g_dyn() / syn.origin.n
@@ -77,18 +77,8 @@ class TestMFLinear3TSInput(object):
         m3 = StateMonitor(syn.brian2, syn.post_variable_name_3, record=range(100))
         m4 = StateMonitor(syn.brian2, syn.post_variable_name_4, record=range(100))
         defaultclock.dt = dt
-        net = Network()
-        net.add(poisson.brian2)
-        net.add(pop.brian2)
-        net.add(syn.brian2)
-        net.add(m1)
-        net.add(m2)
-        net.add(m3)
-        net.add(m4)
 
-        # FIXME
-        print(Network.__instances__())
-        print(net.objects)
+        net = system.collect_brian2_network(m1, m2, m3, m4)
         net.run(t)
 
         stable_t = int(t / dt * 0.1)

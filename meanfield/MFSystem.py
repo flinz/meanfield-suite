@@ -22,15 +22,7 @@ class MFSystem(object):
                 return p
         raise KeyError
 
-    def setup_brian2(self, dt=0.01 * b2.units.ms, codegen: str='cpp_standalone', build_on_run: bool=True):
-        b2.set_device(codegen, build_on_run=build_on_run)
-        b2.defaultclock.dt = dt
-
-    def reset_brian2(self, **kwargs):
-        b2.device.reinit()
-        b2.device.activate()
-        self.setup_brian2(**kwargs)
-
+    def reset_lazyness(self) -> None:
         for p in self.populations:
             reset_lazyproperty(p, 'brian2')
 
@@ -40,13 +32,13 @@ class MFSystem(object):
             for n in p.noises:
                 reset_lazyproperty(n, 'brian2')
 
-    def collect_brian2_network(self):
+    def collect_brian2_network(self, *more_objects: b2.BrianObject):
         for net in b2.Network.__instances__():
             if self.ref == net().name:
                 # FIXME warning about call to reset brian2 and probably slow as codegen recreated
                 break
 
-        net = b2.Network(name=self.ref)
+        net = b2.Network(*more_objects, name=self.ref)
 
         for p in self.populations:
             net.add(p.brian2)

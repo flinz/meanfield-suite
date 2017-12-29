@@ -1,4 +1,4 @@
-from brian2 import NeuronGroup, Synapses, PoissonInput, magic_network, Equations
+from brian2 import NeuronGroup, Synapses, PoissonInput, units, Equations, device, defaultclock, set_device
 
 
 def create_identifier(name):
@@ -80,6 +80,16 @@ def brian2_introspect(net, globals):
 
             print()
 
+
+def setup_brian2(dt=0.01 * units.ms, codegen: str='cpp_standalone', build_on_run: bool=True):
+    set_device(codegen, build_on_run=build_on_run)
+    defaultclock.dt = dt
+
+
+def reset_brian2(**kwargs):
+    device.reinit()
+    device.activate()
+    setup_brian2(**kwargs)
 
 
 

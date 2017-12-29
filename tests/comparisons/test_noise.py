@@ -37,10 +37,8 @@ class TestNoise(object):
             IP.VREV: 0 * volt,
             IP.TAU: 2. * ms,
         })
-        pop.add_noise(noise)
 
-        system = MFSystem("pop noise")
-        system.populations += [pop]
+        system = MFSystem(pop)
 
         solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
         sol = solver.run()
@@ -49,10 +47,7 @@ class TestNoise(object):
             theory = sol.state[0]
             rate = PopulationRateMonitor(pop.brian2)
 
-            net = Network()
-            net.add(pop.brian2)
-            net.add(noise.brian2)
-            net.add(rate)
+            net = system.collect_brian2_network(rate)
             net.run(t)
 
             stable_t = int(t / dt * 0.1)
@@ -73,7 +68,7 @@ class TestNoise(object):
         enable_cpp()
 
         def for_rate(rate):
-            pop = MFLinearPopulation("pop", 100, {
+            pop = MFLinearPopulation(100, {
                 PP.GM: 25. * nS,
                 PP.CM: 0.5 * nF,
                 PP.VL: -70. * mV,
@@ -83,15 +78,14 @@ class TestNoise(object):
             })
             pop.rate = 10 * Hz
 
-            noise = MFStaticInput("noise", pop, 1000, rate * Hz, {
+            noise = MFStaticInput(1000, rate * Hz, pop, {
                 IP.GM: 2 * nS,
                 IP.VREV: 0 * volt,
                 IP.TAU: 2. * ms,
             })
             pop.add_noise(noise)
 
-            system = MFSystem("pop noise")
-            system.populations += [pop]
+            system = MFSystem(pop)
 
             solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
             print(solver.state)

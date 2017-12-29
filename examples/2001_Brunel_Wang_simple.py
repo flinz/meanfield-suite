@@ -101,90 +101,86 @@ pop_i = MFLinearPopulation(N_I, I_params, name="I")
 
 
 # noise pops
-source_e_noise1 = MFStaticInput(C_ext, rate, pop_e1, {
+MFStaticInput(C_ext, rate, pop_e1, {
     IP.GM: g_AMPA_ext_E,
     IP.VREV: 0 * mV,
     IP.TAU: tau_AMPA,
 }, name="E_noise1")
-pop_e1.add_noise(source_e_noise1)
 
-source_e_noise2 = MFStaticInput(C_ext, rate, pop_e2, {
+MFStaticInput(C_ext, rate, pop_e2, {
     IP.GM: g_AMPA_ext_E,
     IP.VREV: 0 * mV,
     IP.TAU: tau_AMPA,
 }, name="E_noise2")
-pop_e2.add_noise(source_e_noise2)
 
-source_i_noise = MFStaticInput(C_ext, rate, pop_i, {
+MFStaticInput(C_ext, rate, pop_i, {
     IP.GM: g_AMPA_ext_I,
     IP.VREV: 0 * mV,
     IP.TAU: tau_AMPA,
 }, name="I_noise")
-pop_i.add_noise(source_i_noise)
 
 # E->E NMDA
-source_ee_nmda1 = MFLinearInput(pop_e1, pop_e1, {
+MFLinearInput(pop_e1, pop_e1, {
     IP.GM: g_NMDA_E,
     IP.VREV: 0 * mV,
     IP.TAU: tau_NMDA_decay,
 }, name='EE NMDA 1', connection=Connection.all_to_others())
 
-source_ee_nmda2 = MFLinearInput(pop_e1, pop_e2, {
+MFLinearInput(pop_e1, pop_e2, {
     IP.GM: g_NMDA_E,
     IP.VREV: 0 * mV,
     IP.TAU: tau_NMDA_decay,
 }, name='EE NMDA 2')
 
 # E->E AMPA
-source_ee_ampa1 = MFLinearInput(pop_e2, pop_e1, {
+MFLinearInput(pop_e2, pop_e1, {
     IP.GM: g_AMPA_rec_E,
     IP.VREV: 0 * mvolt,
     IP.TAU: tau_AMPA,
 }, name='EE AMPA 1')
 
-source_ee_ampa2 = MFLinearInput(pop_e2, pop_e2, {
+MFLinearInput(pop_e2, pop_e2, {
     IP.GM: g_AMPA_rec_E,
     IP.VREV: 0 * mvolt,
     IP.TAU: tau_AMPA,
 }, name='EE AMPA 2', connection=Connection.all_to_others())
 
 # E->I NMDA
-source_ie_nmda = MFLinearInput(pop_e1, pop_i, {
+MFLinearInput(pop_e1, pop_i, {
     IP.GM: g_NMDA_I,
     IP.VREV: 0 * mvolt,
     IP.TAU: tau_NMDA_decay,
 }, name='EI NMDA')
 
 # E->I AMPA
-source_ie_ampa = MFLinearInput(pop_e2, pop_i, {
+MFLinearInput(pop_e2, pop_i, {
     IP.GM: g_AMPA_rec_E,
     IP.VREV: 0 * mvolt,
     IP.TAU: tau_AMPA,
 }, name='EI AMPA')
 
 # I->I GABA
-source_ii_gaba = MFLinearInput(pop_i, pop_i, {
+MFLinearInput(pop_i, pop_i, {
     IP.GM: g_GABA_I,
     IP.VREV: -70 * mvolt,
     IP.TAU: tau_GABA,
 }, name='II GABA', connection=Connection.all_to_others())
 
 # I->E GABA
-source_ie_gaba1 = MFLinearInput(pop_i, pop_e1, {
+MFLinearInput(pop_i, pop_e1, {
     IP.GM: g_GABA_E,
     IP.VREV: -70 * mvolt,
     IP.TAU: tau_GABA,
 }, name='IE GABA 1')
 
-source_ie_gaba2 = MFLinearInput(pop_i, pop_e2, {
+MFLinearInput(pop_i, pop_e2, {
     IP.GM: g_GABA_E,
     IP.VREV: -70 * mvolt,
     IP.TAU: tau_GABA,
 }, name='IE GABA 2')
 
 
-system = MFSystem("Brunel Wang simplified")
-system.populations += [pop_e1, pop_e2, pop_i]
+system = MFSystem(pop_e1, pop_e2, pop_i, name="Brunel Wang simplified")
 
 solver = MFSolverRatesVoltages(system, solver='mse')
 sol = solver.run()
@@ -197,30 +193,8 @@ rate2 = PopulationRateMonitor(pop_e2.brian2)
 rate3 = PopulationRateMonitor(pop_i.brian2)
 s = StateMonitor(pop_i.brian2, ['v'], record=[100])
 
-net = Network()
-net.add(pop_e1.brian2)
-net.add(pop_e2.brian2)
-net.add(pop_i.brian2)
-net.add(source_e_noise1.brian2)
-net.add(source_e_noise2.brian2)
-net.add(source_i_noise.brian2)
-net.add(source_ee_nmda1.brian2)
-net.add(source_ee_nmda2.brian2)
-net.add(source_ee_ampa1.brian2)
-net.add(source_ee_ampa2.brian2)
-net.add(source_ie_nmda.brian2)
-net.add(source_ie_ampa.brian2)
-net.add(source_ii_gaba.brian2)
-net.add(source_ie_gaba1.brian2)
-net.add(source_ie_gaba2.brian2)
-net.add(sp1)
-net.add(sp2)
-net.add(sp3)
-net.add(rate1)
-net.add(rate2)
-net.add(rate3)
-net.add(s)
 
+net = system.collect_brian2_network(sp1, sp2, sp3, rate1, rate2, rate3, s)
 net.run(2000 * ms)
 
 #brian2_introspect(net, globals())

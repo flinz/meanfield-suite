@@ -62,19 +62,15 @@ class TestMFLinearNMDAInput(object):
             IP.GAMMA: 1,
         })
 
-        system = MFSystem('test')
-        system.populations += [pop]
+        system = MFSystem(pop, poisson)
+
         solver = MFSolverRatesVoltages(system, solver='mse')
         solver.run()
         theory = syn.g_dyn() / syn.origin.n
 
         m = StateMonitor(syn.brian2, syn.post_variable_name, record=range(100))
         defaultclock.dt = dt
-        net = Network()
-        net.add(poisson.brian2)
-        net.add(pop.brian2)
-        net.add(syn.brian2)
-        net.add(m)
+        net = system.collect_brian2_network(m)
         net.run(t)
 
         stable_t = int(t / dt * 0.1)
