@@ -51,6 +51,9 @@ class MFSystem(object):
 
         return net
 
+    def brian2_run(self, *more_objects: b2.BrianObject, t: b2.units.second, **kwargs):
+        self.collect_brian2_network(*more_objects).run(t, **kwargs)
+
     def introspect(self, indent=0) -> str:
         builder = []
         spaces = ' ' * indent

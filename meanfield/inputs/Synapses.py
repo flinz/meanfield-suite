@@ -6,6 +6,7 @@ def stp_dgl_u(U, tau_f, tau_x, rate):
     """ Differential equation equilibrium solution of short-term pltastic synaptic input: facilitation variable u."""
     return float(U) * (1. + rate * tau_f) * (1. + float(U) * rate * tau_f) ** (-1.)
 
+
 @check_units(result=1)
 def stp_dgl_x(U, tau_f, tau_x, rate):
     """ Differential equation equilibrium solution of short-term pltastic synaptic input: depression variable x."""

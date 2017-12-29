@@ -9,7 +9,6 @@ from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
 from meanfield.solvers.MFState import MFState
 
-@pytest.mark.skip(reason="need nmda impl")
 class TestMF(object):
 
     def setup_method(self):
@@ -17,7 +16,7 @@ class TestMF(object):
 
     def test_taus(self):
         """Effective timeconstants equal old implementation"""
-        taus = [p.tau_eff / ms for p in self.system.pops]
+        taus = [p.tau_eff / ms for p in self.system.populations]
         #taus_brunel = [11.309393346834508, 10.259016117146679, 5.2504978292166333] # NMDA
         taus_brunel = [4.334601,  5.106385,  2.545614]
         np.testing.assert_array_almost_equal(taus, taus_brunel)
@@ -25,7 +24,7 @@ class TestMF(object):
 
     def test_mus(self):
         """Mean input predictions equal old implementation"""
-        mus = [p.mu for p in self.system.pops]
+        mus = [p.mu for p in self.system.populations]
         print(mus)
         #mus_brunel = [18.868912317468116, 16.462020986464438, 16.524683021279241] # NMDA
         #mus_brunel = [41.174904,  36.042538,  36.576346]
@@ -34,21 +33,21 @@ class TestMF(object):
 
     def test_sigma_square(self):
         """Sigma square predictions equal old implementation"""
-        sigma_square = [p.sigma_square / (mV) ** 2 for p in self.system.pops]
+        sigma_square = [p.sigma_square / (mV) ** 2 for p in self.system.populations]
         #sigma_square_brunel = np.array([4.8869461761143898, 5.1557159873625888, 10.003849121175195]) # NMDA
         sigma_square_brunel = [1.873041,  2.566238,  4.850195]
         np.testing.assert_array_almost_equal(sigma_square, sigma_square_brunel)
 
     def test_firing_rate(self):
         """Mean firing rate predictions equal old implementation"""
-        rate_pred = np.array([p.rate_prediction for p in self.system.pops])
+        rate_pred = np.array([p.rate_prediction for p in self.system.populations])
         rate_pred_brunel = np.array([0.015207823717059475, 0.0013208593687499856, 0.0068435294603920544])
         diff = (rate_pred - 1e3 * rate_pred_brunel)
         assert all(diff < 1e-8), "Values not equal: %s" % diff
 
     def test_mean_voltage(self):
         """Mean voltage predictions equal old implementation"""
-        v_mean_prediction = np.array([p.v_mean_prediction for p in self.system.pops])
+        v_mean_prediction = np.array([p.v_mean_prediction for p in self.system.populations])
         v_mean_prediction_brunel = np.array([4.8869461761143898, 5.1557159873625888, 10.003849121175195])
         diff = (v_mean_prediction - v_mean_prediction_brunel)
         assert all(diff < 1e-8), "Values not equal: %s" % diff
