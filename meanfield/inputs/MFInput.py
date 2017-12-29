@@ -66,6 +66,7 @@ class MFInput(object):
         """Builds lazily Brian2 synapse component once."""
         pass
 
+    @property
     def brian2_model(self) -> Equations:
         """Returns Brian2 dynamic (Equations) affecting specified populations."""
         return Equations(

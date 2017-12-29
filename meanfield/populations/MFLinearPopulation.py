@@ -127,7 +127,7 @@ class MFLinearPopulation(MFPopulation):
     def brian2(self) -> BrianObject:
         pop = NeuronGroup(
             self.n,
-            self.brian2_model(),
+            self.brian2_model,
             method='euler',
             threshold='v > {} * mV'.format(self[PP.VTHR] / units.mV),
             reset='v = {} * mV'.format(self[PP.VRES] / units.mV),
@@ -137,6 +137,7 @@ class MFLinearPopulation(MFPopulation):
         pop.v = self[PP.VRES]
         return pop
 
+    @property
     def brian2_model(self) -> Optional[Equations]:
         eqs = Equations(
             'dv / dt = (- g * (v - vl) - I) / cm : volt (unless refractory)',
@@ -147,7 +148,7 @@ class MFLinearPopulation(MFPopulation):
 
         all_currents = []
         for s in self.inputs + self.noises:
-            eqs += s.brian2_model()
+            eqs += s.brian2_model
             all_currents.append(s.current_name)
 
         if len(all_currents):

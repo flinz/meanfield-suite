@@ -33,7 +33,7 @@ class TestMFInput(object):
         source = MFInput(pop, params_source, name='test')
 
         assert_equations(
-            source.brian2_model(),
+            source.brian2_model,
             '''
             I_test = (0. * siemens) * (v - (0. * volt)) * s_test : amp
             ds_test / dt = -s_test / (10. * msecond) : 1

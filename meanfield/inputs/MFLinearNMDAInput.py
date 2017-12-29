@@ -58,6 +58,7 @@ class MFLinearNMDAInput(MFLinearInput):
 
     # Simulation
 
+    @property
     def brian2_model(self) -> Equations:
         return Equations(
             '''

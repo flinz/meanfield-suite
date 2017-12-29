@@ -30,7 +30,7 @@ class TestMFPop(object):
         pop = MFLinearPopulation(1, params_pop)
 
         assert_equations(
-            pop.brian2_model(),
+            pop.brian2_model,
             '''
             I = 0 : amp
             dv/dt = (- (25. * nsiemens) * (v - (-70. * mvolt)) - I) / (0.5 * nfarad) : volt (unless refractory)
@@ -42,7 +42,7 @@ class TestMFPop(object):
         pop.add_input(MFInput(pop, params_source, connection=Connection.all_to_all(), name='test'))
 
         assert_equations(
-            pop.brian2_model(),
+            pop.brian2_model,
             '''
             I_test = (0. * siemens) * (v - (0. * volt)) * s_test : amp
             I = I_test : amp
@@ -57,7 +57,7 @@ class TestMFPop(object):
         pop.add_input(MFInput(pop, params_source, connection=Connection.all_to_all(), name='test2'))
 
         assert_equations(
-            pop.brian2_model(),
+            pop.brian2_model,
             '''
             I_test1 = (0. * siemens) * (v - (0. * volt)) * s_test1 : amp
             I_test2 = (0. * siemens) * (v - (0. * volt)) * s_test2 : amp

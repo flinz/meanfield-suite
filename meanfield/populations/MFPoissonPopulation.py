@@ -46,5 +46,6 @@ class MFPoissonPopulation(MFPopulation):
     def brian2(self) -> BrianObject:
         return PoissonGroup(self.n, self.rate, name=self.name)
 
+    @property
     def brian2_model(self) -> Optional[Equations]:
         return None

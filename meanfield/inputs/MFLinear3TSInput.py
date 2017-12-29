@@ -86,6 +86,7 @@ class MFLinear3TSInput(MFLinearInput):
     def post_variable_name_4(self):
         return self.post_variable_name + '_4'
 
+    @property
     def brian2_model(self) -> Equations:
 
         tau_mix1 = (self[IP.TAU_RISE] * self[IP.TAU_D1]) / (self[IP.TAU_RISE] + self[IP.TAU_D1])

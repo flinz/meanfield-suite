@@ -67,6 +67,7 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
         C.w[:] = 1
         return C
 
+    @property
     def brian2_model(self) -> Equations:
         return Equations(
             '''
