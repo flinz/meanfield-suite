@@ -12,9 +12,8 @@ from meanfield.populations.MFPopulation import MFPopulation
 class MFLinearNMDAInput(MFLinearInput):
 
     arguments = MappingProxyType({
-        IP.TAU_NMDA: units.second,
-        IP.ALPHA: 1,
-        IP.BETA: 1,  # TODO beta 1/v ?
+        IP.TAU: units.second,
+        IP.BETA: 1,  # TODO beta 1/v ? see below
         IP.GAMMA: 1,
     })
 
@@ -31,7 +30,9 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     def J(self):
         """Linearization factor for NMDA"""
-        return 1 + self[PP.GAMMA] * np.exp(-self[PP.BETA] * self.target.v_mean / units.volt)
+
+        # careful on mvolt conversion
+        return 1 + self[PP.GAMMA] * np.exp(-self[PP.BETA] * self.target.v_mean / units.mV)
 
     @property
     @check_units(result=1)
@@ -41,7 +42,7 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     @check_units(result=1)
     def rho2(self):
-        return (self.J - 1) / self.J ** 2 * self[PP.BETA] * (self.target.v_mean - self[IP.VREV]) / units.volt # TODO unitless?
+        return (self.J - 1) / (self.J ** 2) * self[PP.BETA] * (self.target.v_mean - self[IP.VREV]) / units.mV # TODO unitless?
 
     @property
     @check_units(result=units.siemens)
@@ -70,7 +71,7 @@ class MFLinearNMDAInput(MFLinearInput):
             s=self.post_variable_name,
             s_post=self.post_variable_name + '_post',
             vrev=self[IP.VREV],
-            tau_decay=self[IP.TAU_NMDA],
+            tau_decay=self[IP.TAU],
             gamma=self[IP.GAMMA],
             beta=self[IP.BETA] / units.mV,
         )

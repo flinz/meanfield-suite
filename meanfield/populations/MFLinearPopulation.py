@@ -107,7 +107,7 @@ class MFLinearPopulation(MFPopulation):
 
         # import time
         # s = time.time()
-        q = quad(integrand, beta, alpha, limit=10000)
+        q = quad(integrand, beta, alpha)#, limit=10000) FIXME quadpad too costly
         # print(q)
         # print('->', time.time() - s)
 

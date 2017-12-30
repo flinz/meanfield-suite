@@ -7,6 +7,7 @@ import numpy as np
 from brian2 import units
 from scipy.optimize import root, minimize
 
+from meanfield.inputs.MFLinearNMDAInput import MFLinearNMDAInput
 from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFState import MFState
 
@@ -90,10 +91,10 @@ class MFSolver(object):
 
             # get stochastic initial state
             up_dist = [c.bound_up - state_0[i] for i, c in enumerate(self.mfstate.constraints)]
-            down_dist = [c.bound_up - state_0[i] for i, c in enumerate(self.mfstate.constraints)]
+            down_dist = [state_0[i] - c.bound_down for i, c in enumerate(self.mfstate.constraints)]
             max_dist = [min(up_dist[i], down_dist[i]) for i in range(len(self.mfstate.constraints))]
 
-            p_0 = state_0
+            p_0 = state_0 + (2. * np.random.rand(len(state_0)) - 1.) * np.array(max_dist) * noise_percent
 
             bounds = [[c.bound_down, c.bound_up] for c in self.mfstate.constraints]
 
@@ -202,7 +203,7 @@ class MFSolverRatesVoltages(MFSolver):
             )
 
             # def any([s.is_nmda for s in p.inputs])
-            if False:#p.has_nmda or force_nmda:
+            if isinstance(p, MFLinearNMDAInput) or force_nmda:
                 print("Population %s has NMDA -> solving for voltages" % p.name)
                 constraints.append(
                     MFConstraint(
