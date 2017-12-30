@@ -42,8 +42,9 @@ class TestMF(object):
         """Mean firing rate predictions equal old implementation"""
         rate_pred = np.array([p.rate_prediction for p in self.system.populations])
         rate_pred_brunel = np.array([0.015207823717059475, 0.0013208593687499856, 0.0068435294603920544])
-        diff = (rate_pred - 1e3 * rate_pred_brunel)
-        assert all(diff < 1e-8), "Values not equal: %s" % diff
+        np.testing.assert_array_almost_equal(rate_pred, 1e3 * rate_pred_brunel)
+        #diff = (rate_pred - 1e3 * rate_pred_brunel)
+        #assert all(diff < 1e-8), "Values not equal: %s" % diff
 
     def test_mean_voltage(self):
         """Mean voltage predictions equal old implementation"""
@@ -54,7 +55,7 @@ class TestMF(object):
 
     def test_MFConstraint(self):
         """Create constraint, and basic properties"""
-        pop = self.system.pops[0]
+        pop = self.system.populations[0]
         c = MFConstraint(
             'aa',
             partial(lambda x: x.rate, pop),
@@ -64,6 +65,8 @@ class TestMF(object):
             750.
         )
         c.free = 111. * Hz
+        print(pop.rate)
+        print(c.free)
         assert pop.rate == c.free == 111. * Hz
         assert c.error > 0.
 
@@ -76,7 +79,7 @@ class TestMF(object):
                               partial(lambda x, val: setattr(x, "rate", val), p),
                               partial(lambda x: x.rate - x.rate_prediction, p),
                               0. * Hz, 750. * Hz
-                          ) for p in self.system.pops
+                          ) for p in self.system.populations
                       ] + [
                           MFConstraint(
                               "%s-%s" % (p.name, "v_mean"),
@@ -84,7 +87,7 @@ class TestMF(object):
                               partial(lambda x, val: setattr(x, "v_mean", val), p),
                               partial(lambda x: x.v_mean-x.v_mean_prediction, p),
                               -80. * mV, 50. * mV
-                          ) for p in self.system.pops
+                          ) for p in self.system.populations
                       ]
 
         state = MFState(constraints)
@@ -99,12 +102,12 @@ class TestMF(object):
 
     def test_MFSolver_RatesVoltages(self):
         """Solve for firing rates & voltages with specialized subclass"""
-        solver = MFSolverRatesVoltages(self.system)
+        solver = MFSolverRatesVoltages(self.system, solver='mse', maxiter=1)
         r1 = solver.run()
 
         # take old implementation and compare
-        state = self.testMFState()
-        solver = MFSolver(state, solver='gradient')
+        state = self.test_MFState()
+        solver = MFSolver(state, solver='gradient', maxiter=1)
         r2 = solver.run()
 
         for key in r1.names:
@@ -112,7 +115,7 @@ class TestMF(object):
 
     def test_MFState_DictionarylikeAccess(self):
         """Dictionarylike access to MFState"""
-        state = self.testMFState()
+        state = self.test_MFState()
         for i in range(len(state.names)):
             name = state.names[i]
             val = state.state[i]
@@ -120,7 +123,7 @@ class TestMF(object):
 
     def test_MFSolver(self):
         """Solve for firing rates & voltages with explicit function"""
-        state = self.testMFState()
+        state = self.test_MFState()
         solver = MFSolver(state)
         solver.run()
 
@@ -128,11 +131,11 @@ class TestMF(object):
         """Solve for firing rates only with specialized subclass"""
 
         system1 = setup_EI(has_nmda=False)
-        solver = MFSolverRatesVoltages(system1, maxiter=100)
+        solver = MFSolverRatesVoltages(system1, solver='mse', maxiter=1)
         r1 = solver.run()
 
         system2 = setup_EI(has_nmda=False)
-        solver = MFSolverRatesVoltages(system2, force_nmda=True, maxiter=100)
+        solver = MFSolverRatesVoltages(system2, force_nmda=True, solver='mse', maxiter=1)
         r2 = solver.run()
 
         # test rates
@@ -149,10 +152,10 @@ class TestMF(object):
 
         system = setup_EI()
 
-        solver = MFSolverRatesVoltages(system, solver="gradient")
+        solver = MFSolverRatesVoltages(system, solver="mse", maxiter=1)
         sol1 = solver.run()
 
-        solver = MFSolverRatesVoltages(system)
+        solver = MFSolverRatesVoltages(system, solver="gradient", maxiter=1)
         sol2 = solver.run()
 
         np.testing.assert_array_almost_equal(sol1.state, sol2.state, 5)
@@ -169,7 +172,7 @@ class TestMF(object):
                               partial(lambda x, val: setattr(x.sources[1], "g_base", val), p),
                               partial(lambda x: x.rate - x.rate_prediction, p),
                               0. * nsiemens, 500. * nsiemens
-                          ) for p in system.pops
+                          ) for p in system.populations
                       ] + [
                           MFConstraint(
                               "%s-%s" % (p.name, "v_mean"),
@@ -177,14 +180,14 @@ class TestMF(object):
                               partial(lambda x, val: setattr(x, "v_mean", val), p),
                               partial(lambda x: x.v_mean - x.v_mean_prediction, p),
                               -80. * mV, -50. * mV
-                          ) for p in system.pops
+                          ) for p in system.populations
                       ]
 
         state = MFState(constraints, bounds_check=True)
         solver = MFSolver(state, solver='hybr')
         solver.run()
 
-        for p in system.pops:
+        for p in system.populations:
             assert p.rate_prediction.has_same_dimensions(p.rate)
             np.testing.assert_almost_equal(np.array(p.rate_prediction), np.array(p.rate))
 
@@ -208,7 +211,7 @@ class TestMF(object):
                               partial(e_setter, p),
                               partial(lambda x: x.rate - x.rate_prediction, p),
                               0. * nsiemens, 500. * nsiemens
-                          ) for p in system.pops
+                          ) for p in system.populations
                       ] + [
                           MFConstraint(
                               "%s-%s" % (p.name, "v_mean"),
@@ -216,7 +219,7 @@ class TestMF(object):
                               partial(lambda x, val: setattr(x, "v_mean", val), p),
                               partial(lambda x: x.v_mean-x.v_mean_prediction, p),
                               -80. * mV, 50. * mV
-                          ) for p in system.pops
+                          ) for p in system.populations
                       ]
 
         print('state', flush=True)
@@ -226,7 +229,7 @@ class TestMF(object):
         solver = MFSolver(state, solver='gradient')
         solver.run()
 
-        for p in system.pops:
+        for p in system.populations:
             assert p.rate_prediction.has_same_dimensions(p.rate)
             np.testing.assert_almost_equal(np.array(p.rate_prediction), np.array(p.rate))
             assert p.sources[1].g_base == p.sources[1].g_base

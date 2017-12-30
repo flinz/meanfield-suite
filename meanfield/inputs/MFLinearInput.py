@@ -1,7 +1,7 @@
 from types import MappingProxyType
 from typing import Union, Dict
 
-from brian2 import check_units, Equations, Synapses, BrianObject
+from brian2 import check_units, Equations, Synapses, BrianObject, units
 
 from meanfield.inputs.MFInput import MFInput
 from meanfield.parameters import IP
@@ -20,7 +20,7 @@ class MFLinearInput(MFInput):
         IP.W: 1,
     })
 
-    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], **kwargs):
+    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], synapse=None, **kwargs):
         super().__init__(target, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)
@@ -30,11 +30,14 @@ class MFLinearInput(MFInput):
 
         target.add_input(self)
 
+        self.synapse = synapse
+
     # Theory
 
     @check_units(result=1)
     def g_dyn(self):
-        return self.connection.theory(self.origin.n) * self.origin.rate * self[IP.TAU] * self[IP.W]
+        activation = self.synapse(self.origin.rate) if self.synapse else self.origin.rate * self[IP.TAU]
+        return self.connection.theory(self.origin.n) * activation * self[IP.W]
 
     # Simulation
 

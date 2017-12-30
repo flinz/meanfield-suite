@@ -9,10 +9,10 @@ class MFSystem(object):
     def __init__(self, *populations: MFPopulation, name: str=None):
         self.name = name if name else create_name(self)
         self.ref = create_identifier(self.name)
-        self.populations = set(populations)
+        self.populations = list(populations)
 
     def add_population(self, *populations: MFPopulation) -> 'MFSystem':
-        self.populations.update(populations)
+        self.populations.extend(populations)
         return self
 
     def __getitem__(self, population_name: str) -> MFPopulation:
