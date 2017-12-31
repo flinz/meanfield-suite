@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from brian2.units import *
 
-from meanfield.meanfield_classes import setup_brunel99, setup_EI
+from zoo.brunel_2000 import setup_brunel99, setup_EI
 from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
 from meanfield.solvers.MFState import MFState
