@@ -1,6 +1,6 @@
 from brian2.units import *
 
-from inputs.MFLinearNMDAInput import MFLinearNMDAInput
+from meanfield.inputs.MFLinearNMDAInput import MFLinearNMDAInput
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import PP, IP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation

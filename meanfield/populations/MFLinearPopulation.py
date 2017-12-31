@@ -98,6 +98,7 @@ class MFLinearPopulation(MFPopulation):
         # alpha = 1.03 * np.sqrt(noise[SP.TAU] / tau_eff) \
         #        + (- self.mu - self[NP.VL] + self[NP.VTHR])/ sigma
 
+        # FIXME very called
         def integrand(x, max_exp=20):
             if x < -max_exp:
                 return np.exp(-max_exp ** 2) * (1. + erf(-max_exp))
@@ -107,7 +108,7 @@ class MFLinearPopulation(MFPopulation):
 
         # import time
         # s = time.time()
-        q = quad(integrand, beta, alpha)#, limit=10000) FIXME quadpad too costly
+        q = quad(integrand, beta, alpha, limit=100) # FIXME quadpad too costly
         # print(q)
         # print('->', time.time() - s)
 

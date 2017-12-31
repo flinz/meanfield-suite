@@ -5,11 +5,13 @@ from functools import partial
 import matplotlib.pylab as plt
 import numpy as np
 from brian2 import units
+from brian2.units import fundamentalunits
 from scipy.optimize import root, minimize
 
 from meanfield.inputs.MFLinearNMDAInput import MFLinearNMDAInput
 from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFState import MFState
+from timeit import default_timer as timer
 
 
 def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
@@ -77,6 +79,10 @@ class MFSolver(object):
         # allow interruption of minimization loop, did not work otherwise.
         signal_handler = lambda signal, frame: sys.exit(0)
         signal.signal(signal.SIGINT, signal_handler)
+
+        start = timer()
+        steps = []
+        fundamentalunits.unit_checking = False
 
         # loop over tries to solve the system
         while abs_err > crit:
@@ -149,7 +155,12 @@ class MFSolver(object):
                 abs_err = np.sqrt(sol.fun)
 
             else:  # scipy solvers
+                mid = timer()
                 sol = root(self.mfstate, p_0, jac=None, method=self.solver, tol=tol)
+                end = timer()
+                steps.append(end - mid)
+                print('end', end - start, end - mid)
+
                 abs_err = max(abs(sol.fun))
 
             # calculate the abs err, store minimal solution
@@ -165,6 +176,8 @@ class MFSolver(object):
                 sys.stdout.write('\n ')
             sys.stdout.flush()
 
+        fundamentalunits.unit_checking = True
+        print(np.mean(steps))
         print("]\n[%s] finished successfully" % self.__class__.__name__)
         self.state = "SUCCESS"
         return self.finalize(sol)

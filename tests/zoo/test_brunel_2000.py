@@ -4,10 +4,11 @@ import numpy as np
 import pytest
 from brian2.units import *
 
-from zoo.brunel_2000 import setup_brunel99, setup_EI
 from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
 from meanfield.solvers.MFState import MFState
+from meanfield.zoo.brunel_2000 import setup_brunel99, setup_EI
+
 
 class TestMF(object):
 
