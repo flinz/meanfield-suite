@@ -1,10 +1,14 @@
+from brian2 import *
+
 """
-2001 Brunel Wang
-Effects of Neuromodulation in a Cortical Network Model of Object Working Memory Dominated by Recurrent Inhibition.
-Journal of Computational Neuroscience 11, 63-85, 2001.
+Effects of Neuromodulation in a Cortical Network Model
+======================================================
+Five subpopulations with two selective timed stimuli and a reset stimulus example.
+
+BRUNEL, Nicolas et WANG, Xiao-Jing. Effects of neuromodulation in a cortical network model of object working memory 
+dominated by recurrent inhibition. Journal of computational neuroscience, 2001, vol. 11, no 1, p. 63-85.
 """
 
-from brian2 import *
 BrianLogger.log_level_debug()
 
 # neurons
@@ -13,7 +17,7 @@ N_E = int(N * 0.8)  # pyramidal neurons
 N_I = int(N * 0.2)  # interneurons
 
 # voltage
-V_L = -70. * mV  # resting
+V_L = -70. * mV
 V_thr = -50. * mV
 V_reset = -55. * mV
 V_E = 0. * mV
@@ -27,7 +31,7 @@ C_m_I = 0.2 * nF
 g_m_E = 25. * nS
 g_m_I = 20. * nS
 
-# refactorty period
+# refractory period
 tau_rp_E = 2. * ms
 tau_rp_I = 1. * ms
 
@@ -61,12 +65,13 @@ tau_GABA = 10. * ms
 
 # subpopulations
 f = 0.1
-p = 1
+p = 5
 N_sub = int(N_E * f)
 N_non = int(N_E * (1. - f * p))
 w_plus = 2.1
 w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
+# modelling
 eqs_E = '''
 dv / dt = (- g_m_E * (v - V_L) - I_syn) / C_m_E : volt (unless refractory)
 
@@ -101,9 +106,9 @@ I_GABA_rec = g_GABA_I * (v - V_I) * s_GABA : amp
 ds_GABA / dt = - s_GABA / tau_GABA : 1
 '''
 
-P_E = NeuronGroup(N_E, eqs_E, method='rk4', threshold='v > V_thr', reset='v = V_reset;', refractory=tau_rp_E)
+P_E = NeuronGroup(N_E, eqs_E, threshold='v > V_thr', reset='v = V_reset', refractory=tau_rp_E)
 P_E.v = V_L
-P_I = NeuronGroup(N_I, eqs_I, method='rk4', threshold='v > V_thr', reset='v = V_reset;', refractory=tau_rp_I)
+P_I = NeuronGroup(N_I, eqs_I, threshold='v > V_thr', reset='v = V_reset', refractory=tau_rp_I)
 P_I.v = V_L
 
 eqs_glut = '''
@@ -126,8 +131,8 @@ eqs_pre_ext = '''
 s_AMPA_ext += 1
 '''
 
-# recurrent E to E
-C_E_E = Synapses(P_E, P_E, method='rk4', model=eqs_glut, on_pre=eqs_pre_glut)
+# E to E
+C_E_E = Synapses(P_E, P_E, model=eqs_glut, on_pre=eqs_pre_glut)
 C_E_E.connect('i != j')
 C_E_E.w[:] = 1
 
@@ -140,11 +145,11 @@ for pi in range(N_non, N_non + p * N_sub, N_sub):
     C_E_E.w[C_E_E.indices[pi:pi + N_sub, pi:pi + N_sub]] = w_plus
 
 # E to I
-C_E_I = Synapses(P_E, P_I, method='rk4', model=eqs_glut, on_pre=eqs_pre_glut)
+C_E_I = Synapses(P_E, P_I, model=eqs_glut, on_pre=eqs_pre_glut)
 C_E_I.connect()
 C_E_I.w[:] = 1
 
-# recurrent I to I
+# I to I
 C_I_I = Synapses(P_I, P_I, on_pre=eqs_pre_gaba)
 C_I_I.connect('i != j')
 
@@ -152,64 +157,64 @@ C_I_I.connect('i != j')
 C_I_E = Synapses(P_I, P_E, on_pre=eqs_pre_gaba)
 C_I_E.connect()
 
-# external
-C_P_E = PoissonInput(P_E, 's_AMPA_ext', C_ext, rate, 1)
-C_P_I = PoissonInput(P_I, 's_AMPA_ext', C_ext, rate, 1)
+# external noise
+C_P_E = PoissonInput(P_E, 's_AMPA_ext', C_ext, rate, '1')
+C_P_I = PoissonInput(P_I, 's_AMPA_ext', C_ext, rate, '1')
 
-stimuli = TimedArray(np.r_[np.zeros(10), np.ones(2) * 50, np.zeros(50)] * Hz, dt=100 * ms)
-C_PG_sti = PoissonGroup(100, 'stimuli(t)')
-C_PG_E = Synapses(C_PG_sti, P_E[N_non: N_non + N_sub], on_pre='s_AMPA += 1')
-C_PG_E.connect()
+# at 1s, select population 1
+C_selection = int(f * C_ext)
+rate_selection = 25 * Hz
+stimuli1 = TimedArray(np.r_[np.zeros(40), np.ones(1), np.zeros(100)], dt=25 * ms)
+input1 = PoissonInput(P_E[N_non:N_non + N_sub], 's_AMPA_ext', C_selection, rate_selection, 'stimuli1(t)')
+
+# at 2s, select population 2
+stimuli2 = TimedArray(np.r_[np.zeros(80), np.ones(1), np.zeros(100)], dt=25 * ms)
+input2 = PoissonInput(P_E[N_non + N_sub:N_non + 2 * N_sub], 's_AMPA_ext', C_selection, rate_selection, 'stimuli2(t)')
+
+# at 3s, reset selection
+stimuli_reset = TimedArray(np.r_[np.zeros(120), np.ones(1), np.zeros(100)], dt=25 * ms)
+input_reset_I = PoissonInput(P_E, 's_AMPA_ext', C_ext, rate_selection, 'stimuli_reset(t)')
+input_reset_E = PoissonInput(P_I, 's_AMPA_ext', C_ext, rate_selection, 'stimuli_reset(t)')
 
 # monitors
-s_E_sel = StateMonitor(P_E, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA_tot'], record=[N_non + 1])
-s_E = StateMonitor(P_E, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA_tot'], record=[0])
-s_I = StateMonitor(P_I, ['s_AMPA', 's_GABA', 's_AMPA_ext', 's_NMDA_tot'], record=[0])
-sp_E_sel = SpikeMonitor(P_E[N_non:N_non + 40])
-sp_E = SpikeMonitor(P_E[:40])
-sp_I = SpikeMonitor(P_I[:40])
-r_E = PopulationRateMonitor(P_E)
+N_activity_plot = 15
+sp_E_sels = [SpikeMonitor(P_E[pi:pi + N_activity_plot]) for pi in range(N_non, N_non + p * N_sub, N_sub)]
+sp_E = SpikeMonitor(P_E[:N_activity_plot])
+sp_I = SpikeMonitor(P_I[:N_activity_plot])
+
+r_E_sels = [PopulationRateMonitor(P_E[pi:pi + N_sub]) for pi in range(N_non, N_non + p * N_sub, N_sub)]
+r_E = PopulationRateMonitor(P_E[:N_non])
 r_I = PopulationRateMonitor(P_I)
 
-run(3000 * ms)
+# simulate, can last long >120s
+net = Network(collect())
+net.add(sp_E_sels)
+net.add(r_E_sels)
+net.run(4 * second, report='stdout')
 
-subplot(321)
-title('selective pyramidal neuron parameters')
-plot(s_E_sel.t / ms, s_E_sel.s_GABA[0], label='gaba')
-plot(s_E_sel.t / ms, s_E_sel.s_AMPA_ext[0], label='ext')
-plot(s_E_sel.t / ms, s_E_sel.s_AMPA[0], label='ampa')
-plot(s_E_sel.t / ms, s_E_sel.s_NMDA_tot[0], label='nmda')
+# plotting
+title('Population rates')
+xlabel('ms')
+ylabel('Hz')
+
+plot(r_E.t / ms, r_E.smooth_rate(width=25 * ms) / Hz, label='nonselective')
+plot(r_I.t / ms, r_I.smooth_rate(width=25 * ms) / Hz, label='inhibitory')
+
+for i, r_E_sel in enumerate(r_E_sels):
+    plot(r_E_sel.t / ms, r_E_sel.smooth_rate(width=25 * ms) / Hz, label='selective {}'.format(i + 1))
+
 legend()
+show()
 
-subplot(322)
-title('rates')
-plot(r_E.t / ms, r_E.smooth_rate(width=10 * ms) / Hz, label='pyramidal neuron')
-plot(r_I.t / ms, r_I.smooth_rate(width=10 * ms) / Hz, label='interneuron')
+title('Population activities ({} neurons/pop)'.format(N_activity_plot))
+xlabel('ms')
+yticks([])
 
-subplot(323)
-title('pyramidal neuron parameters')
-plot(s_E.t / ms, s_E.s_GABA[0], label='gaba')
-plot(s_E.t / ms, s_E.s_AMPA_ext[0], label='ext')
-plot(s_E.t / ms, s_E.s_AMPA[0], label='ampa')
-plot(s_E.t / ms, s_E.s_NMDA_tot[0], label='nmda')
+plot(sp_E.t / ms, sp_E.i + (p + 1) * N_activity_plot, '.', markersize=2, label='nonselective')
+plot(sp_I.t / ms, sp_I.i + p * N_activity_plot, '.', markersize=2, label='inhibitory')
+
+for i, sp_E_sel in enumerate(sp_E_sels):
+    plot(sp_E_sel.t / ms, sp_E_sel.i + i * N_activity_plot, '.', markersize=2, label='selective {}'.format(i + 1))
+
 legend()
-
-subplot(324)
-title('interneuron parameters')
-plot(s_I.t / ms, s_I.s_GABA[0], label='gaba')
-plot(s_I.t / ms, s_I.s_AMPA_ext[0], label='ext')
-plot(s_I.t / ms, s_I.s_AMPA[0], label='ampa')
-plot(s_I.t / ms, s_I.s_NMDA_tot[0], label='nmda')
-legend()
-
-subplot(325)
-title('pyramidal spikes (10)')
-plot(sp_E_sel.t / ms, sp_E_sel.i, '.', markersize=5, label='selective')
-plot(sp_E.t / ms, sp_E.i, '.', markersize=5, label='nonselective')
-legend()
-
-subplot(326)
-title('interneuron spikes (10)')
-plot(sp_I.t / ms, sp_I.i, '.', markersize=5)
-
 show()

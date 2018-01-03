@@ -9,6 +9,7 @@ from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.inputs.Synapses import Synapse
 
 # BRUNEL, Nicolas. Dynamics of sparsely connected networks of excitatory and inhibitory spiking neurons. Journal of computational neuroscience, 2000, vol. 8, no 3, p. 183-208.
+# TSODYKS, Misha, PAWELZIK, Klaus, et MARKRAM, Henry. Neural networks with dynamic synapses. Neural computation, 1998, vol. 10, no 4, p. 821-835.
 
 params_standard = {
     'NMDA': {
@@ -50,6 +51,8 @@ params_standard = {
         'gGABA': 0.973 * nsiemens
     }
 }
+
+
 
 def setup_brunel99(w_plus_val=2.5):
 
