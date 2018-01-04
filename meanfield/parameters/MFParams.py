@@ -1,4 +1,5 @@
 import copy
+from collections import Mapping
 
 from brian2 import have_same_dimensions, DimensionMismatchError, get_dimensions
 
@@ -7,7 +8,7 @@ class MissingParameterError(Exception):
     pass
 
 
-class MFParams(object):
+class MFParams(Mapping):
 
     def __init__(self, params):
 
@@ -20,6 +21,12 @@ class MFParams(object):
     def __getitem__(self, key):
         self.accesses.add(key)
         return self.underlying[key]
+
+    def __iter__(self):
+        return self.underlying.__iter__()
+
+    def __len__(self):
+        return self.underlying.__len__()
 
     # FIXME overload addition
 

@@ -2,7 +2,7 @@ import brian2 as b2
 import brian2.units
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import create_name, create_identifier, reset_lazyproperty
-
+from graphviz import Digraph
 
 class MFSystem(object):
 
@@ -67,6 +67,64 @@ class MFSystem(object):
 
     def print_introspect(self) -> None:
         print(self.introspect(), flush=True)
+
+    def graph(self, engine='dot'):
+        g = Digraph(name=self.name, engine=engine)
+        g.graph_attr.update(
+            overlap='false',
+            splines='true',
+            rankdir='LR',
+            fontname='Helvetica Neue',
+        )
+        g.node_attr.update(
+            fontsize='11',
+            fontname='Helvetica Neue',
+        )
+        g.edge_attr.update(
+            fontsize='9',
+            fontname='Helvetica Neue',
+        )
+
+        def table(**kwargs):
+            rows_html = ''.join(tr(k, v) for k, v in kwargs.items())
+            return f'''<
+                <table
+                    cellspacing="0" 
+                    border="0"
+                    cellpadding="3"
+                    cellborder="1" 
+                >
+                    {rows_html}
+                </table>
+            >'''
+
+        def tr(*args):
+            cells_html = ''.join(td(c) for c in args)
+            return f'<tr>{cells_html}</tr>'
+
+        def td(value):
+            return f'<td padding="50px">{value}</td>'
+
+        for p in self.populations:
+            g.node(p.ref, table(**{p.__class__.__name__: p.name}, n=p.n, **p.parameters), shape='plaintext')
+
+            for i in p.inputs:
+                g.edge(i.origin.ref, p.ref, label=i.name)
+
+            for n in p.noises:
+                g.edge(n.ref, p.ref, style='dotted', arrowhead='empty')
+
+        with g.subgraph(name='cluster_noises') as c:
+            c.node_attr.update(style='filled')
+            c.attr(label='External noises')
+            c.attr(style='filled')
+            c.attr(color='#efefef')
+
+            for p in self.populations:
+                for n in p.noises:
+                    c.node(n.ref, table(**{n.__class__.__name__: n.name}, n=n.n, rate=n.rate), shape='plaintext')
+
+        return g
 
     def __repr__(self):
         return "{} [{}] ({} pops)".format(self.__class__.__name__, self.name, len(self.populations))

@@ -9,7 +9,7 @@ install_requires = [
     'matplotlib>=2.1.0',
     'Brian2>=2.1.2',
     'pandas>=0.21.0',
-    'Cython>=0.27.3'
+    'Cython>=0.27.3', 'graphviz'
 ]
 
 tests_require = [
