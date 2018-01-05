@@ -32,6 +32,16 @@ class MFLinearPopulation(MFPopulation):
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
 
+    @property
+    @check_units(result=units.volt)
+    def v_mean(self) -> units.volt:
+        return self._v_mean
+
+    @v_mean.setter
+    @check_units(value=units.volt)
+    def v_mean(self, value) -> units.volt:
+        self._v_mean = value
+
     # Theory
 
     @property

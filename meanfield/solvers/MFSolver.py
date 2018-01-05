@@ -240,22 +240,25 @@ class MFSolverRatesVoltages(MFSolver):
                 )
             )
 
-            # def any([s.is_nmda for s in p.inputs])
-            if isinstance(p, MFLinearNMDAInput) or force_nmda:
-                print("Population %s has NMDA -> solving for voltages" % p.name)
-                constraints.append(
-                    MFConstraint(
-                        "%s-%s" % (p.name, "v_mean"),
-                        partial(lambda x: x.v_mean, p),
-                        partial(lambda x, val: setattr(x, "v_mean", val), p),
-                        partial(lambda x: x.v_mean - x.v_mean_prediction, p),
-                        -80. * units.mV, 50. * units.mV
+            if hasattr(p, 'v_mean'):
+
+                has_nmda = any(isinstance(i, MFLinearNMDAInput) for i in p.inputs)
+
+                if has_nmda or force_nmda:
+                    print("Population %s has NMDA -> solving for voltages" % p.name)
+                    constraints.append(
+                        MFConstraint(
+                            "%s-%s" % (p.name, "v_mean"),
+                            partial(lambda x: x.v_mean, p),
+                            partial(lambda x, val: setattr(x, "v_mean", val), p),
+                            partial(lambda x: x.v_mean - x.v_mean_prediction, p),
+                            -80. * units.mV, 50. * units.mV
+                        )
                     )
-                )
-            else:
-                functions.append(
-                    partial(lambda x: setattr(x, "v_mean", x.v_mean_prediction), p),
-                )
+                else:
+                    functions.append(
+                        partial(lambda x: setattr(x, "v_mean", x.v_mean_prediction), p),
+                    )
 
         state = MFState(constraints, dependent_functions=functions)
         super(MFSolverRatesVoltages, self).__init__(state, *args, **kwargs)

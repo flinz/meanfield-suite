@@ -34,11 +34,6 @@ class MFPoissonPopulation(MFPopulation):
     def rate_prediction(self) -> units.Hz:
         return self.rate
 
-    @property
-    @check_units(result=units.volt)
-    def v_mean_prediction(self) -> units.volt:
-        return -60 * units.mvolt
-
     # Population
 
     @lazyproperty
