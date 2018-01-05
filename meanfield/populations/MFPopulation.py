@@ -29,8 +29,7 @@ class MFPopulation(object):
         self.noises = []
 
         # base estimation
-        self._rate = 200 * units.Hz
-        self._v_mean = -55. * units.mV
+        self.rate = 200 * units.Hz
 
     def __getitem__(self, key):
         return self.parameters[key]
@@ -49,16 +48,6 @@ class MFPopulation(object):
         self.inputs.append(input)
         return self
 
-    @property
-    @check_units(result=units.Hz)
-    def rate(self) -> units.Hz:
-        return self._rate
-
-    @rate.setter
-    @check_units(value=units.Hz)
-    def rate(self, value) -> units.Hz:
-        self._rate = value
-
     def introspect(self, indent=0) -> str:
         builder = []
         spaces = ' ' * indent
@@ -73,7 +62,7 @@ class MFPopulation(object):
         return '\n'.join(builder)
 
     def __repr__(self) -> str:
-        return '{} [{}] ({} noises, {} inputs, n: {}, rate: {}, v_mean: {})'.format(self.__class__.__name__, self.name, len(self.noises), len(self.inputs), self.n, self.rate, self.v_mean)
+        return '{} [{}] ({} noises, {} inputs, n: {}, rate: {})'.format(self.__class__.__name__, self.name, len(self.noises), len(self.inputs), self.n, self.rate)
 
     # Theory
 

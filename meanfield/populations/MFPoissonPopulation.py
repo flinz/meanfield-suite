@@ -34,7 +34,7 @@ class MFPoissonPopulation(MFPopulation):
     def rate_prediction(self) -> units.Hz:
         return self.rate
 
-    # Population
+    # Simulation
 
     @lazyproperty
     def brian2(self) -> BrianObject:
