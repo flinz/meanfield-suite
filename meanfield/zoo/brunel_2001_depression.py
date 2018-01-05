@@ -8,7 +8,7 @@ from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.inputs.Synapses import Synapse
 
-# BRUNEL, Nicolas. Dynamics of sparsely connected networks of excitatory and inhibitory spiking neurons. Journal of computational neuroscience, 2000, vol. 8, no 3, p. 183-208.
+
 # TSODYKS, Misha, PAWELZIK, Klaus, et MARKRAM, Henry. Neural networks with dynamic synapses. Neural computation, 1998, vol. 10, no 4, p. 821-835.
 
 params_standard = {
@@ -19,7 +19,8 @@ params_standard = {
     'E': {
         'gamma': 0.280112,
         'beta': 0.062,
-        'VE': 0.,
+        'VE': 0. * mV,
+        'VI': -70. * mV,
         'V_L': -70. * mV,
         'V_th': -50. * mV,
         'V_reset': -60. * mV,
@@ -36,7 +37,8 @@ params_standard = {
     'I': {
         'gamma': 0.280112,
         'beta': 0.062,
-        'VE': 0.,
+        'VE': 0. * mV,
+        'VI': -70. * mV,
         'V_L': -70. * mV,
         'V_th': -50. * mV,
         'V_reset': -60. * mV,
@@ -101,7 +103,7 @@ def setup_brunel99(w_plus_val=2.5):
 
     source_e_noise1 = MFStaticInput(params_standard['E']['Cext'], params_standard['E']['nu_ext'], pop_e1, {
         IP.GM: params_standard['E']['gAMPA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['E']['VE'],
         IP.TAU: params_standard['E']['tau_AMPA'],
     }, name='E_noise1')
     #source_e_noise1.g_base = params_standard['E']['gAMPA']
@@ -110,7 +112,7 @@ def setup_brunel99(w_plus_val=2.5):
 
     source_e_noise2 = MFStaticInput(params_standard['E']['Cext'], params_standard['E']['nu_ext'], pop_e2, {
         IP.GM: params_standard['E']['gAMPA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['E']['VE'],
         IP.TAU: params_standard['E']['tau_AMPA'],
     }, name='E_noise2')
     #source_e_noise2.g_base = params_standard['E']['gAMPA']
@@ -119,7 +121,7 @@ def setup_brunel99(w_plus_val=2.5):
 
     source_i_noise = MFStaticInput(params_standard['I']['Cext'], params_standard['I']['nu_ext'], pop_i, {
         IP.GM: params_standard['I']['gAMPA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['I']['VE'],
         IP.TAU: params_standard['I']['tau_AMPA'],
     }, name='I_noise')
     #source_i_noise.g_base = params_standard['I']['gAMPA']
@@ -140,7 +142,7 @@ def setup_brunel99(w_plus_val=2.5):
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['E']['VE'],
         IP.TAU: params_standard['E']['tau_AMPA'],
         IP.W: w_plus
     }, name='EE Nmda1', synapse=syn_ee_nmda)
@@ -149,7 +151,7 @@ def setup_brunel99(w_plus_val=2.5):
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['E']['VE'],
         IP.TAU: params_standard['E']['tau_AMPA'],
         IP.W: w_min
     }, name='EE Nmda12', synapse=syn_ee_nmda)
@@ -163,7 +165,7 @@ def setup_brunel99(w_plus_val=2.5):
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['E']['VE'],
         IP.TAU: params_standard['E']['tau_AMPA'],
         IP.W: w_min
     }, name='EE Nmda2', synapse=syn_ee_nmda)
@@ -172,7 +174,7 @@ def setup_brunel99(w_plus_val=2.5):
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['E']['VE'],
         IP.TAU: params_standard['E']['tau_AMPA'],
         IP.W: (w_plus * ff + (1. - 2. * ff) * w_min) / (1 - ff)
     }, name='EE Nmda22', synapse=syn_ee_nmda)
@@ -188,7 +190,7 @@ def setup_brunel99(w_plus_val=2.5):
         IP.BETA: params_standard['I']['beta'],
         IP.GAMMA: params_standard['I']['gamma'],
         IP.GM: params_standard['I']['gNMDA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['I']['VE'],
         IP.TAU: params_standard['I']['tau_AMPA'],
         IP.W: 1
     }, name='IE Nmda', synapse=syn_ie_nmda)
@@ -197,7 +199,7 @@ def setup_brunel99(w_plus_val=2.5):
         IP.BETA: params_standard['I']['beta'],
         IP.GAMMA: params_standard['I']['gamma'],
         IP.GM: params_standard['I']['gNMDA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['I']['VE'],
         IP.TAU: params_standard['I']['tau_AMPA'],
         IP.W: 1
     }, name='IE Nmda2', synapse=syn_ie_nmda)
@@ -219,7 +221,7 @@ def setup_brunel99(w_plus_val=2.5):
 
     source_ii_gaba = MFLinearInput(pop_i, pop_i, {
         IP.GM: params_standard['I']['gGABA'],
-        IP.VREV: -70 * mV,
+        IP.VREV: params_standard['I']['VI'],
         IP.TAU: syn_spec_gaba['tau_syn_d1'],
     }, name='II Gaba', synapse=syn_ii_gaba)
     #source_ii_gaba.g_base = params_standard['I']['gGABA']
@@ -230,7 +232,7 @@ def setup_brunel99(w_plus_val=2.5):
     syn_ei_gaba = Synapse(**syn_spec_gaba)
     source_ei_gaba1 = MFLinearInput(pop_i, pop_e1, {
         IP.GM: params_standard['E']['gGABA'],
-        IP.VREV: -70 * mV,
+        IP.VREV: params_standard['E']['VI'],
         IP.TAU: syn_spec_gaba['tau_syn_d1'],
     }, name='EI Gaba', synapse=syn_ei_gaba)
     #source_ei_gaba1.g_base = params_standard['E']['gGABA']
@@ -239,7 +241,7 @@ def setup_brunel99(w_plus_val=2.5):
 
     source_ei_gaba2 = MFLinearInput(pop_i, pop_e2, {
         IP.GM: params_standard['E']['gGABA'],
-        IP.VREV: -70 * mV,
+        IP.VREV: params_standard['E']['VI'],
         IP.TAU: syn_spec_gaba['tau_syn_d1'],
     }, name='EI Gaba', synapse=syn_ei_gaba)
     #source_ei_gaba2.g_base = params_standard['E']['gGABA']
@@ -288,7 +290,7 @@ def setup_EI(has_nmda=True):
     # noise pops
     source_e_noise = MFStaticInput(params_standard['E']['Cext'], params_standard['E']['nu_ext'], pop_e, {
         IP.GM: params_standard['E']['gAMPA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['E']['VE'],
         IP.TAU: params_standard['E']['tau_AMPA'],
     }, name='E_noise')
     #source_e_noise.g_base = params_standard['E']['gAMPA']
@@ -297,7 +299,7 @@ def setup_EI(has_nmda=True):
 
     source_i_noise = MFStaticInput(params_standard['I']['Cext'], params_standard['I']['nu_ext'], pop_i, {
         IP.GM: params_standard['I']['gAMPA'],
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['I']['VE'],
         IP.TAU: params_standard['I']['tau_AMPA'],
     }, name='I_noise')
     #source_i_noise.g_base = params_standard['I']['gAMPA']
@@ -318,7 +320,7 @@ def setup_EI(has_nmda=True):
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'] * mult,
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['E']['VE'],
         IP.TAU: syn_spec_nmda['tau_syn_d1'],  # not sure
         IP.W: 1
     }, name='EE Nmda', synapse=syn_ee_nmda)
@@ -332,7 +334,7 @@ def setup_EI(has_nmda=True):
         IP.BETA: params_standard['I']['beta'],
         IP.GAMMA: params_standard['I']['gamma'],
         IP.GM: params_standard['I']['gNMDA'] * mult,
-        IP.VREV: 0 * mV,
+        IP.VREV: params_standard['I']['VE'],
         IP.TAU: syn_spec_nmda['tau_syn_d1'],  # not sure
         IP.W: 1
     }, name='IE Nmda', synapse=syn_ie_nmda)
@@ -350,7 +352,7 @@ def setup_EI(has_nmda=True):
     syn_ii_gaba = Synapse(**syn_spec_gaba)
     source_ii_gaba = MFLinearInput(pop_i, pop_i, {
         IP.GM: params_standard['I']['gGABA'],
-        IP.VREV: -70 * mV,
+        IP.VREV:params_standard['I']['VI'],
         IP.TAU: syn_spec_gaba['tau_syn_d1'],  # not sure
     }, name='II Gaba', synapse=syn_ii_gaba)
     #source_ii_gaba.g_base = params_standard['I']['gGABA']
@@ -361,7 +363,7 @@ def setup_EI(has_nmda=True):
     syn_ei_gaba = Synapse(**syn_spec_gaba)
     source_ei_gaba = MFLinearInput(pop_i, pop_e, {
         IP.GM: params_standard['E']['gGABA'],
-        IP.VREV: -70 * mV,
+        IP.VREV: params_standard['E']['VI'],
         IP.TAU: syn_spec_gaba['tau_syn_d1'],  # not sure
     }, name='EI Gaba', synapse=syn_ei_gaba)
     #source_ei_gaba.g_base = params_standard['E']['gGABA']
