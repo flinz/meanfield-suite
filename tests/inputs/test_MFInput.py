@@ -30,7 +30,7 @@ class TestMFInput(object):
     def test_model_gen(self):
         enable_cpp()
         pop = MFLinearPopulation(1, params_pop)
-        source = MFInput(pop, params_source, name='test')
+        source = MFInput(None, pop, params_source, name='test')
 
         assert_equations(
             source.brian2_model,

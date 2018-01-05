@@ -23,7 +23,7 @@ class MFInput(object):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, target: MFPopulation, parameters: Union[Dict, MFParams]=None, name: str=None, connection: ConnectionStrategy=Connection.all_to_all()):
+    def __init__(self, origin: Union[None, MFPopulation], target: MFPopulation, parameters: Union[Dict, MFParams]=None, name: str=None, connection: ConnectionStrategy=Connection.all_to_all()):
 
         self.name = name if name else create_name(self)
         self.ref = create_identifier(self.name)
@@ -32,6 +32,7 @@ class MFInput(object):
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
 
+        self.origin = origin
         self.target = target
         self.connection = connection
 

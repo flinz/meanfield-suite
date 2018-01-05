@@ -18,7 +18,7 @@ class MFStaticInput(MFInput):
 
     @check_units(rate=units.hertz, n=1)
     def __init__(self, n: int, rate: units.hertz, target: MFPopulation, parameters: Union[Dict, MFParams], **kwargs):
-        super().__init__(target, parameters, **kwargs)
+        super().__init__(None, target, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
