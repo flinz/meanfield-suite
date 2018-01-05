@@ -70,7 +70,7 @@ class MFLinearPopulation(MFPopulation):
 
         # only single source of noise supported
         noise = self.noises[0]
-        return (noise.g_base / self[PP.CM] * (self.v_mean - noise[IP.VREV])) ** 2 * self.tau_eff * noise.g_dyn() * noise[IP.TAU]
+        return (noise[IP.GM] / self[PP.CM] * (self.v_mean - noise[IP.VREV])) ** 2 * self.tau_eff * noise.g_dyn() * noise[IP.TAU]
 
     @property
     @check_units(result=units.Hz)

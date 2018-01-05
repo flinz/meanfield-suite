@@ -35,6 +35,9 @@ class MFPopulation(object):
     def __getitem__(self, key):
         return self.parameters[key]
 
+    def __setitem__(self, key, value):
+        self.parameters[key] = value
+
     def add_noise(self, noise) -> 'MFPopulation':
         if len(self.noises):
             raise NotImplementedError('multiple noise not supported yet')

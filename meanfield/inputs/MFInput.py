@@ -36,10 +36,11 @@ class MFInput(object):
         self.target = target
         self.connection = connection
 
-        self.g_base = parameters[IP.GM]  # TODO : parametrize, solve for ? => general setter checking for units
-
     def __getitem__(self, key):
         return self.parameters[key]
+
+    def __setitem__(self, key, value):
+        self.parameters[key] = value
 
     def __repr__(self) -> str:
         return "{} [{}] ({}, {})".format(self.__class__.__name__, self.name, self.parameters, self.connection)
@@ -49,7 +50,7 @@ class MFInput(object):
     @property
     @check_units(result=units.siemens)
     def conductance(self) -> units.siemens:
-        return self.g_dyn() * self.g_base
+        return self.g_dyn() * self[IP.GM]
 
     @property
     @check_units(result=units.amp)

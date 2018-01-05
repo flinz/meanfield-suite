@@ -47,12 +47,12 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     @check_units(result=units.siemens)
     def conductance(self) -> units.siemens:
-        return self.g_dyn() * self.g_base * (self.rho1 + self.rho2)
+        return self.g_dyn() * self[IP.GM] * (self.rho1 + self.rho2)
 
     @property
     @check_units(result=units.amp)
     def voltage_conductance(self) -> units.amp:
-        return self.g_dyn() * self.g_base * (
+        return self.g_dyn() * self[IP.GM] * (
                 self.rho1 * (self[IP.VREV] - self.target[PP.VL]) +
                 self.rho2 * (self.target.v_mean - self.target[PP.VL])
         )

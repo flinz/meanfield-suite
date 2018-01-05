@@ -8,6 +8,7 @@ from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
 from meanfield.solvers.MFState import MFState
 from meanfield.zoo.brunel_2001_depression import setup_brunel99, setup_EI
+from meanfield.parameters import IP
 
 
 class TestMF(object):
@@ -174,11 +175,13 @@ class TestMF(object):
 
         system = setup_EI()
 
+        print([(p.inputs[0].parameters) for p in system.populations[:1]])
+
         constraints = [
                           MFConstraint(
                               "%s-%s" % (p.name, "gNMDA"),
-                              partial(lambda x: x.inputs[0].g_base, p),
-                              partial(lambda x, val: setattr(x.inputs[0], "g_base", val), p),
+                              partial(lambda x: x.inputs[0][IP.GM], p),
+                              partial(lambda x, val: x.inputs[0].__setitem__(IP.GM, val), p),
                               partial(lambda x: x.rate - x.rate_prediction, p),
                               0. * nsiemens, 500. * nsiemens
                           ) for p in system.populations
@@ -191,6 +194,8 @@ class TestMF(object):
                               -80. * mV, -50. * mV
                           ) for p in system.populations
                       ]
+
+        print([(p.inputs[0].parameters) for p in system.populations[:1]])
 
         state = MFState(constraints, bounds_check=True)
         solver = MFSolver(state, solver='hybr')
@@ -207,13 +212,13 @@ class TestMF(object):
         ratio = 4.
 
         def e_setter(p, val):
-            setattr(p.inputs[0], "g_base", val)
-            setattr(p.inputs[1], "g_base", ratio * val)
+            p.inputs[0].__setitem__(IP.GM, val)
+            p.inputs[1].__setitem__(IP.GM, ratio * val)
 
         constraints = [
                           MFConstraint(
                               "%s-%s" % (print(p.inputs), "gNMDA"),
-                              partial(lambda x: x.inputs[0].g_base, p),
+                              partial(lambda x: x.inputs[0][IP.GM], p),
                               partial(e_setter, p),
                               partial(lambda x: x.rate - x.rate_prediction, p),
                               0. * nsiemens, 500. * nsiemens
@@ -235,5 +240,5 @@ class TestMF(object):
         for p in system.populations:
             assert p.rate_prediction.has_same_dimensions(p.rate)
             np.testing.assert_almost_equal(np.array(p.rate_prediction), np.array(p.rate))
-            assert p.inputs[0].g_base == p.inputs[0].g_base
+            assert p.inputs[0][IP.GM] == p.inputs[0][IP.GM] # FIXME
 

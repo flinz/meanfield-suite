@@ -22,6 +22,9 @@ class MFParams(Mapping):
         self.accesses.add(key)
         return self.underlying[key]
 
+    def __setitem__(self, key, value):
+        self.underlying[key] = value
+
     def __iter__(self):
         return self.underlying.__iter__()
 
