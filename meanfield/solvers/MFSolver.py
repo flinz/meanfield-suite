@@ -13,6 +13,10 @@ from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFState import MFState
 from timeit import default_timer as timer
 
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger("solver")
 
 def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
     """Simple gradient descent along the error."""
@@ -111,6 +115,24 @@ class MFSolver(object):
                 sol = gradient_solver(self.mfstate, p_0)
                 abs_err = max(np.abs(sol.fun))
 
+            elif self.solver == 'simplex':
+                sq = lambda y: np.sum(np.array(y) ** 2)
+
+                def bounded_f(x):
+                    v = self.mfstate(x, fun=sq)
+
+                    overbound = max(max(0, c.bound_down - xi, xi - c.bound_up) for xi, c in zip(x, self.mfstate.constraints))
+                    #print(overbound)
+
+                    return v + np.expm1(overbound)
+
+                sol = minimize(bounded_f, p_0, method='Nelder-Mead')
+                abs_err = np.sqrt(sol.fun)
+                logger.debug(sol)
+                if not sol.success:
+                    logger.warning('optimizer failed')
+
+
 
             elif self.solver == "mse":
                 sq = lambda y: np.sum(np.array(y) ** 2)
@@ -137,6 +159,10 @@ class MFSolver(object):
                     #'maxcor': 10,
                     #'maxfun': 15000
                 #})
+                logger.debug(sol)
+
+                if not sol.success:
+                    logger.warning('optimizer failed')
 
                 # watch out nit
 

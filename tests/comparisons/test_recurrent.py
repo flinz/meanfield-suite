@@ -12,7 +12,7 @@ from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.inputs.MFLinearInput import MFLinearInput
 from tests.utils import enable_cpp
-from meanfield.utils import brian2_introspect
+from meanfield.utils import brian2_introspect, reset_brian2
 
 
 class TestRecurrent(object):
@@ -20,7 +20,7 @@ class TestRecurrent(object):
     def test_simulation_theory(self):
         enable_cpp()
 
-        t = 10000 * ms
+        t = 1000 * ms
         dt = 0.01 * ms
         defaultclock.dt = dt
 
@@ -32,9 +32,9 @@ class TestRecurrent(object):
             PP.VRES: -55. * mV,
             PP.TAU_RP: 2. * ms
         })
-        pop.rate = 10 * Hz
+        pop.rate = 1 * Hz
 
-        noise = MFStaticInput(1000, 5 * Hz, pop, {
+        noise = MFStaticInput(1000, 1 * Hz, pop, {
             IP.GM: 2 * nS,
             IP.VREV: 0 * volt,
             IP.TAU: 2. * ms,
@@ -57,16 +57,13 @@ class TestRecurrent(object):
         net = system.collect_brian2_network(rate)
         net.run(t)
 
-
-
         #brian2_introspect(net, globals())
 
+        stable_t = int(t / dt * 0.1)
+        isolated = np.array(rate.rate)[stable_t:-stable_t]
+        print(isolated.mean())
 
         if False:
-            stable_t = int(t / dt * 0.1)
-            isolated = np.array(rate.rate)[stable_t:-stable_t]
-            print(isolated.mean())
-
             plt.plot(rate.t / ms, rate.smooth_rate(width=25 * ms) / Hz)
             plt.plot(np.ones(10000) * isolated.mean(), label='simulation mean')
             plt.plot(np.ones(10000) * theory, label='theory mean')
@@ -76,12 +73,16 @@ class TestRecurrent(object):
             plt.legend()
             plt.show()
 
-    @pytest.mark.skip(reason="plotting")
+    @pytest.mark.skip(reason="fitting")
     def test_theory(self):
-        enable_cpp()
+
+        n_pop = 25
+        n_noise = 100
 
         def for_rate(rate):
-            pop = MFLinearPopulation(100, {
+            reset_brian2()
+
+            pop = MFLinearPopulation(n_pop, {
                 PP.GM: 25. * nS,
                 PP.CM: 0.5 * nF,
                 PP.VL: -70. * mV,
@@ -89,29 +90,40 @@ class TestRecurrent(object):
                 PP.VRES: -55. * mV,
                 PP.TAU_RP: 2. * ms
             })
-            pop.rate = 10 * Hz
+            pop.rate = 1 * Hz
 
-            noise = MFStaticInput("noise", pop, 1000, rate * Hz, {
+            MFStaticInput(n_noise, rate * Hz, pop, {
                 IP.GM: 2 * nS,
                 IP.VREV: 0 * volt,
                 IP.TAU: 2. * ms,
             })
 
-            rec = MFLinearInput(pop, pop, {
-                IP.GM: 0.973 / 100 * nS,
-                IP.VREV: -70 * volt,
-                IP.TAU: 10. * ms,
-            })
+            t = 500 * ms
+            dt = 0.1 * ms
 
             system = MFSystem(pop)
+            rate = PopulationRateMonitor(pop.brian2)
+            net = system.collect_brian2_network(rate)
+            net.run(t)
+            stable_t = int(t / dt * 0.1)
+            isolated = np.array(rate.rate)[stable_t:-stable_t]
+            sim = np.mean(isolated)
 
-            solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
+            solver = MFSolverRatesVoltages(system, solver='simplex', maxiter=1)
             sol = solver.run()
-            return sol.state[0]
+            return [sol.state[0], sim]
 
-        rates = np.linspace(1, 25, 25)
+
+        rates = np.linspace(1, 100, 20)
         dom = np.array([for_rate(r) for r in rates])
-        plt.plot(rates, dom)
-        plt.xlabel('Noise rate (Hz) per 1000')
-        plt.ylabel('Population rate (Hz) per 100')
+        print(dom)
+        plt.plot(rates, dom[:, 0], label='theory')
+        plt.plot(rates, dom[:, 1], label='simulation')
+        plt.xlabel(f'Noise rate (Hz) on {n_pop}')
+        plt.ylabel(f'Population rate (Hz) from {n_noise}')
+        plt.legend()
+        plt.show()
+
+        print(dom[:, 0] - dom[:, 1])
+        plt.plot(rates, dom[:, 0] - dom[:, 1])
         plt.show()

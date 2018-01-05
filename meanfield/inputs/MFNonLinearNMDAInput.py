@@ -30,6 +30,8 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
 
     # Theory
 
+
+
     # Simulation
 
     @property

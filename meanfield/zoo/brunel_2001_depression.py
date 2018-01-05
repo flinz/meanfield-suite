@@ -53,7 +53,6 @@ params_standard = {
 }
 
 
-
 def setup_brunel99(w_plus_val=2.5):
 
     # brunel 1999 system, one up state pop

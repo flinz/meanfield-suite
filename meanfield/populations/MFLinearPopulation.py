@@ -99,16 +99,21 @@ class MFLinearPopulation(MFPopulation):
         #        + (- self.mu - self[NP.VL] + self[NP.VTHR])/ sigma
 
         # FIXME very called
-        def integrand(x, max_exp=20):
+        def integrand2(x, max_exp=25):
             if x < -max_exp:
                 return np.exp(-max_exp ** 2) * (1. + erf(-max_exp))
             if x > max_exp:
                 return 0.
             return np.exp(x ** 2) * (1. + erf(x))
 
+        import scipy.special
+
+        def integrand(x):
+            return np.exp(x ** 2) * (1 + scipy.special.erf(x))
+
         # import time
         # s = time.time()
-        q = quad(integrand, beta, alpha, limit=100) # FIXME quadpad too costly
+        q = quad(integrand, beta, alpha, limit=1000) # FIXME quadpad too costly
         # print(q)
         # print('->', time.time() - s)
 

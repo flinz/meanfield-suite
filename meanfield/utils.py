@@ -1,3 +1,5 @@
+from time import sleep
+
 from brian2 import NeuronGroup, Synapses, PoissonInput, units, Equations, device, defaultclock, set_device
 
 
@@ -86,9 +88,10 @@ def setup_brian2(dt=0.01 * units.ms, codegen: str='cpp_standalone', build_on_run
     defaultclock.dt = dt
 
 
-def reset_brian2(**kwargs):
+def reset_brian2(sleep_time=0.25, **kwargs):
     device.reinit()
     device.activate()
+    sleep(sleep_time)
     setup_brian2(**kwargs)
 
 

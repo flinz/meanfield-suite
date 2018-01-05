@@ -38,5 +38,5 @@ class MFStaticInput(MFInput):
 
     @lazyproperty
     def brian2(self) -> BrianObject:
-        return PoissonInput(self.target.brian2, self.post_variable_name, self.n, self.rate, 1)
+        return PoissonInput(self.target.brian2, self.post_variable_name, self.n, self.rate, '1')
 
