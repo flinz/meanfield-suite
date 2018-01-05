@@ -78,7 +78,6 @@ class MFLinearPopulation(MFPopulation):
         '''
         phi_firing_func
         '''
-        # FIXME no noise
         if not len(self.noises):
             return 0 * units.Hz
 
@@ -98,7 +97,6 @@ class MFLinearPopulation(MFPopulation):
         # alpha = 1.03 * np.sqrt(noise[SP.TAU] / tau_eff) \
         #        + (- self.mu - self[NP.VL] + self[NP.VTHR])/ sigma
 
-        # FIXME very called
         def integrand2(x, max_exp=25):
             if x < -max_exp:
                 return np.exp(-max_exp ** 2) * (1. + erf(-max_exp))
@@ -113,7 +111,7 @@ class MFLinearPopulation(MFPopulation):
 
         # import time
         # s = time.time()
-        q = quad(integrand, beta, alpha, limit=100) # FIXME quadpad too costly
+        q = quad(integrand, beta, alpha, limit=100)
         # print(q)
         # print('->', time.time() - s)
 

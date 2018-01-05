@@ -91,6 +91,7 @@ def setup_brian2(dt=0.01 * units.ms, codegen: str='cpp_standalone', build_on_run
 def reset_brian2(sleep_time=0.25, **kwargs):
     device.reinit()
     device.activate()
+    # workaround https://github.com/brian-team/brian2/issues/905
     sleep(sleep_time)
     setup_brian2(**kwargs)
 

@@ -49,8 +49,7 @@ def gradient_solver(mfstate, p_0, dt=.1, tmax=30.):
 
 class MFSolver(object):
 
-    # FIXME max iter = 20
-    def __init__(self, mfstate, maxiter=1, solver="hybr", print_status=False, crit=1e-5, tol=1e-12, fail_val=None):
+    def __init__(self, mfstate, maxiter=5, solver="hybr", print_status=False, crit=1e-5, tol=1e-12, fail_val=None):
 
         self.mfstate = mfstate
         self.solver = solver

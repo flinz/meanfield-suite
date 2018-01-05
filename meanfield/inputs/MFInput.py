@@ -18,7 +18,7 @@ class MFInput(object):
     arguments = MappingProxyType({
         IP.GM: units.siemens,
         IP.VREV: units.volt,
-        IP.TAU: units.second,  # TODO : tau subclass?
+        IP.TAU: units.second,
     })
 
     defaults = MappingProxyType({})

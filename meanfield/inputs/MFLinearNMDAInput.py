@@ -13,7 +13,7 @@ class MFLinearNMDAInput(MFLinearInput):
 
     arguments = MappingProxyType({
         IP.TAU: units.second,
-        IP.BETA: 1,  # TODO beta 1/v ? see below
+        IP.BETA: 1,
         IP.GAMMA: 1,
     })
 
@@ -42,7 +42,7 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     @check_units(result=1)
     def rho2(self):
-        return (self.J - 1) / (self.J ** 2) * self[PP.BETA] * (self.target.v_mean - self[IP.VREV]) / units.mV # TODO unitless?
+        return (self.J - 1) / (self.J ** 2) * self[PP.BETA] * (self.target.v_mean - self[IP.VREV]) / units.mV
 
     @property
     @check_units(result=units.siemens)

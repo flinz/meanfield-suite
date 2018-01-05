@@ -46,7 +46,6 @@ class MFPopulation(object):
         return self
 
     def add_input(self, input) -> 'MFPopulation':
-        # TODO control source and no duplicate
         self.inputs.append(input)
         return self
 

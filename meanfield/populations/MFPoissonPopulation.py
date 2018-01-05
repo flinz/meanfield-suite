@@ -37,7 +37,6 @@ class MFPoissonPopulation(MFPopulation):
     @property
     @check_units(result=units.volt)
     def v_mean_prediction(self) -> units.volt:
-        # FIXME alex?
         return -60 * units.mvolt
 
     # Population

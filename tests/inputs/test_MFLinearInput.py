@@ -74,10 +74,6 @@ class TestMFLinearInput(object):
         simulation_mean = np.mean(simulation)
 
         assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
-        print(simulation_mean)
-        print(20 * ms * 10 * Hz)
-        # TODO : post_variable = tau * nu
 
-        # FIXME test for all
 
 

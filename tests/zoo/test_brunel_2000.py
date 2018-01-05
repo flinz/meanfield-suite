@@ -152,7 +152,6 @@ class TestMF(object):
         for key in [("E", "E-v_mean"), ("I", "I-v_mean")]:
             assert np.isclose(system1[key[0]].v_mean_prediction / r2[key[1]], 1)
             assert np.isclose(system1[key[0]].v_mean / r2[key[1]], 1)
-            # FIXME np.isclose everywhere
 
             #np.testing.assert_almost_equal(system1[key[0]].v_mean_prediction, r2[key[1]], 5)
             #np.testing.assert_almost_equal(system1[key[0]].v_mean, r2[key[1]], 5)
@@ -175,8 +174,6 @@ class TestMF(object):
 
         system = setup_EI()
 
-        print([(p.inputs[0].parameters) for p in system.populations[:1]])
-
         constraints = [
                           MFConstraint(
                               "%s-%s" % (p.name, "gNMDA"),
@@ -194,8 +191,6 @@ class TestMF(object):
                               -80. * mV, -50. * mV
                           ) for p in system.populations
                       ]
-
-        print([(p.inputs[0].parameters) for p in system.populations[:1]])
 
         state = MFState(constraints, bounds_check=True)
         solver = MFSolver(state, solver='hybr')
@@ -240,5 +235,4 @@ class TestMF(object):
         for p in system.populations:
             assert p.rate_prediction.has_same_dimensions(p.rate)
             np.testing.assert_almost_equal(np.array(p.rate_prediction), np.array(p.rate))
-            assert p.inputs[0][IP.GM] == p.inputs[0][IP.GM] # FIXME
 

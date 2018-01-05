@@ -56,7 +56,7 @@ class TestMFLinear3TSInput(object):
         syn = MFLinear3TSInput(poisson, pop, {
             IP.GM: 10 * nsiemens,
             IP.VREV: 0 * mvolt,
-            IP.TAU: 0 * ms, # FIXME unused
+            IP.TAU: 0 * ms,
             IP.TAU_RISE: 2 * ms,
             IP.TAU_D1: 20 * ms,
             IP.TAU_D2: 30 * ms,
@@ -93,7 +93,6 @@ class TestMFLinear3TSInput(object):
 
         simulation_mean = alpha * simulation_mean_1 + (1 - alpha) * simulation_mean_2 + - alpha * simulation_mean_3 - (1 - alpha) * simulation_mean_4
 
-        # TODO : post_variable = tau * nu
         assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
 
 

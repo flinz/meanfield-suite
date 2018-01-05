@@ -31,7 +31,9 @@ class MFParams(Mapping):
     def __len__(self):
         return self.underlying.__len__()
 
-    # FIXME overload addition
+    def __add__(self, other):
+        params = dict(**self.underlying, **other.underlying)
+        return MFParams(params)
 
     def all_keys_consumed(self):
         return self.accesses == set(self.underlying.keys())

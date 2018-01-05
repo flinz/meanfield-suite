@@ -17,7 +17,7 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
     arguments = MappingProxyType({
         IP.TAU_NMDA: 1.,
         IP.TAU_NMDA_RISE: 1.,
-        IP.BETA: 1.,
+        IP.ALPHA: 1.
     })
 
     defaults = MappingProxyType({})
@@ -52,7 +52,7 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
             x=self.post_nonlinear_name,
             tau_decay=self[IP.TAU_NMDA],
             tau_rise=self[IP.TAU_NMDA_RISE],
-            alpha=self[IP.ALPHA], # TODO ALPHA ? 1 / ms
+            alpha=self[IP.ALPHA],
         )
         eqs_pre = f'''
         {self.post_nonlinear_name} += 1

@@ -57,7 +57,6 @@ class TestMFLinearNMDAInput(object):
             IP.VREV: 0 * mV,
             IP.TAU: 20 * ms,
             IP.TAU_NMDA: 30 * ms,
-            IP.ALPHA: 1, # TODO git alpha ?
             IP.BETA: 1,
             IP.GAMMA: 1,
         })
@@ -79,7 +78,7 @@ class TestMFLinearNMDAInput(object):
         print(simulation)
 
         assert np.isclose(theory, simulation_mean, rtol=0.5, atol=0.5)
-        print(simulation_mean)
-        print(20 * ms * 10 * Hz)
-        # TODO : post_variable = tau * nu
+
+
+
 

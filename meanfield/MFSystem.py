@@ -3,6 +3,9 @@ import brian2.units
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import create_name, create_identifier, reset_lazyproperty
 from graphviz import Digraph
+import logging
+
+logger = logging.getLogger('system')
 
 class MFSystem(object):
 
@@ -35,7 +38,7 @@ class MFSystem(object):
     def collect_brian2_network(self, *more_objects: b2.BrianObject):
         for net in b2.Network.__instances__():
             if self.ref == net().name:
-                # FIXME warning about call to reset brian2 and probably slow as codegen recreated
+                logger.warning('before recollecting the same network, you need to call reset_lazyness to clean up')
                 break
 
         net = b2.Network(*more_objects, name=self.ref)
