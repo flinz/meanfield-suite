@@ -69,26 +69,26 @@ class TestMFLinear3TSInput(object):
         solver.run()
         theory = syn.g_dyn() / syn.origin.n
 
-        print([syn.post_variable_name_1, syn.post_variable_name_2, syn.post_variable_name_3, syn.post_variable_name_4])
+
         print(syn.brian2)
 
-        m1 = StateMonitor(syn.brian2, syn.post_variable_name_1, record=range(100))
-        m2 = StateMonitor(syn.brian2, syn.post_variable_name_2, record=range(100))
-        m3 = StateMonitor(syn.brian2, syn.post_variable_name_3, record=range(100))
-        m4 = StateMonitor(syn.brian2, syn.post_variable_name_4, record=range(100))
+        m1 = StateMonitor(syn.brian2, syn.post_variable_name[0], record=range(100))
+        m2 = StateMonitor(syn.brian2, syn.post_variable_name[1], record=range(100))
+        m3 = StateMonitor(syn.brian2, syn.post_variable_name[2], record=range(100))
+        m4 = StateMonitor(syn.brian2, syn.post_variable_name[3], record=range(100))
         defaultclock.dt = dt
 
         net = system.collect_brian2_network(m1, m2, m3, m4)
         net.run(t)
 
         stable_t = int(t / dt * 0.1)
-        simulation_1 = m1.__getattr__(syn.post_variable_name_1)[:, stable_t:]
+        simulation_1 = m1.__getattr__(syn.post_variable_name[0])[:, stable_t:]
         simulation_mean_1 = np.mean(simulation_1)
-        simulation_2 = m2.__getattr__(syn.post_variable_name_2)[:, stable_t:]
+        simulation_2 = m2.__getattr__(syn.post_variable_name[1])[:, stable_t:]
         simulation_mean_2 = np.mean(simulation_2)
-        simulation_3 = m3.__getattr__(syn.post_variable_name_3)[:, stable_t:]
+        simulation_3 = m3.__getattr__(syn.post_variable_name[2])[:, stable_t:]
         simulation_mean_3 = np.mean(simulation_3)
-        simulation_4 = m4.__getattr__(syn.post_variable_name_4)[:, stable_t:]
+        simulation_4 = m4.__getattr__(syn.post_variable_name[3])[:, stable_t:]
         simulation_mean_4 = np.mean(simulation_4)
 
         simulation_mean = alpha * simulation_mean_1 + (1 - alpha) * simulation_mean_2 + - alpha * simulation_mean_3 - (1 - alpha) * simulation_mean_4

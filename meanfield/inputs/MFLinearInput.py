@@ -41,7 +41,7 @@ class MFLinearInput(MFInput):
     @lazyproperty
     def brian2(self) -> BrianObject:
         model = Equations('w : 1')
-        on_pre = '{} += w'.format(self.post_variable_name)
+        on_pre = f'{self.post_variable_name} += w'
         syn = Synapses(
             source=self.origin.brian2,
             target=self.target.brian2,

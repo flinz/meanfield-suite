@@ -135,8 +135,8 @@ class MFLinearPopulation(MFPopulation):
             self.n,
             self.brian2_model,
             method='euler',
-            threshold='v > {} * mV'.format(self[PP.VTHR] / units.mV),
-            reset='v = {} * mV'.format(self[PP.VRES] / units.mV),
+            threshold=f'v > {self[PP.VTHR] / units.mV} * mV',
+            reset=f'v = {self[PP.VRES] / units.mV} * mV',
             refractory=self[PP.TAU_RP],
             name=self.ref
         )
@@ -158,7 +158,8 @@ class MFLinearPopulation(MFPopulation):
             all_currents.append(s.current_name)
 
         if len(all_currents):
-            eqs += 'I = {} : amp'.format(' + '.join(all_currents))
+            sum_currents = ' + '.join(all_currents)
+            eqs += f'I = {sum_currents} : amp'
         else:
             eqs += 'I = 0 : amp'
 

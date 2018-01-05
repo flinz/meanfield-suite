@@ -54,9 +54,9 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
             tau_rise=self[IP.TAU_NMDA_RISE],
             alpha=self[IP.ALPHA], # TODO ALPHA ? 1 / ms
         )
-        eqs_pre = '''
-        {} += 1
-        '''.format(self.post_nonlinear_name)
+        eqs_pre = f'''
+        {self.post_nonlinear_name} += 1
+        '''
         C = Synapses(
             self.origin.brian2,
             self.target.brian2,

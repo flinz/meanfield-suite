@@ -1,5 +1,5 @@
 from types import MappingProxyType
-from typing import Union, Dict
+from typing import Union, Dict, List
 
 from brian2 import Equations, Synapses, units, BrianObject
 
@@ -48,12 +48,12 @@ class MFLinear3TSInput(MFLinearInput):
         w3 : 1
         w4 : 1
         ''')
-        on_pre = '''
-        {} += w1
-        {} += w2
-        {} += w3
-        {} += w4
-        '''.format(self.post_variable_name_1, self.post_variable_name_2, self.post_variable_name_3, self.post_variable_name_4)
+        on_pre = f'''
+        {self.post_variable_name[0]} += w1
+        {self.post_variable_name[1]} += w2
+        {self.post_variable_name[2]} += w3
+        {self.post_variable_name[3]} += w4
+        '''
         syn = Synapses(
             source=self.origin.brian2,
             target=self.target.brian2,
@@ -69,29 +69,15 @@ class MFLinear3TSInput(MFLinearInput):
         syn.w4[:] = 1
         return syn
 
-    # FIXME
     @property
-    def post_variable_name_1(self):
-        return self.post_variable_name + '_1'
-
-    @property
-    def post_variable_name_2(self):
-        return self.post_variable_name + '_2'
-
-    @property
-    def post_variable_name_3(self):
-        return self.post_variable_name + '_3'
-
-    @property
-    def post_variable_name_4(self):
-        return self.post_variable_name + '_4'
+    def post_variable_name(self) -> List[str]:
+        name = super().post_variable_name
+        return [f'{name}_{i}' for i in range(4)]
 
     @property
     def brian2_model(self) -> Equations:
-
         tau_mix1 = (self[IP.TAU_RISE] * self[IP.TAU_D1]) / (self[IP.TAU_RISE] + self[IP.TAU_D1])
         tau_mix2 = (self[IP.TAU_RISE] * self[IP.TAU_D2]) / (self[IP.TAU_RISE] + self[IP.TAU_D2])
-
         return Equations(
             '''
             I = g * (v - vrev) * (a * s1 + (1 - a) * s2 - a * s3 - (1 - a) * s4) : amp
@@ -102,10 +88,10 @@ class MFLinear3TSInput(MFLinearInput):
             ''',
             I=self.current_name,
             g=self[IP.GM],
-            s1=self.post_variable_name_1,
-            s2=self.post_variable_name_2,
-            s3=self.post_variable_name_3,
-            s4=self.post_variable_name_4,
+            s1=self.post_variable_name[0],
+            s2=self.post_variable_name[1],
+            s3=self.post_variable_name[2],
+            s4=self.post_variable_name[3],
             vrev=self[IP.VREV],
             tau_d1=self[IP.TAU_D1],
             tau_d2=self[IP.TAU_D2],
