@@ -32,3 +32,5 @@ class InputParameters(object):
     TAU_RISE = 'tau_rise'
     TAU_D1 = 'tau_d1'
     TAU_D2 = 'tau_d2'
+
+    MG = 'mg'

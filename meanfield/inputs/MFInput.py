@@ -85,9 +85,9 @@ class MFInput(object):
 
     @property
     def current_name(self) -> str:
-        return 'I_' + self.ref
+        return f'I_{self.ref}'
 
     @property
     def post_variable_name(self) -> str:
-        return 's_' + self.ref
+        return f's_{self.ref}'
 

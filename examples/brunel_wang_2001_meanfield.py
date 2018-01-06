@@ -12,6 +12,7 @@ dominated by recurrent inhibition. Journal of computational neuroscience, 2001, 
 
 from brian2 import *
 
+from meanfield.inputs.MFNonLinearNMDAInput import MFNonLinearNMDAInput
 from meanfield.MFSystem import MFSystem
 from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.inputs.MFStaticInput import MFStaticInput
@@ -20,19 +21,18 @@ from meanfield.parameters import IP
 from meanfield.parameters import PP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
-
-# BRUNEL, Nicolas et WANG, Xiao-Jing. Effects of neuromodulation in a cortical network model of object working memory dominated by recurrent inhibition. Journal of computational neuroscience, 2001, vol. 11, no 1, p. 63-85.
+from meanfield.utils import reset_brian2
 
 BrianLogger.log_level_debug()
-set_device('cpp_standalone')
+reset_brian2()
 
-# neurons
-N = 1000
+# populations
+N = 250
 N_E = int(N * 0.8)  # pyramidal neurons
 N_I = int(N * 0.2)  # interneurons
 
 # voltage
-V_L = -70. * mV  # resting
+V_L = -70. * mV
 V_thr = -50. * mV
 V_reset = -55. * mV
 V_E = 0. * mV
@@ -46,7 +46,7 @@ C_m_I = 0.2 * nF
 g_m_E = 25. * nS
 g_m_I = 20. * nS
 
-# refactorty period
+# refractory period
 tau_rp_E = 2. * ms
 tau_rp_I = 1. * ms
 
@@ -66,12 +66,14 @@ g_AMPA_rec_I = 0.081 * nS * 800. / N_E
 tau_AMPA = 2. * ms
 
 # NMDA (excitatory)
-g_NMDA_E = 0.01 * 0.327 * nS * 800. / N_E
-g_NMDA_I = 0.01 * 0.258 * nS * 800. / N_E
+g_NMDA_E = 0.327 * nS * 800. / N_E
+g_NMDA_I = 0.258 * nS * 800. / N_E
 tau_NMDA_rise = 2. * ms
 tau_NMDA_decay = 100. * ms
-alpha = 0. / ms # 0.5 / ms
-Mg2 = 0. # 1.
+alpha = 0.5 / ms
+beta = 0.062
+gamma = 1. / 3.57
+Mg2 = 1.
 
 # GABAergic (inhibitory)
 g_GABA_E = 1.25 * nS * 200. / N_I
@@ -83,7 +85,7 @@ f = 0.1
 p = 1
 N_sub = int(N_E * f)
 N_non = int(N_E * (1. - f * p))
-w_plus = 1#2.1
+w_plus = 2.1
 w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
 E_params = {
@@ -134,16 +136,30 @@ MFStaticInput(C_ext, rate, pop_i, {
 }, name="I_noise")
 
 # E->E NMDA
-MFLinearInput(pop_e1, pop_e1, {
+MFNonLinearNMDAInput(pop_e1, pop_e1, {
     IP.GM: g_NMDA_E,
     IP.VREV: V_E,
-    IP.TAU: tau_NMDA_decay,
+    IP.TAU: 0 * ms,
+    IP.W: 1,
+    IP.TAU_NMDA: tau_NMDA_decay,
+    IP.TAU_NMDA_RISE: tau_NMDA_rise,
+    IP.ALPHA: alpha,
+    IP.BETA: beta,
+    IP.GAMMA: gamma,
+    IP.MG: Mg2,
 }, name='EE NMDA 1', connection=Connection.all_to_others())
 
-MFLinearInput(pop_e1, pop_e2, {
+MFNonLinearNMDAInput(pop_e1, pop_e2, {
     IP.GM: g_NMDA_E,
     IP.VREV: V_E,
-    IP.TAU: tau_NMDA_decay,
+    IP.TAU: 0 * ms,
+    IP.W: 1,
+    IP.TAU_NMDA: tau_NMDA_decay,
+    IP.TAU_NMDA_RISE: tau_NMDA_rise,
+    IP.ALPHA: alpha,
+    IP.BETA: beta,
+    IP.GAMMA: gamma,
+    IP.MG: Mg2,
 }, name='EE NMDA 2')
 
 # E->E AMPA
@@ -160,10 +176,17 @@ MFLinearInput(pop_e2, pop_e2, {
 }, name='EE AMPA 2', connection=Connection.all_to_others())
 
 # E->I NMDA
-MFLinearInput(pop_e1, pop_i, {
+MFNonLinearNMDAInput(pop_e1, pop_i, {
     IP.GM: g_NMDA_I,
     IP.VREV: V_E,
-    IP.TAU: tau_NMDA_decay,
+    IP.TAU: 0 * ms,
+    IP.W: 1,
+    IP.TAU_NMDA: tau_NMDA_decay,
+    IP.TAU_NMDA_RISE: tau_NMDA_rise,
+    IP.ALPHA: alpha,
+    IP.BETA: beta,
+    IP.GAMMA: gamma,
+    IP.MG: Mg2,
 }, name='EI NMDA')
 
 # E->I AMPA
@@ -194,7 +217,7 @@ MFLinearInput(pop_i, pop_e2, {
 }, name='IE GABA 2')
 
 
-system = MFSystem(pop_e1, pop_e2, pop_i, name="Brunel Wang simplified")
+system = MFSystem(pop_e1, pop_e2, pop_i, name="Brunel Wang 2001")
 
 solver = MFSolverRatesVoltages(system, solver='mse')
 sol = solver.run()
@@ -209,7 +232,7 @@ s = StateMonitor(pop_i.brian2, ['v'], record=[100])
 
 
 net = system.collect_brian2_network(sp1, sp2, sp3, rate1, rate2, rate3, s)
-net.run(2000 * ms)
+net.run(2000 * ms, report='stdout')
 
 #brian2_introspect(net, globals())
 #print()
