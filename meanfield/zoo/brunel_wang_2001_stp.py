@@ -1,14 +1,11 @@
 from brian2.units import *
 
-from meanfield.inputs.MFLinearSTPInput import MFLinearSTPInput
-from meanfield.inputs.MFLinearSTPNMDAInput import MFLinearSTPNMDAInput
-from meanfield.inputs.MFLinearNMDAInput import MFLinearNMDAInput
 from meanfield.MFSystem import MFSystem
+from meanfield.inputs.MFLinearInput import MFLinearInput
+from meanfield.inputs.MFLinearSTPNMDAInput import MFLinearSTPNMDAInput
+from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.parameters import PP, IP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
-from meanfield.inputs.MFLinearInput import MFLinearInput
-from meanfield.inputs.MFStaticInput import MFStaticInput
-from meanfield.inputs.modifiers.stp import STP
 
 # BRUNEL, Nicolas et WANG, Xiao-Jing. Effects of neuromodulation in a cortical network model of object working memory dominated by recurrent inhibition. Journal of computational neuroscience, 2001, vol. 11, no 1, p. 63-85.
 # TSODYKS, Misha, PAWELZIK, Klaus, et MARKRAM, Henry. Neural networks with dynamic synapses. Neural computation, 1998, vol. 10, no 4, p. 821-835.
@@ -22,6 +19,8 @@ params_standard = {
         'V_L': -70. * mV,
         'V_th': -50. * mV,
         'V_reset': -60. * mV,
+        'tau_NMDA': 100 * ms,
+        'tau_GABA': 10. * ms,
         'tau_AMPA': 2. * ms,
         't_ref': 2. * ms,
         'C_m': 500. * pF,
@@ -40,6 +39,8 @@ params_standard = {
         'V_L': -70. * mV,
         'V_th': -50. * mV,
         'V_reset': -60. * mV,
+        'tau_NMDA': 100 * ms,
+        'tau_GABA': 10. * ms,
         'tau_AMPA': 2. * ms,
         't_ref': 1. * ms,
         'C_m': 200. * pF,
@@ -106,41 +107,39 @@ def no_subpopulation():
         'tau_f': 1000. * ms,
         'U': 1,
     }
-    syn_ee_nmda = STP(**syn_spec_nmda)
 
     source_ee_nmda = MFLinearSTPNMDAInput(pop_e, pop_e, {
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: params_standard['E']['VE'],
-        IP.TAU: syn_spec_nmda['tau_syn_d1'],  # not sure
+        IP.TAU: params_standard['E']['tau_NMDA'],
         IP.W: 1
-    }, name='EE Nmda', synapse=syn_ee_nmda)
+    }, name='EE Nmda', synapse=syn_spec_nmda)
 
     # E->I NMDA
-    syn_ie_nmda = STP(**syn_spec_nmda)
     source_ie_nmda = MFLinearSTPNMDAInput(pop_e, pop_i, {
         IP.BETA: params_standard['I']['beta'],
         IP.GAMMA: params_standard['I']['gamma'],
         IP.GM: params_standard['I']['gNMDA'],
         IP.VREV: params_standard['I']['VE'],
-        IP.TAU: syn_spec_nmda['tau_syn_d1'],  # not sure
+        IP.TAU: params_standard['I']['tau_NMDA'],
         IP.W: 1
-    }, name='IE Nmda', synapse=syn_ie_nmda)
+    }, name='IE Nmda', synapse=syn_spec_nmda)
 
     # I->I GABA
 
     source_ii_gaba = MFLinearInput(pop_i, pop_i, {
         IP.GM: params_standard['I']['gGABA'],
         IP.VREV:params_standard['I']['VI'],
-        IP.TAU: 10. * ms,  # not sure
+        IP.TAU: params_standard['I']['tau_GABA'],
     }, name='II Gaba')
 
     # I->E GABA
     source_ei_gaba = MFLinearInput(pop_i, pop_e, {
         IP.GM: params_standard['E']['gGABA'],
         IP.VREV: params_standard['E']['VI'],
-        IP.TAU: 10. * ms,
+        IP.TAU: params_standard['E']['tau_GABA'],
     }, name='EI Gaba')
 
     return system
@@ -223,71 +222,69 @@ def one_subpopulation(w_plus_val=2.5):
         'tau_f': 1000. * ms,
         'U': 1,
     }
-    syn_ee_nmda = STP(**syn_spec_nmda)
 
     source_ee_nmda1 = ctor(pop_e1, pop_e1, {
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: params_standard['E']['VE'],
-        IP.TAU: params_standard['E']['tau_AMPA'],
+        IP.TAU: params_standard['E']['tau_NMDA'],
         IP.W: w_plus
-    }, name='EE Nmda1', synapse=syn_ee_nmda)
+    }, name='EE Nmda1', synapse=syn_spec_nmda)
 
     source_ee_nmda12 = ctor(pop_e2, pop_e1, {
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: params_standard['E']['VE'],
-        IP.TAU: params_standard['E']['tau_AMPA'],
+        IP.TAU: params_standard['E']['tau_NMDA'],
         IP.W: w_min
-    }, name='EE Nmda12', synapse=syn_ee_nmda)
+    }, name='EE Nmda12', synapse=syn_spec_nmda)
 
     source_ee_nmda2 = ctor(pop_e1, pop_e2, {
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: params_standard['E']['VE'],
-        IP.TAU: params_standard['E']['tau_AMPA'],
+        IP.TAU: params_standard['E']['tau_NMDA'],
         IP.W: w_min
-    }, name='EE Nmda2', synapse=syn_ee_nmda)
+    }, name='EE Nmda2', synapse=syn_spec_nmda)
 
     source_ee_nmda22 = ctor(pop_e2, pop_e2, {
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: params_standard['E']['VE'],
-        IP.TAU: params_standard['E']['tau_AMPA'],
+        IP.TAU: params_standard['E']['tau_NMDA'],
         IP.W: (w_plus * ff + (1. - 2. * ff) * w_min) / (1 - ff)
-    }, name='EE Nmda22', synapse=syn_ee_nmda)
+    }, name='EE Nmda22', synapse=syn_spec_nmda)
 
     # E->I NMDA
-    syn_ie_nmda = STP(**syn_spec_nmda)
 
     source_ie_nmda = ctor(pop_e1, pop_i, {
         IP.BETA: params_standard['I']['beta'],
         IP.GAMMA: params_standard['I']['gamma'],
         IP.GM: params_standard['I']['gNMDA'],
         IP.VREV: params_standard['I']['VE'],
-        IP.TAU: params_standard['I']['tau_AMPA'],
+        IP.TAU: params_standard['I']['tau_NMDA'],
         IP.W: 1
-    }, name='IE Nmda', synapse=syn_ie_nmda)
+    }, name='IE Nmda', synapse=syn_spec_nmda)
 
     source_ie_nmda2 = ctor(pop_e2, pop_i, {
         IP.BETA: params_standard['I']['beta'],
         IP.GAMMA: params_standard['I']['gamma'],
         IP.GM: params_standard['I']['gNMDA'],
         IP.VREV: params_standard['I']['VE'],
-        IP.TAU: params_standard['I']['tau_AMPA'],
+        IP.TAU: params_standard['I']['tau_NMDA'],
         IP.W: 1
-    }, name='IE Nmda2', synapse=syn_ie_nmda)
+    }, name='IE Nmda2', synapse=syn_spec_nmda)
 
     # I->I GABA
 
     source_ii_gaba = MFLinearInput(pop_i, pop_i, {
         IP.GM: params_standard['I']['gGABA'],
         IP.VREV: params_standard['I']['VI'],
-        IP.TAU: 10 * ms,
+        IP.TAU: params_standard['I']['tau_GABA'],
     }, name='II Gaba')
 
     # I->E GABA
@@ -295,13 +292,13 @@ def one_subpopulation(w_plus_val=2.5):
     source_ei_gaba1 = MFLinearInput(pop_i, pop_e1, {
         IP.GM: params_standard['E']['gGABA'],
         IP.VREV: params_standard['E']['VI'],
-        IP.TAU: 10 * ms,
+        IP.TAU: params_standard['E']['tau_GABA'],
     }, name='EI Gaba')
 
     source_ei_gaba2 = MFLinearInput(pop_i, pop_e2, {
         IP.GM: params_standard['E']['gGABA'],
         IP.VREV: params_standard['E']['VI'],
-        IP.TAU: 10 * ms,
+        IP.TAU: params_standard['E']['tau_GABA'],
     }, name='EI Gaba2')
 
     return system
