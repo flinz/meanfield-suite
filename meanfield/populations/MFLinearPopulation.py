@@ -1,10 +1,10 @@
-from math import erf
 from types import MappingProxyType
 from typing import Union, Optional
 
 import numpy as np
 from brian2 import units, Equations, NeuronGroup, check_units, BrianObject
-from scipy.integrate import quad
+from scipy import special
+from scipy import integrate
 
 from meanfield.parameters import PP, IP
 from meanfield.parameters.MFParams import MFParams
@@ -99,23 +99,15 @@ class MFLinearPopulation(MFPopulation):
         # alpha = 1.03 * np.sqrt(noise[SP.TAU] / tau_eff) \
         #        + (- self.mu - self[NP.VL] + self[NP.VTHR])/ sigma
 
-        def integrand2(x, max_exp=25):
+        def integrand(x, max_exp=25):
             if x < -max_exp:
-                return np.exp(-max_exp ** 2) * (1. + erf(-max_exp))
+                return np.exp(-max_exp ** 2) * (1. + special.erf(max_exp))
             if x > max_exp:
                 return 0.
-            return np.exp(x ** 2) * (1. + erf(x))
+            return np.exp(x ** 2) * (1 + special.erf(x))
 
-        import scipy.special
-
-        def integrand(x):
-            return np.exp(x ** 2) * (1 + scipy.special.erf(x))
-
-        # import time
-        # s = time.time()
-        q = quad(integrand, beta, alpha, limit=100)
-        # print(q)
-        # print('->', time.time() - s)
+        # 500 separation should be enough, good tradeoff speed/precision
+        q = integrate.quad(integrand, beta, alpha, limit=500)
 
         return 1. / (self[PP.TAU_RP] + tau_eff * np.sqrt(np.pi) * q[0])
 

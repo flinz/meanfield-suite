@@ -180,11 +180,7 @@ class MFSolver(object):
                 abs_err = np.sqrt(sol.fun)
 
             else:  # scipy solvers
-                mid = timer()
                 sol = root(self.mfstate, p_0, jac=None, method=self.solver, tol=tol)
-                end = timer()
-                steps.append(end - mid)
-                print('end', end - start, end - mid)
 
                 abs_err = max(abs(sol.fun))
 
@@ -201,8 +197,12 @@ class MFSolver(object):
                 sys.stdout.write('\n ')
             sys.stdout.flush()
 
+            end = timer()
+            steps.append(end - start)
+            start = end
+
         fundamentalunits.unit_checking = True
-        print(np.mean(steps))
+        print(np.sum(steps), np.mean(steps), np.std(steps))
         print("]\n[%s] finished successfully" % self.__class__.__name__)
         self.state = "SUCCESS"
         return self.finalize(sol)

@@ -1,5 +1,7 @@
 from time import sleep
+from typing import Union
 
+import numpy as np
 from brian2 import NeuronGroup, Synapses, PoissonInput, units, Equations, device, defaultclock, set_device
 
 
@@ -35,6 +37,11 @@ def lazyproperty(fun):
             setattr(self, attr, fun(self))
         return getattr(self, attr)
     return wrapper
+
+
+def seed(seed: Union[int, None]) -> None:
+    device.seed(seed)
+    np.random.seed(seed)
 
 
 def brian2_introspect(net, globals):
