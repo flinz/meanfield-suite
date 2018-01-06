@@ -105,79 +105,79 @@ pop_i = MFLinearPopulation(N_I, I_params, name="I")
 # noise pops
 MFStaticInput(C_ext, rate, pop_e1, {
     IP.GM: g_AMPA_ext_E,
-    IP.VREV: 0 * mV,
+    IP.VREV: V_E,
     IP.TAU: tau_AMPA,
 }, name="E_noise1")
 
 MFStaticInput(C_ext, rate, pop_e2, {
     IP.GM: g_AMPA_ext_E,
-    IP.VREV: 0 * mV,
+    IP.VREV: V_E,
     IP.TAU: tau_AMPA,
 }, name="E_noise2")
 
 MFStaticInput(C_ext, rate, pop_i, {
     IP.GM: g_AMPA_ext_I,
-    IP.VREV: 0 * mV,
+    IP.VREV: V_E,
     IP.TAU: tau_AMPA,
 }, name="I_noise")
 
 # E->E NMDA
 MFLinearInput(pop_e1, pop_e1, {
     IP.GM: g_NMDA_E,
-    IP.VREV: 0 * mV,
+    IP.VREV: V_E,
     IP.TAU: tau_NMDA_decay,
 }, name='EE NMDA 1', connection=Connection.all_to_others())
 
 MFLinearInput(pop_e1, pop_e2, {
     IP.GM: g_NMDA_E,
-    IP.VREV: 0 * mV,
+    IP.VREV: V_E,
     IP.TAU: tau_NMDA_decay,
 }, name='EE NMDA 2')
 
 # E->E AMPA
 MFLinearInput(pop_e2, pop_e1, {
     IP.GM: g_AMPA_rec_E,
-    IP.VREV: 0 * mvolt,
+    IP.VREV: V_E,
     IP.TAU: tau_AMPA,
 }, name='EE AMPA 1')
 
 MFLinearInput(pop_e2, pop_e2, {
     IP.GM: g_AMPA_rec_E,
-    IP.VREV: 0 * mvolt,
+    IP.VREV: V_E,
     IP.TAU: tau_AMPA,
 }, name='EE AMPA 2', connection=Connection.all_to_others())
 
 # E->I NMDA
 MFLinearInput(pop_e1, pop_i, {
     IP.GM: g_NMDA_I,
-    IP.VREV: 0 * mvolt,
+    IP.VREV: V_E,
     IP.TAU: tau_NMDA_decay,
 }, name='EI NMDA')
 
 # E->I AMPA
 MFLinearInput(pop_e2, pop_i, {
     IP.GM: g_AMPA_rec_E,
-    IP.VREV: 0 * mvolt,
+    IP.VREV: V_E,
     IP.TAU: tau_AMPA,
 }, name='EI AMPA')
 
 # I->I GABA
 MFLinearInput(pop_i, pop_i, {
     IP.GM: g_GABA_I,
-    IP.VREV: -70 * mvolt,
+    IP.VREV: V_I,
     IP.TAU: tau_GABA,
 }, name='II GABA', connection=Connection.all_to_others())
 
 # I->E GABA
 MFLinearInput(pop_i, pop_e1, {
     IP.GM: g_GABA_E,
-    IP.VREV: -70 * mvolt,
+    IP.VREV: V_I,
     IP.TAU: tau_GABA,
 }, name='IE GABA 1')
 
 MFLinearInput(pop_i, pop_e2, {
     IP.GM: g_GABA_E,
-    IP.VREV: -70 * mvolt,
+    IP.VREV: V_I,
     IP.TAU: tau_GABA,
 }, name='IE GABA 2')
 

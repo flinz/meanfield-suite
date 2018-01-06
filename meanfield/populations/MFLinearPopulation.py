@@ -87,7 +87,7 @@ class MFLinearPopulation(MFPopulation):
         # Brunel Wang 2001 / Brunel Sergi 1998
         beta = (self[PP.VRES] - self[PP.VL] - self.mu) / sigma
 
-        if True or len(self.noises):
+        if len(self.noises):
 
             # only single source of noise supported
             noise, = self.noises

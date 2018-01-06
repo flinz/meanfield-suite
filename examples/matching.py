@@ -12,7 +12,7 @@ from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.utils import reset_brian2
 
 n_pop = 25
-n_noise = 175
+n_noise = 1000
 
 
 def for_rate(rate):
@@ -32,7 +32,7 @@ def for_rate(rate):
     pop.rate = 10 * Hz
 
     inp = MFStaticInput(n_noise, rate * Hz, pop, {
-        IP.GM: 1 * nS,
+        IP.GM: 2.08 * nS,
         IP.VREV: 0 * volt,
         IP.TAU: 2. * ms,
     })
@@ -55,7 +55,7 @@ def for_rate(rate):
     return [sol.state[0], sim, np.std(isolated)]
 
 
-rates = np.linspace(10, 150, 6)
+rates = np.linspace(1, 15, 15)
 dom = np.array([for_rate(r) for r in rates])
 #print(dom)
 plt.plot(rates, dom[:, 0], label='theory')

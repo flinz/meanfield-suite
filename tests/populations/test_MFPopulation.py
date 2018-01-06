@@ -33,7 +33,7 @@ class TestMFPop(object):
             pop.brian2_model,
             '''
             I = 0 : amp
-            dv/dt = (- (25. * nsiemens) * (v - (-70. * mvolt)) - I) / (0.5 * nfarad) : volt (unless refractory)
+            dv/dt = (- (25. * nsiemens) * (v - (-70. * mvolt)) - I) / (0.5 * nfarad) : volt
             '''
         )
 
@@ -46,7 +46,7 @@ class TestMFPop(object):
             '''
             I_test = (0. * siemens) * (v - (0. * volt)) * s_test : amp
             I = I_test : amp
-            dv/dt = (- (25. * nsiemens) * (v - (-70. * mvolt)) - I) / (0.5 * nfarad) : volt (unless refractory)
+            dv/dt = (- (25. * nsiemens) * (v - (-70. * mvolt)) - I) / (0.5 * nfarad) : volt
             ds_test/dt = - s_test / (10. * msecond) : 1
             '''
         )
@@ -62,7 +62,7 @@ class TestMFPop(object):
             I_test1 = (0. * siemens) * (v - (0. * volt)) * s_test1 : amp
             I_test2 = (0. * siemens) * (v - (0. * volt)) * s_test2 : amp
             I= I_test1 + I_test2 : amp
-            dv/dt = (- (25. * nsiemens) * (v - (-70. * mvolt)) - I) / (0.5 * nfarad) : volt (unless refractory)
+            dv/dt = (- (25. * nsiemens) * (v - (-70. * mvolt)) - I) / (0.5 * nfarad) : volt
             ds_test1/dt = - s_test1 / (10. * msecond)  : 1
             ds_test2/dt = - s_test2 / (10. * msecond)  : 1
             '''
