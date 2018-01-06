@@ -1,16 +1,10 @@
-from functools import partial
-
-import numpy as np
-import pytest
+import matplotlib.pyplot as plt
 from brian2 import PopulationRateMonitor, units
 from brian2.units import *
 
-from meanfield.solvers.MFConstraint import MFConstraint
-from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
-from meanfield.solvers.MFState import MFState
-from meanfield.zoo.brunel_wang_2001_stp_depression import one_subpopulation, no_subpopulation
-from meanfield.parameters import IP
-import matplotlib.pyplot as plt
+from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.zoo.brunel_wang_2001_stp_depression import one_subpopulation
+
 
 class TestMF2(object):
 

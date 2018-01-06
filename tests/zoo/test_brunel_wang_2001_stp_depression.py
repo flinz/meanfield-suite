@@ -129,34 +129,6 @@ class TestMF(object):
         solver = MFSolver(state)
         solver.run()
 
-    @pytest.mark.skip(reason="slow")
-    def test_MFSolver_RatesVoltagesNoNmda(self):
-        """Solve for firing rates only with specialized subclass"""
-
-        system1 = no_subpopulation(has_nmda=False)
-        solver = MFSolverRatesVoltages(system1, maxiter=100)
-        r1 = solver.run()
-
-        system2 = no_subpopulation(has_nmda=False)
-        solver = MFSolverRatesVoltages(system2, force_nmda=True, maxiter=100)
-        r2 = solver.run()
-
-        # test rates
-        for key in r1.names:
-            #print(r1[key])
-            #print(r2[key])
-            assert np.isclose(r1[key] / r2[key], 1)
-            #np.testing.assert_almost_equal(r1[key], r2[key], 5)
-
-        # test voltages. these are set implicitly in r1 by the dependent_function
-        for key in [("E", "E-v_mean"), ("I", "I-v_mean")]:
-            assert np.isclose(system1[key[0]].v_mean_prediction / r2[key[1]], 1)
-            assert np.isclose(system1[key[0]].v_mean / r2[key[1]], 1)
-
-            #np.testing.assert_almost_equal(system1[key[0]].v_mean_prediction, r2[key[1]], 5)
-            #np.testing.assert_almost_equal(system1[key[0]].v_mean, r2[key[1]], 5)
-
-    @pytest.mark.skip(reason="slow")
     def test_GradientMinimization_RatesVoltages(self):
         """Solve for firing rates & voltages with specialized subclass"""
 
