@@ -1,4 +1,3 @@
-import copy
 from collections import Mapping
 
 from brian2 import have_same_dimensions, DimensionMismatchError, get_dimensions
@@ -8,11 +7,11 @@ class MissingParameterError(Exception):
     pass
 
 
-class MFParams(Mapping):
+class MFParameters(Mapping):
 
     def __init__(self, params):
 
-        if isinstance(params, MFParams):
+        if isinstance(params, MFParameters):
             params = params.underlying
 
         self.underlying = dict(params)
@@ -34,7 +33,7 @@ class MFParams(Mapping):
     def __add__(self, other):
         other_set = other if isinstance(other, dict) else other.underlying
         params = dict(**self.underlying, **other_set)
-        return MFParams(params)
+        return MFParameters(params)
 
     def all_keys_consumed(self):
         return self.accesses == set(self.underlying.keys())

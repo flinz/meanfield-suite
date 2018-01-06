@@ -209,8 +209,6 @@ def one_subpopulation(w_plus_val=2.5):
         IP.TAU: params_standard['I']['tau_AMPA'],
     }, name='I_noise')
 
-    ctor = MFLinearSTPNMDAInput
-
     # E->E NMDA
     syn_spec_nmda = {
         'tau_syn_rise': 1. * ms,
@@ -223,7 +221,7 @@ def one_subpopulation(w_plus_val=2.5):
         'U': 1,
     }
 
-    source_ee_nmda1 = ctor(pop_e1, pop_e1, {
+    source_ee_nmda1 = MFLinearSTPNMDAInput(pop_e1, pop_e1, {
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
@@ -232,7 +230,7 @@ def one_subpopulation(w_plus_val=2.5):
         IP.W: w_plus
     }, name='EE Nmda1', synapse=syn_spec_nmda)
 
-    source_ee_nmda12 = ctor(pop_e2, pop_e1, {
+    source_ee_nmda12 = MFLinearSTPNMDAInput(pop_e2, pop_e1, {
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
@@ -241,7 +239,7 @@ def one_subpopulation(w_plus_val=2.5):
         IP.W: w_min
     }, name='EE Nmda12', synapse=syn_spec_nmda)
 
-    source_ee_nmda2 = ctor(pop_e1, pop_e2, {
+    source_ee_nmda2 = MFLinearSTPNMDAInput(pop_e1, pop_e2, {
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
@@ -250,7 +248,7 @@ def one_subpopulation(w_plus_val=2.5):
         IP.W: w_min
     }, name='EE Nmda2', synapse=syn_spec_nmda)
 
-    source_ee_nmda22 = ctor(pop_e2, pop_e2, {
+    source_ee_nmda22 = MFLinearSTPNMDAInput(pop_e2, pop_e2, {
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
@@ -261,7 +259,7 @@ def one_subpopulation(w_plus_val=2.5):
 
     # E->I NMDA
 
-    source_ie_nmda = ctor(pop_e1, pop_i, {
+    source_ie_nmda = MFLinearSTPNMDAInput(pop_e1, pop_i, {
         IP.BETA: params_standard['I']['beta'],
         IP.GAMMA: params_standard['I']['gamma'],
         IP.GM: params_standard['I']['gNMDA'],
@@ -270,7 +268,7 @@ def one_subpopulation(w_plus_val=2.5):
         IP.W: 1
     }, name='IE Nmda', synapse=syn_spec_nmda)
 
-    source_ie_nmda2 = ctor(pop_e2, pop_i, {
+    source_ie_nmda2 = MFLinearSTPNMDAInput(pop_e2, pop_i, {
         IP.BETA: params_standard['I']['beta'],
         IP.GAMMA: params_standard['I']['gamma'],
         IP.GM: params_standard['I']['gNMDA'],

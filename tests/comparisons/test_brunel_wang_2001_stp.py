@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import pytest
 from brian2 import PopulationRateMonitor, units
 from brian2.units import *
 
@@ -28,6 +29,7 @@ class TestMF2(object):
         #print(self.system.graph().render('test.png', view=True))
         pass
 
+    @pytest.mark.skip(reason='plot')
     def test_sim(self):
         reset_brian2()
         up, down, inter = self.system.populations

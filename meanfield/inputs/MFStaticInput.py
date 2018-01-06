@@ -5,7 +5,7 @@ from brian2 import units, check_units, PoissonInput, BrianObject
 
 from meanfield.inputs.MFInput import MFInput
 from meanfield.parameters import IP
-from meanfield.parameters.MFParams import MFParams
+from meanfield.parameters.MFParameters import MFParameters
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import lazyproperty
 
@@ -17,7 +17,7 @@ class MFStaticInput(MFInput):
     defaults = MappingProxyType({})
 
     @check_units(rate=units.hertz, n=1)
-    def __init__(self, n: int, rate: units.hertz, target: MFPopulation, parameters: Union[Dict, MFParams], **kwargs):
+    def __init__(self, n: int, rate: units.hertz, target: MFPopulation, parameters: Union[Dict, MFParameters], **kwargs):
         super().__init__(None, target, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)

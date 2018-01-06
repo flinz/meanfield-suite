@@ -5,7 +5,7 @@ from brian2 import check_units, Equations, Synapses, BrianObject, units
 
 from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.parameters import IP
-from meanfield.parameters.MFParams import MFParams
+from meanfield.parameters.MFParameters import MFParameters
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import lazyproperty
 
@@ -92,7 +92,7 @@ class MFLinearSTPInput(MFLinearInput):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], synapse, **kwargs):
+    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParameters], synapse, **kwargs):
         super().__init__(origin, target, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)

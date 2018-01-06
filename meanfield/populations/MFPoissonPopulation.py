@@ -4,7 +4,7 @@ from typing import Union, Optional
 from brian2 import check_units, units, PoissonGroup, BrianObject, Equations
 
 from meanfield.parameters import PP
-from meanfield.parameters.MFParams import MFParams
+from meanfield.parameters.MFParameters import MFParameters
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import lazyproperty
 

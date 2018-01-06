@@ -7,7 +7,7 @@ from brian2 import units, check_units, Equations, BrianObject
 from meanfield.parameters import Connection
 from meanfield.parameters import IP, PP
 from meanfield.parameters.Connection import ConnectionStrategy
-from meanfield.parameters.MFParams import MFParams
+from meanfield.parameters.MFParameters import MFParameters
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import create_identifier, create_name
 
@@ -23,12 +23,12 @@ class MFInput(object):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, origin: Union[None, MFPopulation], target: MFPopulation, parameters: Union[Dict, MFParams]=None, name: str=None, connection: ConnectionStrategy=Connection.all_to_all()):
+    def __init__(self, origin: Union[None, MFPopulation], target: MFPopulation, parameters: Union[Dict, MFParameters]=None, name: str=None, connection: ConnectionStrategy=Connection.all_to_all()):
 
         self.name = name if name else create_name(self)
         self.ref = create_identifier(self.name)
 
-        self.parameters = MFParams({}) if not parameters else MFParams(parameters)
+        self.parameters = MFParameters({}) if not parameters else MFParameters(parameters)
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
 

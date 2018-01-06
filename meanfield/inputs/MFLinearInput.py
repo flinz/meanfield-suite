@@ -5,7 +5,7 @@ from brian2 import check_units, Equations, Synapses, BrianObject, units
 
 from meanfield.inputs.MFInput import MFInput
 from meanfield.parameters import IP
-from meanfield.parameters.MFParams import MFParams
+from meanfield.parameters.MFParameters import MFParameters
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import lazyproperty
 
@@ -20,7 +20,7 @@ class MFLinearInput(MFInput):
         IP.W: 1,
     })
 
-    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], **kwargs):
+    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParameters], **kwargs):
         super().__init__(origin, target, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)

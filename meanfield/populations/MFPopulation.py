@@ -4,7 +4,7 @@ from typing import Union, Optional
 
 from brian2 import units, check_units, Equations, BrianObject
 
-from meanfield.parameters.MFParams import MFParams
+from meanfield.parameters.MFParameters import MFParameters
 from meanfield.utils import create_identifier, create_name
 
 
@@ -15,13 +15,13 @@ class MFPopulation(object):
     defaults = MappingProxyType({})
 
     @check_units(n=1)
-    def __init__(self, n: int, parameters: Optional[Union[dict, MFParams]]=None, name: str=None):
+    def __init__(self, n: int, parameters: Optional[Union[dict, MFParameters]]=None, name: str=None):
 
         self.name = name if name else create_name(self)
         self.ref = create_identifier(self.name)
         self.n = n
 
-        self.parameters = MFParams({}) if not parameters else MFParams(parameters)
+        self.parameters = MFParameters({}) if not parameters else MFParameters(parameters)
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
 

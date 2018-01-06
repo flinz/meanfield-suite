@@ -7,7 +7,7 @@ from scipy import special
 from scipy import integrate
 
 from meanfield.parameters import PP, IP
-from meanfield.parameters.MFParams import MFParams
+from meanfield.parameters.MFParameters import MFParameters
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import lazyproperty
 
@@ -26,7 +26,7 @@ class MFLinearPopulation(MFPopulation):
 
     defaults = MappingProxyType({})
 
-    def __init__(self, n: int, parameters: Union[dict, MFParams], **kwargs):
+    def __init__(self, n: int, parameters: Union[dict, MFParameters], **kwargs):
         super().__init__(n, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)

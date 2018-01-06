@@ -22,7 +22,7 @@ from meanfield.parameters import PP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.utils import reset_brian2
-from meanfield.parameters.MFParams import MFParams
+from meanfield.parameters.MFParameters import MFParameters
 
 BrianLogger.log_level_debug()
 reset_brian2()
@@ -137,7 +137,7 @@ MFStaticInput(C_ext, rate, pop_i, {
 }, name="I_noise")
 
 # E->E NMDA
-ee_nmda = MFParams({
+ee_nmda = MFParameters({
     IP.GM: g_NMDA_E,
     IP.VREV: V_E,
     IP.TAU: 0 * ms,
@@ -159,7 +159,7 @@ MFNonLinearNMDAInput(pop_e2, pop_e1, ee_nmda + {IP.W: 1}, name='EE NMDA 4')
 
 
 # E->E AMPA
-ee_ampa = MFParams({
+ee_ampa = MFParameters({
     IP.GM: g_AMPA_rec_E,
     IP.VREV: V_E,
     IP.TAU: tau_AMPA,

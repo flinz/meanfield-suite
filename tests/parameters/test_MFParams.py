@@ -1,18 +1,18 @@
-from meanfield.parameters.MFParams import MFParams
+from meanfield.parameters.MFParameters import MFParameters
 
 class TestMFParams(object):
 
     def test_constructor(self):
-        assert MFParams({}).underlying == {}
-        assert MFParams({'a': 1}).underlying == {'a': 1}
+        assert MFParameters({}).underlying == {}
+        assert MFParameters({'a': 1}).underlying == {'a': 1}
 
     def test_getter(self):
         try:
-            _ = MFParams({})['a']
+            _ = MFParameters({})['a']
             assert False
         except:
             pass
-        assert MFParams({'a': 1})['a'] == 1
+        assert MFParameters({'a': 1})['a'] == 1
 
 #    def testSetter(self):
 #        p = MFParams({'a': 1})
@@ -22,8 +22,8 @@ class TestMFParams(object):
 #        assert p.b == 3
 
     def test_all_keys_consumed(self):
-        assert MFParams({}).all_keys_consumed()
-        p = MFParams({'a': 1})
+        assert MFParameters({}).all_keys_consumed()
+        p = MFParameters({'a': 1})
         assert not p.all_keys_consumed()
         _ = p['a']
         assert p.all_keys_consumed()
