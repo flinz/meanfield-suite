@@ -7,14 +7,14 @@ from brian2.units import *
 from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
 from meanfield.solvers.MFState import MFState
-from meanfield.zoo.brunel_wang_2001_stp_depression import setup_brunel99, setup_EI
+from meanfield.zoo.brunel_wang_2001_stp_depression import one_subpopulation, no_subpopulation
 from meanfield.parameters import IP
 
 
 class TestMF(object):
 
     def setup_method(self):
-        self.system = setup_brunel99()
+        self.system = one_subpopulation()
 
     def test_taus(self):
         """Effective timeconstants equal old implementation"""
@@ -133,11 +133,11 @@ class TestMF(object):
     def test_MFSolver_RatesVoltagesNoNmda(self):
         """Solve for firing rates only with specialized subclass"""
 
-        system1 = setup_EI(has_nmda=False)
+        system1 = no_subpopulation(has_nmda=False)
         solver = MFSolverRatesVoltages(system1, maxiter=100)
         r1 = solver.run()
 
-        system2 = setup_EI(has_nmda=False)
+        system2 = no_subpopulation(has_nmda=False)
         solver = MFSolverRatesVoltages(system2, force_nmda=True, maxiter=100)
         r2 = solver.run()
 
@@ -159,7 +159,7 @@ class TestMF(object):
     def test_GradientMinimization_RatesVoltages(self):
         """Solve for firing rates & voltages with specialized subclass"""
 
-        system = setup_EI()
+        system = no_subpopulation()
 
         solver = MFSolverRatesVoltages(system, solver="mse", maxiter=1)
         sol1 = solver.run()
@@ -172,7 +172,7 @@ class TestMF(object):
     def test_ConductanceMinimization(self):
         """Solve for NMDA conductances with constrained firing rates"""
 
-        system = setup_EI()
+        system = no_subpopulation()
 
         constraints = [
                           MFConstraint(
@@ -203,7 +203,7 @@ class TestMF(object):
     def test_ConductanceMinimizationRatio(self):
         """Solve for NMDA & Gaba conductances with constrained firing rates & EI fixed ratio"""
 
-        system = setup_EI()
+        system = no_subpopulation()
         ratio = 4.
 
         def e_setter(p, val):

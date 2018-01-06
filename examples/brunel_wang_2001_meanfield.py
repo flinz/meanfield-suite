@@ -1,3 +1,15 @@
+'''
+Sample-specific persistent activity
+-----------------------------------
+
+Five subpopulations with three selective and one reset stimuli example.
+Analog to figure 6b in the paper.
+
+BRUNEL, Nicolas et WANG, Xiao-Jing. Effects of neuromodulation in a cortical network model of object working memory
+dominated by recurrent inhibition. Journal of computational neuroscience, 2001, vol. 11, no 1, p. 63-85.
+'''
+
+
 from brian2 import *
 
 from meanfield.MFSystem import MFSystem
