@@ -1,0 +1,83 @@
+digraph Brunel {
+	graph [fontname="Helvetica Neue" overlap=false rankdir=LR splines=true]
+	node [fontname="Helvetica Neue" fontsize=11]
+	edge [fontname="Helvetica Neue" fontsize=9]
+	Eup [label=<
+                <table
+                    cellspacing="0" 
+                    border="0"
+                    cellpadding="3"
+                    cellborder="1" 
+                >
+                    <tr><td padding="50px">MFLinearPopulation</td><td padding="50px">Eup</td></tr><tr><td padding="50px">n</td><td padding="50px">80.0</td></tr><tr><td padding="50px">gm</td><td padding="50px">25. nS</td></tr><tr><td padding="50px">VL</td><td padding="50px">-70. mV</td></tr><tr><td padding="50px">Cm</td><td padding="50px">0.5 nF</td></tr><tr><td padding="50px">Vthr</td><td padding="50px">-50. mV</td></tr><tr><td padding="50px">Vres</td><td padding="50px">-60. mV</td></tr><tr><td padding="50px">tau_rp</td><td padding="50px">2. ms</td></tr>
+                </table>
+            > shape=plaintext]
+	Eup -> Eup [label="EE Nmda1"]
+	Edown -> Eup [label="EE Nmda12"]
+	I -> Eup [label="EI Gaba"]
+	E_noise1 -> Eup [arrowhead=empty style=dotted]
+	Edown [label=<
+                <table
+                    cellspacing="0" 
+                    border="0"
+                    cellpadding="3"
+                    cellborder="1" 
+                >
+                    <tr><td padding="50px">MFLinearPopulation</td><td padding="50px">Edown</td></tr><tr><td padding="50px">n</td><td padding="50px">720.0</td></tr><tr><td padding="50px">gm</td><td padding="50px">25. nS</td></tr><tr><td padding="50px">VL</td><td padding="50px">-70. mV</td></tr><tr><td padding="50px">Cm</td><td padding="50px">0.5 nF</td></tr><tr><td padding="50px">Vthr</td><td padding="50px">-50. mV</td></tr><tr><td padding="50px">Vres</td><td padding="50px">-60. mV</td></tr><tr><td padding="50px">tau_rp</td><td padding="50px">2. ms</td></tr>
+                </table>
+            > shape=plaintext]
+	Eup -> Edown [label="EE Nmda2"]
+	Edown -> Edown [label="EE Nmda22"]
+	I -> Edown [label="EI Gaba2"]
+	E_noise2 -> Edown [arrowhead=empty style=dotted]
+	I [label=<
+                <table
+                    cellspacing="0" 
+                    border="0"
+                    cellpadding="3"
+                    cellborder="1" 
+                >
+                    <tr><td padding="50px">MFLinearPopulation</td><td padding="50px">I</td></tr><tr><td padding="50px">n</td><td padding="50px">200</td></tr><tr><td padding="50px">gm</td><td padding="50px">20. nS</td></tr><tr><td padding="50px">VL</td><td padding="50px">-70. mV</td></tr><tr><td padding="50px">Cm</td><td padding="50px">200. pF</td></tr><tr><td padding="50px">Vthr</td><td padding="50px">-50. mV</td></tr><tr><td padding="50px">Vres</td><td padding="50px">-60. mV</td></tr><tr><td padding="50px">tau_rp</td><td padding="50px">1. ms</td></tr>
+                </table>
+            > shape=plaintext]
+	Eup -> I [label="IE Nmda"]
+	Edown -> I [label="IE Nmda2"]
+	I -> I [label="II Gaba"]
+	I_noise -> I [arrowhead=empty style=dotted]
+	subgraph cluster_noises {
+		node [style=filled]
+		label="External noises"
+		style=filled
+		color="#efefef"
+		E_noise1 [label=<
+                <table
+                    cellspacing="0" 
+                    border="0"
+                    cellpadding="3"
+                    cellborder="1" 
+                >
+                    <tr><td padding="50px">MFStaticInput</td><td padding="50px">E_noise1</td></tr><tr><td padding="50px">n</td><td padding="50px">1000</td></tr><tr><td padding="50px">rate</td><td padding="50px">2.4 Hz</td></tr>
+                </table>
+            > shape=plaintext]
+		E_noise2 [label=<
+                <table
+                    cellspacing="0" 
+                    border="0"
+                    cellpadding="3"
+                    cellborder="1" 
+                >
+                    <tr><td padding="50px">MFStaticInput</td><td padding="50px">E_noise2</td></tr><tr><td padding="50px">n</td><td padding="50px">1000</td></tr><tr><td padding="50px">rate</td><td padding="50px">2.4 Hz</td></tr>
+                </table>
+            > shape=plaintext]
+		I_noise [label=<
+                <table
+                    cellspacing="0" 
+                    border="0"
+                    cellpadding="3"
+                    cellborder="1" 
+                >
+                    <tr><td padding="50px">MFStaticInput</td><td padding="50px">I_noise</td></tr><tr><td padding="50px">n</td><td padding="50px">1000</td></tr><tr><td padding="50px">rate</td><td padding="50px">2.4 Hz</td></tr>
+                </table>
+            > shape=plaintext]
+	}
+}

@@ -98,7 +98,6 @@ class TestMF(object):
             state.error = 1.
         assert state.error == error
         np.testing.assert_array_almost_equal(state.state, state_)
-        print(state)
         return state
 
     def test_MFSolver_RatesVoltages(self):
@@ -130,6 +129,7 @@ class TestMF(object):
         solver = MFSolver(state)
         solver.run()
 
+    @pytest.mark.skip(reason="slow")
     def test_MFSolver_RatesVoltagesNoNmda(self):
         """Solve for firing rates only with specialized subclass"""
 
@@ -156,6 +156,7 @@ class TestMF(object):
             #np.testing.assert_almost_equal(system1[key[0]].v_mean_prediction, r2[key[1]], 5)
             #np.testing.assert_almost_equal(system1[key[0]].v_mean, r2[key[1]], 5)
 
+    @pytest.mark.skip(reason="slow")
     def test_GradientMinimization_RatesVoltages(self):
         """Solve for firing rates & voltages with specialized subclass"""
 

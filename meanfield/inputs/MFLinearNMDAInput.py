@@ -32,7 +32,7 @@ class MFLinearNMDAInput(MFLinearInput):
         """Linearization factor for NMDA"""
 
         # careful on mvolt conversion
-        return 1 + self[PP.GAMMA] * np.exp(-self[PP.BETA] * self.target.v_mean / units.mV)
+        return 1 + self[IP.GAMMA] * np.exp(-self[IP.BETA] * self.target.v_mean / units.mV)
 
     @property
     @check_units(result=1)
@@ -42,7 +42,7 @@ class MFLinearNMDAInput(MFLinearInput):
     @property
     @check_units(result=1)
     def rho2(self):
-        return (self.J - 1) / (self.J ** 2) * self[PP.BETA] * (self.target.v_mean - self[IP.VREV]) / units.mV
+        return (self.J - 1) / (self.J ** 2) * self[IP.BETA] * (self.target.v_mean - self[IP.VREV]) / units.mV
 
     @property
     @check_units(result=units.siemens)
