@@ -32,7 +32,8 @@ class MFParams(Mapping):
         return self.underlying.__len__()
 
     def __add__(self, other):
-        params = dict(**self.underlying, **other.underlying)
+        other_set = other if isinstance(other, dict) else other.underlying
+        params = dict(**self.underlying, **other_set)
         return MFParams(params)
 
     def all_keys_consumed(self):

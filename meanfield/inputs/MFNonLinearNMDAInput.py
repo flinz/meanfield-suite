@@ -89,7 +89,6 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
             tau_rise=self[IP.TAU_NMDA_RISE],
             alpha=self[IP.ALPHA],
         )
-        print(model)
         eqs_pre = f'''
         {self.post_nonlinear_name} += 1
         '''

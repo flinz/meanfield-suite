@@ -75,7 +75,7 @@ w_minus = 1. - f * (w_plus - 1.) / (1. - f)
 
 # modeling
 eqs_E = '''
-dv / dt = (- g_m_E * (v - V_L) - I_syn) / C_m_E : volt (unless refractory)
+dv / dt = (- g_m_E * (v - V_L) - I_syn) / C_m_E : volt
 
 I_syn = I_AMPA_ext + I_AMPA_rec + I_NMDA_rec + I_GABA_rec : amp
 
@@ -92,7 +92,7 @@ ds_GABA / dt = - s_GABA / tau_GABA : 1
 '''
 
 eqs_I = '''
-dv / dt = (- g_m_I * (v - V_L) - I_syn) / C_m_I : volt (unless refractory)
+dv / dt = (- g_m_I * (v - V_L) - I_syn) / C_m_I : volt
 
 I_syn = I_AMPA_ext + I_AMPA_rec + I_NMDA_rec + I_GABA_rec : amp
 
@@ -180,6 +180,7 @@ net.add(r_E_sels)
 net.run(2 * second, report='stdout')
 
 # plotting
+suptitle('Pure Brian2')
 title('Population rates')
 xlabel('ms')
 ylabel('Hz')
@@ -193,6 +194,7 @@ for i, r_E_sel in enumerate(r_E_sels[::-1]):
 legend()
 show()
 
+suptitle('Pure Brian2')
 title('Population activities ({} neurons/pop)'.format(N_activity_plot))
 xlabel('ms')
 yticks([])
