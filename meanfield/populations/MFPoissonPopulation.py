@@ -11,17 +11,13 @@ from meanfield.utils import lazyproperty
 
 class MFPoissonPopulation(MFPopulation):
 
-    arguments = MappingProxyType({
-        PP.GM: units.siemens,
-        PP.VRES: units.volt,
-        PP.TAU_RP: units.second
-    })
+    arguments = MappingProxyType({})
 
     defaults = MappingProxyType({})
 
     @check_units(rate=units.Hz)
-    def __init__(self, n: int, rate: units.Hz, parameters: Union[dict, MFParams], **kwargs):
-        super().__init__(n, parameters, **kwargs)
+    def __init__(self, n: int, rate: units.Hz, **kwargs):
+        super().__init__(n, {}, **kwargs)
         self.rate = rate
 
         self.parameters.fill(self.defaults)

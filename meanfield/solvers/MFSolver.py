@@ -15,6 +15,8 @@ from timeit import default_timer as timer
 
 import logging
 
+from meanfield.populations.MFPoissonPopulation import MFPoissonPopulation
+
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("solver")
 
@@ -145,7 +147,6 @@ class MFSolver(object):
                     #print(np.array(x)[0], v)
                     return v
 
-                #sol = minimize(f, p_0, bounds=bounds, method='Nelder-Mead')
                 sol = minimize(f, p_0, bounds=bounds, method='L-BFGS-B')
                 #, options={
                     #'disp': None,
@@ -171,11 +172,11 @@ class MFSolver(object):
                     plt.plot(xs[xs.argsort()], ys[xs.argsort()])
                     plt.show()
 
-                    xs = np.linspace(0, 10, 200) * units.Hz
-                    plt.plot(xs, [f([x]) for x in xs], label='fun')
-                    #plt.axvline(sol.x, c='r', label='sol')
-                    plt.legend()
-                    plt.show()
+                    #xs = np.linspace(0, 10, 200) * units.Hz
+                    #plt.plot(xs, [f([x]) for x in xs], label='fun')
+                    ##plt.axvline(sol.x, c='r', label='sol')
+                    #plt.legend()
+                    #plt.show()
 
                 abs_err = np.sqrt(sol.fun)
 
@@ -219,6 +220,7 @@ class MFSolver(object):
         print("-------------------\n")
         return self.mfstate
 
+
 class MFSolverRatesVoltages(MFSolver):
 
     def __init__(self, system, force_nmda=False, *args, **kwargs):
@@ -229,36 +231,37 @@ class MFSolverRatesVoltages(MFSolver):
 
         for p in system.populations:
 
-            constraints.append(
-                MFConstraint(
-                    "%s-%s" % (p.name, "rate"),
-                    free_get=partial(lambda x: x.rate, p),
-                    free_set=partial(lambda x, val: setattr(x, "rate", val), p),
-                    error_fun=partial(lambda x: x.rate - x.rate_prediction, p),
-                    bound_down=0. * units.Hz,
-                    bound_up=1000. * units.Hz
+            if not isinstance(p, MFPoissonPopulation):
+                constraints.append(
+                    MFConstraint(
+                        "%s-%s" % (p.name, "rate"),
+                        free_get=partial(lambda x: x.rate, p),
+                        free_set=partial(lambda x, val: setattr(x, "rate", val), p),
+                        error_fun=partial(lambda x: x.rate - x.rate_prediction, p),
+                        bound_down=0. * units.Hz,
+                        bound_up=1000. * units.Hz
+                    )
                 )
-            )
 
-            if hasattr(p, 'v_mean'):
+                if hasattr(p, 'v_mean'):
 
-                has_nmda = any(isinstance(i, MFLinearNMDAInput) for i in p.inputs)
+                    has_nmda = any(isinstance(i, MFLinearNMDAInput) for i in p.inputs)
 
-                if has_nmda or force_nmda:
-                    print("Population %s has NMDA -> solving for voltages" % p.name)
-                    constraints.append(
-                        MFConstraint(
-                            "%s-%s" % (p.name, "v_mean"),
-                            partial(lambda x: x.v_mean, p),
-                            partial(lambda x, val: setattr(x, "v_mean", val), p),
-                            partial(lambda x: x.v_mean - x.v_mean_prediction, p),
-                            -80. * units.mV, 50. * units.mV
+                    if has_nmda or force_nmda:
+                        print("Population %s has NMDA -> solving for voltages" % p.name)
+                        constraints.append(
+                            MFConstraint(
+                                "%s-%s" % (p.name, "v_mean"),
+                                partial(lambda x: x.v_mean, p),
+                                partial(lambda x, val: setattr(x, "v_mean", val), p),
+                                partial(lambda x: x.v_mean - x.v_mean_prediction, p),
+                                -80. * units.mV, 50. * units.mV
+                            )
                         )
-                    )
-                else:
-                    functions.append(
-                        partial(lambda x: setattr(x, "v_mean", x.v_mean_prediction), p),
-                    )
+                    else:
+                        functions.append(
+                            partial(lambda x: setattr(x, "v_mean", x.v_mean_prediction), p),
+                        )
 
         state = MFState(constraints, dependent_functions=functions)
         super(MFSolverRatesVoltages, self).__init__(state, *args, **kwargs)

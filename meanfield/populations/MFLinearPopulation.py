@@ -71,7 +71,7 @@ class MFLinearPopulation(MFPopulation):
             return 0. * units.volt ** 2
 
         # only single source of noise supported
-        noise = self.noises[0]
+        noise, = self.noises
         return (noise[IP.GM] / self[PP.CM] * (self.v_mean - noise[IP.VREV])) ** 2 * self.tau_eff * noise.g_dyn() * noise[IP.TAU]
 
     @property
@@ -80,19 +80,24 @@ class MFLinearPopulation(MFPopulation):
         '''
         phi_firing_func
         '''
-        if not len(self.noises):
-            return 0 * units.Hz
 
         sigma = np.sqrt(self.sigma_square)
         tau_eff = self.tau_eff
-        noise = self.noises[0]
 
         # Brunel Wang 2001 / Brunel Sergi 1998
         beta = (self[PP.VRES] - self[PP.VL] - self.mu) / sigma
-        alpha = -0.5 * noise[IP.TAU] / tau_eff \
-                + 1.03 * np.sqrt(noise[IP.TAU] / tau_eff) \
-                + (- self.mu - self[PP.VL] + self[PP.VTHR]) * (
-                        1. + (0.5 * noise[IP.TAU] / tau_eff)) / sigma
+
+        if True or len(self.noises):
+
+            # only single source of noise supported
+            noise, = self.noises
+            alpha = -0.5 * noise[IP.TAU] / tau_eff \
+                    + 1.03 * np.sqrt(noise[IP.TAU] / tau_eff) \
+                    + (- self.mu - self[PP.VL] + self[PP.VTHR]) * (
+                            1. + (0.5 * noise[IP.TAU] / tau_eff)) / sigma
+
+        else:
+            alpha = (- self.mu - self[PP.VL] + self[PP.VTHR]) / sigma
 
         # Fourcauld Brunel 2002
         # beta = (self[NP.VRES] - self[NP.VL] - self.mu) / sigma + 1.03 * np.sqrt(noise[SP.TAU] / tau_eff)
@@ -138,7 +143,7 @@ class MFLinearPopulation(MFPopulation):
     @property
     def brian2_model(self) -> Optional[Equations]:
         eqs = Equations(
-            'dv / dt = (- g * (v - vl) - I) / cm : volt (unless refractory)',
+            'dv / dt = (- g * (v - vl) - I) / cm : volt',
             g=self[PP.GM],
             vl=self[PP.VL],
             cm=self[PP.CM]

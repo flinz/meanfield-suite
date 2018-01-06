@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from brian2 import PopulationRateMonitor, StateMonitor
+from brian2 import PopulationRateMonitor
 from brian2.units import *
 
 from meanfield.MFSystem import MFSystem
@@ -12,11 +12,14 @@ from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.utils import reset_brian2
 
 n_pop = 25
-n_noise = 100
+n_noise = 175
 
 
 def for_rate(rate):
     reset_brian2()
+
+    t = 500 * ms
+    dt = 0.1 * ms
 
     pop = MFLinearPopulation(n_pop, {
         PP.GM: 25. * nS,
@@ -26,18 +29,18 @@ def for_rate(rate):
         PP.VRES: -55. * mV,
         PP.TAU_RP: 2. * ms
     })
-    pop.rate = 1 * Hz
+    pop.rate = 10 * Hz
 
     inp = MFStaticInput(n_noise, rate * Hz, pop, {
-        IP.GM: 2 * nS,
+        IP.GM: 1 * nS,
         IP.VREV: 0 * volt,
         IP.TAU: 2. * ms,
     })
 
-    t = 500 * ms
-    dt = 0.1 * ms
 
     system = MFSystem(pop)
+
+
     rate = PopulationRateMonitor(pop.brian2)
     net = system.collect_brian2_network(rate)
     net.run(t)
@@ -52,14 +55,14 @@ def for_rate(rate):
     return [sol.state[0], sim, np.std(isolated)]
 
 
-rates = np.linspace(2, 100, 20)
+rates = np.linspace(10, 150, 6)
 dom = np.array([for_rate(r) for r in rates])
 #print(dom)
 plt.plot(rates, dom[:, 0], label='theory')
 #plt.errorbar(rates, dom[:, 1], yerr=dom[:, 2], fmt='.', label='simulation')
 plt.plot(rates, dom[:, 1], label='simulation')
-plt.xlabel(f'Noise rate (Hz) on {n_pop}')
-plt.ylabel(f'Population rate (Hz) from {n_noise}')
+plt.xlabel(f'Noise rate (Hz) from {n_noise}')
+plt.ylabel(f'Population rate (Hz) on {n_pop}')
 plt.legend()
 plt.show()
 

@@ -40,11 +40,7 @@ class TestMFLinear3TSInput(object):
 
         alpha = 0.5
 
-        poisson = MFPoissonPopulation(n, n * 10 * Hz, {
-            PP.GM: 1 * nsiemens,
-            PP.VRES: 0 * mV,
-            PP.TAU_RP: 2 * ms
-        })
+        poisson = MFPoissonPopulation(n, n * 10 * Hz)
         pop = MFLinearPopulation(n, {
             PP.GM: 10 * nsiemens,
             PP.VL: 0 * mV,
