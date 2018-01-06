@@ -4,9 +4,6 @@ from typing import Union, Dict
 from brian2 import check_units, Equations, Synapses, BrianObject, units
 
 from meanfield.inputs.MFLinearInput import MFLinearInput
-from meanfield.inputs.MFLinearNMDAInput import MFLinearNMDAInput
-from meanfield.inputs.modifiers.stp import STP
-from meanfield.inputs.MFInput import MFInput
 from meanfield.parameters import IP
 from meanfield.parameters.MFParams import MFParams
 from meanfield.populations.MFPopulation import MFPopulation
@@ -14,15 +11,20 @@ from meanfield.utils import lazyproperty
 
 
 class MFLinearSTPInput(MFLinearInput):
-    arguments = MappingProxyType({})
+
+    arguments = MappingProxyType({
+
+    })
 
     defaults = MappingProxyType({})
 
-    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], **kwargs):
+    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], synapse, **kwargs):
         super().__init__(origin, target, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
+
+        self.synapse = synapse
 
     # Theory
 

@@ -20,21 +20,19 @@ class MFLinearInput(MFInput):
         IP.W: 1,
     })
 
-    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], synapse=None, **kwargs):
+    def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParams], **kwargs):
         super().__init__(origin, target, parameters, **kwargs)
 
         self.parameters.fill(self.defaults)
         self.parameters.verify(self.arguments)
 
-        self.synapse = synapse
         target.add_input(self)
 
     # Theory
 
     @check_units(result=1)
     def g_dyn(self):
-        activation = self.synapse(self.origin.rate) if self.synapse else self.origin.rate * self[IP.TAU]
-        return self.connection.theory(self.origin.n) * activation * self[IP.W]
+        return self.connection.theory(self.origin.n) * self.origin.rate * self[IP.TAU] * self[IP.W]
 
     # Simulation
 
