@@ -7,7 +7,7 @@ from brian2.units import *
 from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFSolver import MFSolver, MFSolverRatesVoltages
 from meanfield.solvers.MFState import MFState
-from meanfield.zoo.brunel_2001_depression import setup_brunel99, setup_EI
+from meanfield.zoo.brunel_wang_2001_stp_depression import setup_brunel99, setup_EI
 from meanfield.parameters import IP
 
 

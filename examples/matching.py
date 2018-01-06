@@ -12,7 +12,7 @@ from meanfield.solvers.MFSolver import MFSolverRatesVoltages
 from meanfield.utils import reset_brian2
 
 n_pop = 25
-n_noise = 1000
+n_noise = 800
 
 
 def for_rate(rate):
@@ -40,7 +40,6 @@ def for_rate(rate):
 
     system = MFSystem(pop)
 
-
     rate = PopulationRateMonitor(pop.brian2)
     net = system.collect_brian2_network(rate)
     net.run(t)
@@ -66,6 +65,8 @@ plt.ylabel(f'Population rate (Hz) on {n_pop}')
 plt.legend()
 plt.show()
 
+print(dom[:, 0])
+print(dom[:, 1])
 print(dom[:, 0] - dom[:, 1])
 #plt.plot(rates, dom[:, 0] - dom[:, 1])
 #plt.show()
