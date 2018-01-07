@@ -29,6 +29,7 @@ params_source = {
     IP.TAU: 10 * ms,
 }
 
+
 class TestMFLinearNMDAInput(object):
 
     @pytest.mark.skip(reason="need nmda impl")
