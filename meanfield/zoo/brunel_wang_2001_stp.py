@@ -5,6 +5,7 @@ from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.inputs.MFLinearSTPNMDAInput import MFLinearSTPNMDAInput
 from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.parameters import PP, IP
+from meanfield.parameters.MFParameters import MFParameters
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 
 # BRUNEL, Nicolas et WANG, Xiao-Jing. Effects of neuromodulation in a cortical network model of object working memory dominated by recurrent inhibition. Journal of computational neuroscience, 2001, vol. 11, no 1, p. 63-85.
@@ -97,25 +98,17 @@ def no_subpopulation():
     }, name='I_noise')
 
     # E->E NMDA
-    syn_spec_nmda = {
-        'tau_syn_rise': 1. * ms,
-        'tau_syn_d1': 100. * ms,
-        'tau_syn_d2': 100. * ms,
-        'balance': .5,
-        'tau_x': 150. * ms,
-
-        'tau_f': 1000. * ms,
-        'U': 1,
-    }
-
     source_ee_nmda = MFLinearSTPNMDAInput(pop_e, pop_e, {
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: params_standard['E']['VE'],
         IP.TAU: params_standard['E']['tau_NMDA'],
-        IP.W: 1
-    }, name='EE Nmda', synapse=syn_spec_nmda)
+        IP.W: 1,
+        IP.TAU_F: 1000 * ms,
+        IP.TAU_D: 150 * ms,
+        IP.U: 1,
+    }, name='EE Nmda')
 
     # E->I NMDA
     source_ie_nmda = MFLinearSTPNMDAInput(pop_e, pop_i, {
@@ -124,8 +117,11 @@ def no_subpopulation():
         IP.GM: params_standard['I']['gNMDA'],
         IP.VREV: params_standard['I']['VE'],
         IP.TAU: params_standard['I']['tau_NMDA'],
-        IP.W: 1
-    }, name='IE Nmda', synapse=syn_spec_nmda)
+        IP.W: 1,
+        IP.TAU_F: 1000 * ms,
+        IP.TAU_D: 150 * ms,
+        IP.U: 1,
+    }, name='IE Nmda')
 
     # I->I GABA
 
@@ -210,72 +206,50 @@ def one_subpopulation(w_plus_val=2.5):
     }, name='I_noise')
 
     # E->E NMDA
-    syn_spec_nmda = {
-        'tau_syn_rise': 1. * ms,
-        'tau_syn_d1': 100. * ms,
-        'tau_syn_d2': 100. * ms,
-        'balance': .5,
-        'tau_x': 150. * ms,  # depressing
-
-        'tau_f': 1000. * ms,
-        'U': 1,
-    }
-
-    source_ee_nmda1 = MFLinearSTPNMDAInput(pop_e1, pop_e1, {
+    ee_nmda = MFParameters({
         IP.BETA: params_standard['E']['beta'],
         IP.GAMMA: params_standard['E']['gamma'],
         IP.GM: params_standard['E']['gNMDA'],
         IP.VREV: params_standard['E']['VE'],
         IP.TAU: params_standard['E']['tau_NMDA'],
+
+        IP.TAU_F: 1000 * ms,
+        IP.TAU_D: 150 * ms,
+        IP.U: 1,
+    })
+
+    source_ee_nmda1 = MFLinearSTPNMDAInput(pop_e1, pop_e1, ee_nmda + {
         IP.W: w_plus
-    }, name='EE Nmda1', synapse=syn_spec_nmda)
+    }, name='EE Nmda1')
 
-    source_ee_nmda12 = MFLinearSTPNMDAInput(pop_e2, pop_e1, {
-        IP.BETA: params_standard['E']['beta'],
-        IP.GAMMA: params_standard['E']['gamma'],
-        IP.GM: params_standard['E']['gNMDA'],
-        IP.VREV: params_standard['E']['VE'],
-        IP.TAU: params_standard['E']['tau_NMDA'],
+    source_ee_nmda12 = MFLinearSTPNMDAInput(pop_e2, pop_e1, ee_nmda + {
         IP.W: w_min
-    }, name='EE Nmda12', synapse=syn_spec_nmda)
+    }, name='EE Nmda12')
 
-    source_ee_nmda2 = MFLinearSTPNMDAInput(pop_e1, pop_e2, {
-        IP.BETA: params_standard['E']['beta'],
-        IP.GAMMA: params_standard['E']['gamma'],
-        IP.GM: params_standard['E']['gNMDA'],
-        IP.VREV: params_standard['E']['VE'],
-        IP.TAU: params_standard['E']['tau_NMDA'],
+    source_ee_nmda2 = MFLinearSTPNMDAInput(pop_e1, pop_e2, ee_nmda + {
         IP.W: w_min
-    }, name='EE Nmda2', synapse=syn_spec_nmda)
+    }, name='EE Nmda2')
 
-    source_ee_nmda22 = MFLinearSTPNMDAInput(pop_e2, pop_e2, {
-        IP.BETA: params_standard['E']['beta'],
-        IP.GAMMA: params_standard['E']['gamma'],
-        IP.GM: params_standard['E']['gNMDA'],
-        IP.VREV: params_standard['E']['VE'],
-        IP.TAU: params_standard['E']['tau_NMDA'],
+    source_ee_nmda22 = MFLinearSTPNMDAInput(pop_e2, pop_e2, ee_nmda + {
         IP.W: (w_plus * ff + (1. - 2. * ff) * w_min) / (1 - ff)
-    }, name='EE Nmda22', synapse=syn_spec_nmda)
+    }, name='EE Nmda22')
 
     # E->I NMDA
-
-    source_ie_nmda = MFLinearSTPNMDAInput(pop_e1, pop_i, {
+    ei_nmda = {
         IP.BETA: params_standard['I']['beta'],
         IP.GAMMA: params_standard['I']['gamma'],
         IP.GM: params_standard['I']['gNMDA'],
         IP.VREV: params_standard['I']['VE'],
         IP.TAU: params_standard['I']['tau_NMDA'],
-        IP.W: 1
-    }, name='IE Nmda', synapse=syn_spec_nmda)
+        IP.W: 1,
+        IP.TAU_F: 1000 * ms,
+        IP.TAU_D: 150 * ms,
+        IP.U: 1,
+    }
 
-    source_ie_nmda2 = MFLinearSTPNMDAInput(pop_e2, pop_i, {
-        IP.BETA: params_standard['I']['beta'],
-        IP.GAMMA: params_standard['I']['gamma'],
-        IP.GM: params_standard['I']['gNMDA'],
-        IP.VREV: params_standard['I']['VE'],
-        IP.TAU: params_standard['I']['tau_NMDA'],
-        IP.W: 1
-    }, name='IE Nmda2', synapse=syn_spec_nmda)
+    source_ie_nmda = MFLinearSTPNMDAInput(pop_e1, pop_i, ei_nmda, name='IE Nmda')
+
+    source_ie_nmda2 = MFLinearSTPNMDAInput(pop_e2, pop_i, ei_nmda, name='IE Nmda2')
 
     # I->I GABA
 

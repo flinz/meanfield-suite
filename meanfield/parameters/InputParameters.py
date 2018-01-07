@@ -33,4 +33,8 @@ class InputParameters(object):
     TAU_D1 = 'tau_d1'
     TAU_D2 = 'tau_d2'
 
+    TAU_F = 'tau_f'
+    TAU_D = 'tau_d'
+    U = 'U'
+
     MG = 'mg'

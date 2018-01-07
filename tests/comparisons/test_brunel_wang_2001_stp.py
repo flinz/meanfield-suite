@@ -17,7 +17,7 @@ class TestMF2(object):
         """Solve for firing rates & voltages with explicit function"""
         up, down, inter = self.system.populations
 
-        up.rate = 10 * Hz
+        up.rate = 1 * Hz
         down.rate = 4 * Hz
         inter.rate = 12 * Hz
 
@@ -29,24 +29,23 @@ class TestMF2(object):
         #print(self.system.graph().render('test.png', view=True))
         pass
 
-    @pytest.mark.skip(reason='plot')
+    @pytest.mark.skip(reason='plotting')
     def test_sim(self):
         reset_brian2()
         up, down, inter = self.system.populations
 
-        # MFState<Eup-rate: 0.887, Edown-rate: 4.401, I-rate: 11.466, Eup-v_mean: -0.054, Edown-v_mean: -0.053, I-v_mean: -0.053>
-        # MFState<Eup-rate: 10.724, Edown-rate: 3.154, I-rate: 11.041, Eup-v_mean: -0.053, Edown-v_mean: -0.053, I-v_mean: -0.053>
+        # MFState < Eup - rate: 1.055, Eup - v_mean: -0.054, Edown - rate: 4.285, Edown - v_mean: -0.053, I - rate: 11.463, I - v_mean: -0.053 >
 
         rate_up = PopulationRateMonitor(up.brian2)
         rate_down = PopulationRateMonitor(down.brian2)
         rate_inter = PopulationRateMonitor(inter.brian2)
 
         net = self.system.collect_brian2_network(rate_up, rate_down, rate_inter)
-        net.run(2 * units.second)
+        net.run(3 * units.second)
 
-        plt.plot(rate_up.t / ms, rate_up.smooth_rate(width=50 * ms) / Hz, label='up')
-        plt.plot(rate_down.t / ms, rate_down.smooth_rate(width=50 * ms) / Hz, label='down')
-        plt.plot(rate_inter.t / ms, rate_inter.smooth_rate(width=50 * ms) / Hz, label='inter')
+        plt.plot(rate_up.t / ms, rate_up.smooth_rate(width=200 * ms) / Hz, label='up')
+        plt.plot(rate_down.t / ms, rate_down.smooth_rate(width=200 * ms) / Hz, label='down')
+        plt.plot(rate_inter.t / ms, rate_inter.smooth_rate(width=200 * ms) / Hz, label='inter')
         plt.legend()
         plt.show()
 

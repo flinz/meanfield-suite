@@ -19,25 +19,29 @@ class TestMF(object):
     def test_taus(self):
         """Effective timeconstants equal old implementation"""
         taus = [p.tau_eff / ms for p in self.system.populations]
-        taus_brunel = [11.309393346834508, 10.259016117146679, 5.2504978292166333] # NMDA
+        # taus_brunel = [11.309393346834508, 10.259016117146679, 5.2504978292166333]  # NMDA STP 3TS
+        taus_brunel = [11.343448458849716, 10.277459899195716, 5.260438755634331]  # NMDA STP
         np.testing.assert_array_almost_equal(taus, taus_brunel)
 
     def test_mus(self):
         """Mean input predictions equal old implementation"""
         mus = [p.mu / mV for p in self.system.populations]
-        mus_brunel = [18.868912317468116, 16.462020986464438, 16.524683021279241] # NMDA
+        # mus_brunel = [18.868912317468116, 16.462020986464438, 16.524683021279241]  # NMDA STP 3TS
+        mus_brunel = [18.95643395445861, 16.512878547524384, 16.5783612995361]  # NMDA STP
         np.testing.assert_array_almost_equal(mus, mus_brunel)
 
     def test_sigma_square(self):
         """Sigma square predictions equal old implementation"""
         sigma_square = [p.sigma_square / (mV) ** 2 for p in self.system.populations]
-        sigma_square_brunel = [4.8869461761143898, 5.1557159873625888, 10.003849121175195] # NMDA
+        # sigma_square_brunel = [4.8869461761143898, 5.1557159873625888, 10.003849121175195]  # NMDA STP 3TS
+        sigma_square_brunel = [4.901661863714598, 5.164984995315381, 10.022789711428175]  # NMDA STP
         np.testing.assert_array_almost_equal(sigma_square, sigma_square_brunel)
 
     def test_firing_rate(self):
         """Mean firing rate predictions equal old implementation"""
         rate_pred = [p.rate_prediction / Hz for p in self.system.populations]
-        rate_pred_brunel = [15.207823717059475, 1.3208593687499856, 6.8435294603920544]
+        # rate_pred_brunel = [15.207823717059475, 1.3208593687499856, 6.8435294603920544]  # NMDA STP 3TS
+        rate_pred_brunel = [15.978576065910952, 1.4435632224458281, 7.249972010396413]  # NMDA STP
         np.testing.assert_array_almost_equal(rate_pred, rate_pred_brunel)
 
     def test_MFConstraint(self):
