@@ -1,6 +1,6 @@
 from typing import List, Union
 
-from brian2 import device, SpikeMonitor, units
+from brian2 import device, SpikeMonitor, units, PopulationRateMonitor
 
 import MFSystem
 from meanfield.inputs.MFInput import MFInput
@@ -8,6 +8,8 @@ from meanfield.parameters import Connection
 from meanfield.parameters.MFParameters import MFParameters
 from meanfield.populations.MFPopulation import MFPopulation
 import numpy as np
+
+from utils import listify
 
 
 def seed(seed: Union[int, None]) -> None:
@@ -25,11 +27,8 @@ def fully_connected(ctor, starts: Union[MFPopulation, List[MFPopulation]],
     if name is None:
         name = ''
 
-    if not isinstance(starts, list):
-        starts = [starts]
-
-    if not isinstance(ends, list):
-        ends = [ends]
+    starts = listify(starts)
+    ends = listify(ends)
 
     for start in starts:
         for end in ends:
@@ -52,8 +51,7 @@ def noise_connected(ctor, n: int, rate: units.Hz, ends: Union[MFPopulation, List
     if name is None:
         name = ''
 
-    if not isinstance(ends, list):
-        ends = [ends]
+    ends = listify(ends)
 
     for end in ends:
 
@@ -65,13 +63,13 @@ def noise_connected(ctor, n: int, rate: units.Hz, ends: Union[MFPopulation, List
     return inputs
 
 
-def multiple_populations(system: MFSystem, n_pop: int, ctor, n: Union[int, List[int]],
-                         parameters: Union[dict, MFParameters], *args, name: str=None, **kwargs) -> List[MFPopulation]:
+def multiple_populations(n_pop: int, ctor, n: Union[int, List[int]], parameters: Union[dict, MFParameters],
+                         *args, name: str=None, **kwargs) -> List[MFPopulation]:
 
     populations = []
 
     if not isinstance(n, list):
-        n = list(n) * n_pop
+        n = [n] * n_pop
 
     if len(n) != n_pop:
         raise ValueError(f'populations sizes (array) should have length {n_pop}')
@@ -81,10 +79,20 @@ def multiple_populations(system: MFSystem, n_pop: int, ctor, n: Union[int, List[
         pop_name = None if name is None else f'{name}-{i}'
         pop = ctor(size, parameters, *args, **kwargs, name=pop_name)
         populations.append(pop)
-        system.add_population(pop)
 
     return populations
 
 
-def brian2_spike_monitors(populations: List[MFPopulation], n: int = 15) -> List[SpikeMonitor]:
+def brian2_spike_monitors(populations: Union[MFPopulation, List[MFPopulation]], n: int = 15) -> List[SpikeMonitor]:
+
+    populations = listify(populations)
+
     return [SpikeMonitor(p.brian2[:n], name=f'spike_{p.ref}') for p in populations]
+
+
+def brian2_rate_monitors(populations: Union[MFPopulation, List[MFPopulation]]) -> List[PopulationRateMonitor]:
+
+    populations = listify(populations)
+
+    return [PopulationRateMonitor(p.brian2, name=f'rate_{p.ref}') for p in populations]
+

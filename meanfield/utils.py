@@ -36,6 +36,12 @@ def reset_lazyproperty(instance, property: str) -> None:
         delattr(instance, attr)
 
 
+def listify(elements):
+    if not isinstance(elements, list):
+        elements = [elements]
+    return elements
+
+
 def setup_brian2(dt: units.second = 0.01 * units.ms, codegen: str='cpp_standalone', build_on_run: bool=True) -> None:
     set_device(codegen, build_on_run=build_on_run)
     defaultclock.dt = dt

@@ -32,6 +32,7 @@ class MFParameters(Mapping):
 
     def __add__(self, other):
         other_set = other if isinstance(other, dict) else other.underlying
+        # copy to avoid mutability
         params = dict(**self.underlying)
         params.update(**other_set)
         return MFParameters(params)

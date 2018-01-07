@@ -39,10 +39,6 @@ tau_rp_I = 1. * ms
 rate = 3 * Hz
 C_ext = 800
 
-# synapses
-C_E = N_E
-C_I = N_I
-
 # AMPA (excitatory)
 g_AMPA_ext_E = 2.08 * nS
 g_AMPA_rec_E = 0.104 * nS * 800. / N_E
