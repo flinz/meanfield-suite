@@ -140,8 +140,7 @@ MFStaticInput(C_ext, rate, pop_i, {
 ee_nmda = MFParameters({
     IP.GM: g_NMDA_E,
     IP.VREV: V_E,
-    IP.TAU: 0 * ms,
-    IP.TAU_NMDA: tau_NMDA_decay,
+    IP.TAU: tau_NMDA_decay,
     IP.TAU_NMDA_RISE: tau_NMDA_rise,
     IP.ALPHA: alpha,
     IP.BETA: beta,
@@ -177,9 +176,8 @@ MFLinearInput(pop_e2, pop_e2, ee_ampa + {IP.W: 1}, name='EE AMPA 4', connection=
 ei_nmda = {
     IP.GM: g_NMDA_I,
     IP.VREV: V_E,
-    IP.TAU: 0 * ms,
     IP.W: 1,
-    IP.TAU_NMDA: tau_NMDA_decay,
+    IP.TAU: tau_NMDA_decay,
     IP.TAU_NMDA_RISE: tau_NMDA_rise,
     IP.ALPHA: alpha,
     IP.BETA: beta,

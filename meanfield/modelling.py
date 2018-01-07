@@ -1,20 +1,21 @@
 from typing import List, Union
 
-import brian2
+from brian2 import device, SpikeMonitor, units
 
 import MFSystem
-from meanfield.inputs import MFInput
-from meanfield.parameters import MFParameters, Connection
-from meanfield.populations import MFPopulation
+from meanfield.inputs.MFInput import MFInput
+from meanfield.parameters import Connection
+from meanfield.parameters.MFParameters import MFParameters
+from meanfield.populations.MFPopulation import MFPopulation
 import numpy as np
 
 
 def seed(seed: Union[int, None]) -> None:
     np.random.seed(seed)
-    brian2.device.seed(seed)
+    device.seed(seed)
 
 
-def fully_connected(ctor: type, starts: Union[MFPopulation, List[MFPopulation]],
+def fully_connected(ctor, starts: Union[MFPopulation, List[MFPopulation]],
                     ends: Union[MFPopulation, List[MFPopulation]], parameters: Union[dict, MFParameters], *args,
                     name: str=None, self_loop_parameters: Union[None, Union[dict, MFParameters]] = None,
                     **kwargs) -> List[MFInput]:
@@ -25,15 +26,15 @@ def fully_connected(ctor: type, starts: Union[MFPopulation, List[MFPopulation]],
         name = ''
 
     if not isinstance(starts, list):
-        starts = list(starts)
+        starts = [starts]
 
     if not isinstance(ends, list):
-        ends = list(ends)
+        ends = [ends]
 
     for start in starts:
         for end in ends:
 
-            inp_name = f'{name}-{start.name}-{end.name}'
+            inp_name = f'{name} {start.name}-{end.name}'
             inp = Connection.all_to_others() if start == end else Connection.all_to_all()
             inp_parameters = self_loop_parameters if start == end and self_loop_parameters is not None else parameters
 
@@ -43,7 +44,28 @@ def fully_connected(ctor: type, starts: Union[MFPopulation, List[MFPopulation]],
     return inputs
 
 
-def multiple_populations(system: MFSystem, n_pop: int, ctor: type, n: Union[int, List[int]],
+def noise_connected(ctor, n: int, rate: units.Hz, ends: Union[MFPopulation, List[MFPopulation]],
+                          parameters: Union[dict, MFParameters], *args, name: str=None, **kwargs) -> List[MFInput]:
+
+    inputs = []
+
+    if name is None:
+        name = ''
+
+    if not isinstance(ends, list):
+        ends = [ends]
+
+    for end in ends:
+
+        inp_name = f'{name} {end.name}'
+
+        inp = ctor(n, rate, end, parameters, *args, **kwargs, name=inp_name)
+        inputs.append(inp)
+
+    return inputs
+
+
+def multiple_populations(system: MFSystem, n_pop: int, ctor, n: Union[int, List[int]],
                          parameters: Union[dict, MFParameters], *args, name: str=None, **kwargs) -> List[MFPopulation]:
 
     populations = []
@@ -64,3 +86,5 @@ def multiple_populations(system: MFSystem, n_pop: int, ctor: type, n: Union[int,
     return populations
 
 
+def brian2_spike_monitors(populations: List[MFPopulation], n: int = 15) -> List[SpikeMonitor]:
+    return [SpikeMonitor(p.brian2[:n], name=f'spike_{p.ref}') for p in populations]

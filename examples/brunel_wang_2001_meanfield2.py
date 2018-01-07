@@ -9,8 +9,8 @@ BRUNEL, Nicolas et WANG, Xiao-Jing. Effects of neuromodulation in a cortical net
 dominated by recurrent inhibition. Journal of computational neuroscience, 2001, vol. 11, no 1, p. 63-85.
 '''
 
-
-from brian2 import *
+from brian2 import BrianLogger, SpikeMonitor, PopulationRateMonitor
+from brian2.units import *
 
 from meanfield.inputs.MFNonLinearNMDAInput import MFNonLinearNMDAInput
 from meanfield.MFSystem import MFSystem
@@ -23,12 +23,14 @@ from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.solvers.MFSolver import MFSolver
 from meanfield.utils import reset_brian2, brian2_introspect
 from meanfield.parameters.MFParameters import MFParameters
-
+from meanfield import plots, modelling
+import numpy as np
+import matplotlib.pyplot as plt
 BrianLogger.log_level_debug()
 reset_brian2()
 
 # populations
-N = 125
+N = 100
 N_E = int(N * 0.8)  # pyramidal neurons
 N_I = int(N * 0.2)  # interneurons
 
@@ -118,45 +120,42 @@ pop_e2 = MFLinearPopulation(N_sub, E_params, name="Edown")
 pop_i = MFLinearPopulation(N_I, I_params, name="I")
 
 # noise pops
-MFStaticInput(C_ext, rate, pop_e1, {
+e_ampa = {
     IP.GM: g_AMPA_ext_E,
     IP.VREV: V_E,
     IP.TAU: tau_AMPA,
-}, name="E_noise1")
+}
 
-MFStaticInput(C_ext, rate, pop_e2, {
-    IP.GM: g_AMPA_ext_E,
-    IP.VREV: V_E,
-    IP.TAU: tau_AMPA,
-}, name="E_noise2")
+modelling.noise_connected(MFStaticInput, C_ext, rate, [pop_e1, pop_e2], e_ampa, name='noise')
 
-MFStaticInput(C_ext, rate, pop_i, {
+i_ampa = {
     IP.GM: g_AMPA_ext_I,
     IP.VREV: V_E,
     IP.TAU: tau_AMPA,
-}, name="I_noise")
+}
+
+modelling.noise_connected(MFStaticInput, C_ext, rate, pop_i, i_ampa, name='noise')
 
 # E->E NMDA
 ee_nmda = MFParameters({
     IP.GM: g_NMDA_E,
     IP.VREV: V_E,
-    IP.TAU: 0 * ms,
-    IP.TAU_NMDA: tau_NMDA_decay,
+    IP.TAU: tau_NMDA_decay,
     IP.TAU_NMDA_RISE: tau_NMDA_rise,
     IP.ALPHA: alpha,
     IP.BETA: beta,
     IP.GAMMA: gamma,
     IP.MG: Mg2,
+    IP.W: 1,
 })
 
-MFNonLinearNMDAInput(pop_e1, pop_e1, ee_nmda + {IP.W: 1}, name='EE NMDA 1', connection=Connection.all_to_others())
-
-MFNonLinearNMDAInput(pop_e1, pop_e2, ee_nmda + {IP.W: w_minus}, name='EE NMDA 2')
-
-MFNonLinearNMDAInput(pop_e2, pop_e2, ee_nmda + {IP.W: w_plus}, name='EE NMDA 3', connection=Connection.all_to_others())
-
-MFNonLinearNMDAInput(pop_e2, pop_e1, ee_nmda + {IP.W: 1}, name='EE NMDA 4')
-
+modelling.fully_connected(MFNonLinearNMDAInput, pop_e1, pop_e1, ee_nmda, name='NMDA')
+modelling.fully_connected(MFNonLinearNMDAInput, pop_e1, [pop_e2], ee_nmda, name='NMDA')
+modelling.fully_connected(MFNonLinearNMDAInput, [pop_e2], pop_e1, ee_nmda, name='NMDA')
+modelling.fully_connected(MFNonLinearNMDAInput, [pop_e2], [pop_e2],
+                          parameters=ee_nmda + {IP.W: w_minus},
+                          self_loop_parameters=ee_nmda + {IP.W: w_plus},
+                          name='NMDA')
 
 # E->E AMPA
 ee_ampa = MFParameters({
@@ -165,21 +164,20 @@ ee_ampa = MFParameters({
     IP.TAU: tau_AMPA,
 })
 
-MFLinearInput(pop_e1, pop_e1, ee_ampa + {IP.W: 1}, name='EE AMPA 1')
-
-MFLinearInput(pop_e1, pop_e2, ee_ampa + {IP.W: w_minus}, name='EE AMPA 2', connection=Connection.all_to_others())
-
-MFLinearInput(pop_e2, pop_e1, ee_ampa + {IP.W: w_plus}, name='EE AMPA 3')
-
-MFLinearInput(pop_e2, pop_e2, ee_ampa + {IP.W: 1}, name='EE AMPA 4', connection=Connection.all_to_others())
+modelling.fully_connected(MFLinearInput, pop_e1, pop_e1, ee_ampa, name='AMPA')
+modelling.fully_connected(MFLinearInput, pop_e1, [pop_e2], ee_ampa, name='AMPA')
+modelling.fully_connected(MFLinearInput, [pop_e2], pop_e1, ee_ampa, name='AMPA')
+modelling.fully_connected(MFLinearInput, [pop_e2], [pop_e2],
+                          parameters=ee_ampa + {IP.W: w_minus},
+                          self_loop_parameters=ee_ampa + {IP.W: w_plus},
+                          name='AMPA')
 
 # E->I NMDA
 ei_nmda = {
     IP.GM: g_NMDA_I,
     IP.VREV: V_E,
-    IP.TAU: 0 * ms,
     IP.W: 1,
-    IP.TAU_NMDA: tau_NMDA_decay,
+    IP.TAU: tau_NMDA_decay,
     IP.TAU_NMDA_RISE: tau_NMDA_rise,
     IP.ALPHA: alpha,
     IP.BETA: beta,
@@ -187,9 +185,7 @@ ei_nmda = {
     IP.MG: Mg2,
 }
 
-MFNonLinearNMDAInput(pop_e1, pop_i, ei_nmda, name='EI NMDA')
-
-MFNonLinearNMDAInput(pop_e2, pop_i, ei_nmda, name='EI NMDA 2')
+modelling.fully_connected(MFNonLinearNMDAInput, [pop_e1, pop_e2], pop_i, ei_nmda, name='EI NMDA')
 
 # E->I AMPA
 ei_ampa = {
@@ -198,9 +194,7 @@ ei_ampa = {
     IP.TAU: tau_AMPA,
 }
 
-MFLinearInput(pop_e1, pop_i, ei_ampa, name='EI AMPA')
-
-MFLinearInput(pop_e2, pop_i, ei_ampa, name='EI AMPA 2')
+modelling.fully_connected(MFLinearInput, [pop_e1, pop_e2], pop_i, ei_ampa, name='EI AMPA')
 
 # I->I GABA
 MFLinearInput(pop_i, pop_i, {
@@ -216,21 +210,18 @@ ie_gaba = {
     IP.TAU: tau_GABA,
 }
 
-MFLinearInput(pop_i, pop_e1, ie_gaba, name='IE GABA 1')
-
-MFLinearInput(pop_i, pop_e2, ie_gaba, name='IE GABA 2')
-
+modelling.fully_connected(MFLinearInput, pop_i, [pop_e1, pop_e2], ie_gaba, name='IE GABA')
 
 # monitors
 N_activity_plot = 15
 
-sp_E_sel = SpikeMonitor(pop_e2.brian2[:N_activity_plot])
-sp_E = SpikeMonitor(pop_e1.brian2[:N_activity_plot])
-sp_I = SpikeMonitor(pop_i.brian2[:N_activity_plot])
+sp_E_sel = SpikeMonitor(pop_e2.brian2[:N_activity_plot], name='spike_selective')
+sp_E = SpikeMonitor(pop_e1.brian2[:N_activity_plot], name='spike_nonselective')
+sp_I = SpikeMonitor(pop_i.brian2[:N_activity_plot], name='spike_inhibitory')
 
-r_E_sel = PopulationRateMonitor(pop_e2.brian2)
-r_E = PopulationRateMonitor(pop_e1.brian2)
-r_I = PopulationRateMonitor(pop_i.brian2)
+r_E_sel = PopulationRateMonitor(pop_e2.brian2, name='rate_selective')
+r_E = PopulationRateMonitor(pop_e1.brian2, name='rate_nonselective')
+r_I = PopulationRateMonitor(pop_i.brian2, name='rate_inhibitory')
 
 # simulate, can be long >120s
 system = MFSystem(pop_e1, pop_e2, pop_i, name="Brunel Wang 2001")
@@ -245,42 +236,12 @@ solver = MFSolver.rates_voltages(system, solver='simplex', maxiter=2)
 #system.graph().view(cleanup=True)
 
 
-#print(pop_e1.brian2_model)
-#print()
-#print(pop_e2.brian2_model)
-#print()
-#print(pop_i.brian2_model)
-
-
 net = system.collect_brian2_network(sp_E, sp_I, sp_E_sel, r_E_sel, r_E, r_I)
-
-
 net.run(2000 * ms, report='stdout')
 
-
 # plotting
-suptitle('Meanfield')
-title('Population rates')
-xlabel('ms')
-ylabel('Hz')
+plots.activities([sp_E, sp_I, sp_E_sel], N_activity_plot)
+plt.show()
 
-plot(r_E.t / ms, r_E.smooth_rate(width=25 * ms) / Hz, label='nonselective')
-plot(r_I.t / ms, r_I.smooth_rate(width=25 * ms) / Hz, label='inhibitory')
-
-plot(r_E_sel.t / ms, r_E_sel.smooth_rate(width=25 * ms) / Hz, label='selective 1')
-
-legend()
-show()
-
-suptitle('Meanfield')
-title('Population activities ({} neurons/pop)'.format(N_activity_plot))
-xlabel('ms')
-yticks([])
-
-plot(sp_E.t / ms, sp_E.i + (p + 1) * N_activity_plot, '.', markersize=2, label='nonselective')
-plot(sp_I.t / ms, sp_I.i + p * N_activity_plot, '.', markersize=2, label='inhibitory')
-
-plot(sp_E_sel.t / ms, sp_E_sel.i, '.', markersize=2, label='selective 1')
-
-legend()
-show()
+plots.rates([r_E, r_I, r_E_sel], 25 * ms)
+plt.show()
