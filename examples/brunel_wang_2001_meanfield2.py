@@ -21,14 +21,14 @@ from meanfield.parameters import IP
 from meanfield.parameters import PP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.solvers.MFSolver import MFSolver
-from meanfield.utils import reset_brian2
+from meanfield.utils import reset_brian2, brian2_introspect
 from meanfield.parameters.MFParameters import MFParameters
 
 BrianLogger.log_level_debug()
 reset_brian2()
 
 # populations
-N = 250
+N = 125
 N_E = int(N * 0.8)  # pyramidal neurons
 N_I = int(N * 0.2)  # interneurons
 
@@ -240,7 +240,7 @@ pop_e2.rate = 1.3 * Hz
 pop_i.rate = 6 * Hz
 
 solver = MFSolver.rates_voltages(system, solver='simplex', maxiter=2)
-sol = solver.run()
+#sol = solver.run()
 
 #system.graph().view(cleanup=True)
 
@@ -253,6 +253,8 @@ sol = solver.run()
 
 
 net = system.collect_brian2_network(sp_E, sp_I, sp_E_sel, r_E_sel, r_E, r_I)
+
+
 net.run(2000 * ms, report='stdout')
 
 

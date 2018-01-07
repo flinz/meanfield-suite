@@ -106,7 +106,7 @@ class MFSystem(object):
             return f'<tr>{cells_html}</tr>'
 
         def td(value):
-            return f'<td padding="50px">{value}</td>'
+            return f'<td>{value}</td>'
 
         for p in self.populations:
             g.node(p.ref, table(**{p.__class__.__name__: p.name}, n=p.n, **p.parameters), shape='plaintext')

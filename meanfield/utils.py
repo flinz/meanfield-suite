@@ -2,8 +2,6 @@ from time import sleep
 
 from brian2 import NeuronGroup, Synapses, PoissonInput, units, Equations, device, defaultclock, set_device, Network
 
-__all__ = []
-
 lazy_attr = '__lazy_'
 create_name_counter = '__counter'
 
@@ -51,7 +49,7 @@ def reset_brian2(sleep_time: float = 0.25, **kwargs) -> None:
     setup_brian2(**kwargs)
 
 
-def brian2_introspect(net: Network, globals) -> None:
+def brian2_introspect(net: Network, globals: dict) -> None:
     # usage brian2_introspect(net, globals())
 
     def introspect_population(pop):
