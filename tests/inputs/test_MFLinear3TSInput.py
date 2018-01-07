@@ -5,7 +5,7 @@ import numpy as np
 from meanfield.inputs.MFLinear3TSInput import MFLinear3TSInput
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.populations.MFPoissonPopulation import MFPoissonPopulation
-from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.solvers.MFSolver import MFSolver
 from meanfield.MFSystem import MFSystem
 from meanfield.parameters import PP
 from meanfield.parameters import IP
@@ -61,7 +61,7 @@ class TestMFLinear3TSInput(object):
 
         system = MFSystem(pop, poisson)
 
-        solver = MFSolverRatesVoltages(system, solver='mse')
+        solver = MFSolver.rates_voltages(system, solver='mse')
         solver.run()
         theory = syn.g_dyn() / syn.origin.n
 

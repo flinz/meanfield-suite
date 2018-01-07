@@ -8,7 +8,7 @@ from meanfield.MFSystem import MFSystem
 from meanfield.parameters import PP
 from meanfield.parameters import IP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
-from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.solvers.MFSolver import MFSolver
 from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.inputs.MFLinearInput import MFLinearInput
 from tests.utils import enable_cpp
@@ -48,7 +48,7 @@ class TestRecurrent(object):
 
         system = MFSystem(pop)
 
-        solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
+        solver = MFSolver.rates_voltages(system, solver='mse', maxiter=1)
         sol = solver.run()
         theory = sol.state[0]
 
@@ -109,7 +109,7 @@ class TestRecurrent(object):
             isolated = np.array(rate.rate)[stable_t:-stable_t]
             sim = np.mean(isolated)
 
-            solver = MFSolverRatesVoltages(system, solver='simplex', maxiter=1)
+            solver = MFSolver.rates_voltages(system, solver='simplex', maxiter=1)
             sol = solver.run()
             return [sol.state[0], sim]
 

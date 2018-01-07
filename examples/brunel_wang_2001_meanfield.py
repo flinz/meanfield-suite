@@ -20,7 +20,7 @@ from meanfield.parameters import Connection
 from meanfield.parameters import IP
 from meanfield.parameters import PP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
-from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.solvers.MFSolver import MFSolver
 from meanfield.utils import reset_brian2
 from meanfield.parameters.MFParameters import MFParameters
 
@@ -239,7 +239,7 @@ pop_e1.rate = 1.3 * Hz
 pop_e2.rate = 1.3 * Hz
 pop_i.rate = 6 * Hz
 
-solver = MFSolverRatesVoltages(system, solver='simplex', maxiter=2)
+solver = MFSolver.rates_voltages(system, solver='simplex', maxiter=2)
 sol = solver.run()
 
 #system.graph().view(cleanup=True)

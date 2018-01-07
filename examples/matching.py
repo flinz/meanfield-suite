@@ -8,7 +8,7 @@ from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.parameters import IP
 from meanfield.parameters import PP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
-from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.solvers.MFSolver import MFSolver
 from meanfield.utils import reset_brian2
 
 n_pop = 25
@@ -49,7 +49,7 @@ def for_rate(rate):
     isolated = np.array(rate.rate)[stable_t:-stable_t]
     sim = np.mean(isolated)
 
-    solver = MFSolverRatesVoltages(system, solver='simplex', maxiter=1)
+    solver = MFSolver.rates_voltages(system, solver='simplex', maxiter=1)
     sol = solver.run()
     return [sol.state[0], sim, np.std(isolated)]
 

@@ -3,7 +3,7 @@ import pytest
 from brian2 import PopulationRateMonitor, units
 from brian2.units import *
 
-from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.solvers.MFSolver import MFSolver
 from meanfield.zoo.brunel_wang_2001_stp import one_subpopulation
 from meanfield.utils import reset_brian2
 
@@ -21,7 +21,7 @@ class TestMF2(object):
         down.rate = 4 * Hz
         inter.rate = 12 * Hz
 
-        solver = MFSolverRatesVoltages(self.system, solver='simplex', maxiter=1)
+        solver = MFSolver.rates_voltages(self.system, solver='simplex', maxiter=1)
         sol = solver.run()
         print(sol)
 

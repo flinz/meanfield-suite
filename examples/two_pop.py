@@ -3,7 +3,7 @@ from meanfield.parameters import PP
 from meanfield.parameters import IP
 
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
-from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.solvers.MFSolver import MFSolver
 from meanfield.MFSystem import MFSystem
 from meanfield.inputs.MFStaticInput import MFStaticInput
 
@@ -134,7 +134,7 @@ ini.add_noise(source_i_noise)
 system = MFSystem("Two pop")
 system.populations += [exc]
 
-solver = MFSolverRatesVoltages(system, solver='mse')
+solver = MFSolver.rates_voltages(system, solver='mse')
 print(solver.state)
 solver.run()
 

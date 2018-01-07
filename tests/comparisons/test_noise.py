@@ -8,7 +8,7 @@ from meanfield.MFSystem import MFSystem
 from meanfield.parameters import PP
 from meanfield.parameters import IP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
-from meanfield.solvers.MFSolver import MFSolverRatesVoltages
+from meanfield.solvers.MFSolver import MFSolver
 from meanfield.inputs.MFStaticInput import MFStaticInput
 from tests.utils import enable_cpp
 
@@ -40,7 +40,7 @@ class TestNoise(object):
 
         system = MFSystem(pop)
 
-        solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
+        solver = MFSolver.rates_voltages(system, solver='mse', maxiter=1)
         sol = solver.run()
 
         if False:
@@ -87,7 +87,7 @@ class TestNoise(object):
 
             system = MFSystem(pop)
 
-            solver = MFSolverRatesVoltages(system, solver='mse', maxiter=1)
+            solver = MFSolver.rates_voltages(system, solver='mse', maxiter=1)
             print(solver.state)
             sol = solver.run()
             return sol.state[0]

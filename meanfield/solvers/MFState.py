@@ -1,7 +1,10 @@
 import numpy as np
 from brian2 import Quantity
 
-from meanfield.solvers import OutOfBoundsError
+
+class OutOfBoundsError(Exception):
+    """Raised when solver out of bounds."""
+    pass
 
 
 class MFState(object):
@@ -20,15 +23,9 @@ class MFState(object):
 
     def __getitem__(self, key):
         """Dictionary-like access to state values."""
-        try:
-            idx = self.names.index(key)
-        except ValueError:
-            raise KeyError
-        return self.state[idx]
-
-    @property
-    def names(self):
-        return [c.name for c in self.constraints]
+        for i, c in enumerate(self.constraints):
+            if c.name == key:
+                return self.state[i]
 
     @property
     def state(self):
@@ -64,7 +61,7 @@ class MFState(object):
 
         return self.error
 
-    def checkbounds(self, hard=True):
+    def checkbounds(self):
         """
         Check bounds and set variables to bounds
         -   bounds: array of (low,up)
