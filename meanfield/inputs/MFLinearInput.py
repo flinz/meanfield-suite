@@ -13,6 +13,9 @@ from meanfield.utils import lazyproperty
 class MFLinearInput(MFInput):
 
     arguments = MappingProxyType({
+        IP.GM: units.siemens,
+        IP.VREV: units.volt,
+        IP.TAU: units.second,
         IP.W: 1,
     })
 

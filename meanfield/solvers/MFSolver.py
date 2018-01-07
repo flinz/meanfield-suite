@@ -96,9 +96,12 @@ class MFSolver(object):
         signal_handler = lambda signal, frame: sys.exit(0)
         signal.signal(signal.SIGINT, signal_handler)
 
+        # do one pass to check unit, then disable unit checking to speed up optimization
+        self.mfstate(state_0)
+        fundamentalunits.unit_checking = False
+
         start = timer()
         steps = []
-        fundamentalunits.unit_checking = False
 
         # loop over tries to solve the system
         while abs_err > crit:

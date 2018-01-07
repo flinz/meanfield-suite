@@ -39,15 +39,20 @@ class Synapse(object):
 class MFNonLinearNMDAInput(MFLinearNMDAInput):
 
     arguments = MappingProxyType({
-        IP.TAU_NMDA: units.second,
+        IP.GM: units.siemens,
+        IP.VREV: units.volt,
+        IP.TAU: units.second,
+        IP.W: 1,
+        IP.BETA: 1,
+        IP.GAMMA: 1,
         IP.TAU_NMDA_RISE: units.second,
-        IP.GAMMA: 1.,
-        IP.BETA: 1.,
         IP.ALPHA: units.hertz,
         IP.MG: 1.,
     })
 
-    defaults = MappingProxyType({})
+    defaults = MappingProxyType({
+        IP.W: 1,
+    })
 
     def __init__(self, origin: MFPopulation, target: MFPopulation, parameters: Union[Dict, MFParameters], **kwargs):
         super().__init__(origin, target, parameters, **kwargs)
@@ -61,7 +66,7 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
 
     @check_units(result=1)
     def g_dyn(self):
-        return self.connection.theory(self.origin.n) * self.synapse(self.origin.rate) * self[IP.W]
+        return self.connection.theory(self.origin.n) * self.synapse(self.origin.rate) * self[IP.W] * self[IP.TAU]
 
     # Simulation
 
@@ -79,13 +84,13 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
             '''
             w : 1
             s_post = w * s : 1 (summed)
-            ds / dt = - s / tau_decay + alpha * x * (1 - s) : 1 (clock-driven)
+            ds / dt = - s / tau + alpha * x * (1 - s) : 1 (clock-driven)
             dx / dt = - x / tau_rise : 1 (clock-driven)
             ''',
             s_post=f'{self.post_variable_name_tot}_post',
             s=self.post_variable_name,
             x=self.post_nonlinear_name,
-            tau_decay=self[IP.TAU_NMDA],
+            tau=self[IP.TAU],
             tau_rise=self[IP.TAU_NMDA_RISE],
             alpha=self[IP.ALPHA],
         )
