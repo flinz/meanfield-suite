@@ -1,8 +1,8 @@
 
 class InputParameters(object):
-    ALPHA = 'alpha'
-    BETA = 'beta'
-    GAMMA = 'gamma'
+    ALPHA = 'α'
+    BETA = 'β'
+    GAMMA = 'γ'
 
     VE = 'VE'
     VL = 'VL'
@@ -10,12 +10,12 @@ class InputParameters(object):
     VI = 'VI'
     VTHR = 'Vthr'
     VRES = 'Vres'
-    TAU_NMDA = 'tau_NMDA'
-    TAU_NMDA_RISE = 'tau_NMDA_RISE'
-    TAU_GABA = 'tau_GABA'
-    TAU_AMPA = 'tau_AMPA'
-    TAU_RP = 'tau_rp'
-    TAU = 'tau_m'
+    TAU_NMDA = 'τ_NMDA'
+    TAU_NMDA_RISE = 'τ_NMDA_rise'
+    TAU_GABA = 'τ_GABA'
+    TAU_AMPA = 'τ_AMPA'
+    TAU_RP = 'τ_rp'
+    TAU = 'τ_m'
     CM = 'Cm'
     GM = 'gm'
     C_E = 'CE'
@@ -33,8 +33,8 @@ class InputParameters(object):
     TAU_D1 = 'tau_d1'
     TAU_D2 = 'tau_d2'
 
-    TAU_F = 'tau_f'
-    TAU_D = 'tau_d'
+    TAU_F = 'τ_f'
+    TAU_D = 'τ_d'
     U = 'U'
 
     MG = 'mg'

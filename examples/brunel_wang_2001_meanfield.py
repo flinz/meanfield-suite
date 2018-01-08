@@ -234,8 +234,8 @@ solver = MFSolver.rates_voltages(system, solver='simplex', maxiter=1)
 #sol = solver.run()
 #print(sol)
 
-system.graph().view(cleanup=True)
-sdfdsf
+#system.graph().view(cleanup=True)
+
 # at 1s, select population 1
 C_selection = int(f * C_ext)
 rate_selection = 50 * Hz

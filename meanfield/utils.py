@@ -1,5 +1,5 @@
 from time import sleep
-
+import gc
 from brian2 import NeuronGroup, Synapses, PoissonInput, units, Equations, device, defaultclock, set_device, Network
 
 lazy_attr = '__lazy_'
@@ -50,6 +50,7 @@ def setup_brian2(dt: units.second = 0.01 * units.ms, codegen: str='cpp_standalon
 def reset_brian2(sleep_time: float = 0.25, **kwargs) -> None:
     device.reinit()
     device.activate()
+    gc.collect()
     # workaround https://github.com/brian-team/brian2/issues/905
     sleep(sleep_time)
     setup_brian2(**kwargs)

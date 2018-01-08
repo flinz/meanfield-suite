@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from brian2 import PopulationRateMonitor
+from brian2 import PopulationRateMonitor, defaultclock
 from brian2.units import *
 
 from meanfield.core.MFSystem import MFSystem
@@ -12,14 +12,12 @@ from meanfield.solvers.MFSolver import MFSolver
 from meanfield.utils import reset_brian2
 
 n_pop = 25
-n_noise = 800
+n_noise = 1000
+t = 10 * second
+samples = 20
 
-
-def for_rate(rate):
+def with_rate(rate):
     reset_brian2()
-
-    t = 500 * ms
-    dt = 0.1 * ms
 
     pop = MFLinearPopulation(n_pop, {
         PP.GM: 25. * nS,
@@ -31,12 +29,11 @@ def for_rate(rate):
     })
     pop.rate = 10 * Hz
 
-    inp = MFStaticInput(n_noise, rate * Hz, pop, {
+    MFStaticInput(n_noise, rate * Hz, pop, {
         IP.GM: 2.08 * nS,
         IP.VREV: 0 * volt,
-        IP.TAU: 2. * ms,
+        IP.TAU: 1.5 * ms,
     })
-
 
     system = MFSystem(pop)
 
@@ -44,29 +41,29 @@ def for_rate(rate):
     net = system.collect_brian2_network(rate)
     net.run(t)
 
-    stable_t = int(t / dt * 0.1)
+    margin = round(0.5 * second / defaultclock.dt)
+    stable = rate.smooth_rate(width=20 * ms)[margin:-margin]
 
-    isolated = np.array(rate.rate)[stable_t:-stable_t]
-    sim = np.mean(isolated)
+    mean_simu = np.mean(stable)
+    std_simu = np.reshape(stable, (samples, -1)).mean(axis=1).std() / np.sqrt(samples) * 1.96
+    print(std_simu)
 
     solver = MFSolver.rates_voltages(system, solver='simplex', maxiter=1)
     sol = solver.run()
-    return [sol.state[0], sim, np.std(isolated)]
+    mean_theo = sol.state[0]
+
+    return [mean_theo, mean_simu, std_simu]
 
 
-rates = np.linspace(1, 15, 15)
-dom = np.array([for_rate(r) for r in rates])
-#print(dom)
-plt.plot(rates, dom[:, 0], label='theory')
-#plt.errorbar(rates, dom[:, 1], yerr=dom[:, 2], fmt='.', label='simulation')
-plt.plot(rates, dom[:, 1], label='simulation')
+rates = np.linspace(2, 10, 20)
+theory, simulation, error = zip(*[with_rate(r) for r in rates])
+
+plt.errorbar(rates, simulation, yerr=error, fmt='.', label='simulation (95%)')
+plt.plot(rates, theory, label='theory')
+
 plt.xlabel(f'Noise rate (Hz) from {n_noise}')
 plt.ylabel(f'Population rate (Hz) on {n_pop}')
+plt.yscale('log')
 plt.legend()
 plt.show()
 
-print(dom[:, 0])
-print(dom[:, 1])
-print(dom[:, 0] - dom[:, 1])
-#plt.plot(rates, dom[:, 0] - dom[:, 1])
-#plt.show()

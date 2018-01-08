@@ -32,6 +32,7 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
 
     defaults = MappingProxyType({
         IP.W: 1,
+        IP.MG: 1.,
     })
 
     fits = {
@@ -53,7 +54,10 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
             fit_data_y = interpy
 
         fun = self.fits[fit_type]
-        popt, _ = optimize.curve_fit(fun, fit_data_x, fit_data_y)
+
+        # fitting can raise warnings about / 0
+        with np.errstate(all='ignore'):
+            popt, _ = optimize.curve_fit(fun, fit_data_x, fit_data_y)
 
         def fit(x):
             dim = x.dimensions
