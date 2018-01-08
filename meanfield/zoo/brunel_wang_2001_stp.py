@@ -1,6 +1,6 @@
 from brian2.units import *
 
-from meanfield.MFSystem import MFSystem
+from meanfield.core.MFSystem import MFSystem
 from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.inputs.MFLinearSTPNMDAInput import MFLinearSTPNMDAInput
 from meanfield.inputs.MFStaticInput import MFStaticInput

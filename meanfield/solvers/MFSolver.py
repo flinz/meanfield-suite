@@ -16,7 +16,7 @@ from meanfield.solvers.MFConstraint import MFConstraint
 from meanfield.solvers.MFState import MFState
 from meanfield.solvers.algorithms import custom_gradient_solver
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("solver")
 
 class MFSolver(object):
@@ -65,7 +65,7 @@ class MFSolver(object):
         state = MFState(constraints, dependent_functions=functions)
         return MFSolver(state, *args, **kwargs)
 
-    def __init__(self, mfstate, maxiter=5, solver="hybr", crit=1e-5, tol=1e-12, fail_val=None):
+    def __init__(self, mfstate, maxiter=5, solver="hybr", crit=1e-4, tol=1e-12, fail_val=None):
 
         self.mfstate = mfstate
         self.solver = solver
@@ -90,7 +90,7 @@ class MFSolver(object):
         crit = self.crit
         tol = self.tol
 
-        logger.info("[%s] initializing minimization: %s" % (self.__class__.__name__, self.solver))
+        logger.info(f"initializing minimization with {self.solver}")
 
         # allow interruption of minimization loop, did not work otherwise.
         signal_handler = lambda signal, frame: sys.exit(0)
@@ -204,10 +204,6 @@ class MFSolver(object):
             if abs_err < min_abs_err:
                 min_abs_err = abs_err
                 min_sol = sol
-                sys.stdout.write('X')
-            else:
-                # display update
-                sys.stdout.write('.')
 
             if self.it > 1 and self.it % 50 == 0 and self.it < self.maxiter:
                 sys.stdout.write('\n ')
@@ -218,8 +214,8 @@ class MFSolver(object):
             start = end
 
         fundamentalunits.unit_checking = True
-        logger.info(f'took {np.sum(steps)}, {np.mean(steps)}, {np.std(steps)}')
-        logger.info("]\n[%s] finished successfully" % self.__class__.__name__)
+        logger.info('finished successfully')
+        logger.info(f'solver took {np.sum(steps).round(3)}s')
         self.state = "SUCCESS"
         return self.finalize(sol)
 

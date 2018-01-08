@@ -1,4 +1,4 @@
-from brian2 import StateMonitor, defaultclock, Network
+from brian2 import StateMonitor, defaultclock
 from brian2.units import *
 import numpy as np
 
@@ -6,7 +6,7 @@ from meanfield.inputs.MFLinear3TSInput import MFLinear3TSInput
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.populations.MFPoissonPopulation import MFPoissonPopulation
 from meanfield.solvers.MFSolver import MFSolver
-from meanfield.MFSystem import MFSystem
+from core.MFSystem import MFSystem
 from meanfield.parameters import PP
 from meanfield.parameters import IP
 from tests.utils import enable_cpp

@@ -13,7 +13,7 @@ dominated by recurrent inhibition. Journal of computational neuroscience, 2001, 
 from brian2 import *
 
 from meanfield.inputs.MFNonLinearNMDAInput import MFNonLinearNMDAInput
-from meanfield.MFSystem import MFSystem
+from core.MFSystem import MFSystem
 from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.parameters import Connection

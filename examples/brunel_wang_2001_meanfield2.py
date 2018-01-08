@@ -10,11 +10,12 @@ dominated by recurrent inhibition. Journal of computational neuroscience, 2001, 
 '''
 
 import matplotlib.pyplot as plt
-from brian2 import BrianLogger
+import numpy as np
+from brian2 import BrianLogger, TimedArray, PoissonInput
 from brian2.units import *
 
 from meanfield import plots, modelling
-from meanfield.MFSystem import MFSystem
+from core.MFSystem import MFSystem
 from meanfield.inputs.MFLinearInput import MFLinearInput
 from meanfield.inputs.MFNonLinearNMDAInput import MFNonLinearNMDAInput
 from meanfield.inputs.MFStaticInput import MFStaticInput
@@ -230,17 +231,31 @@ for p in pop_e_sel:
     p.rate = 1 * Hz
 
 solver = MFSolver.rates_voltages(system, solver='simplex', maxiter=1)
-sol = solver.run()
-print(sol)
+#sol = solver.run()
+#print(sol)
 
 system.graph().view(cleanup=True)
+sdfdsf
+# at 1s, select population 1
+C_selection = int(f * C_ext)
+rate_selection = 50 * Hz
+stimuli1 = TimedArray(np.r_[np.zeros(40), np.ones(2), np.zeros(1000)], dt=25 * ms)
+input1 = PoissonInput(pop_e_sel[0].brian2, 's_noise_E_sel_0', C_selection, rate_selection, 'stimuli1(t)')
 
-net = system.collect_brian2_network(*all_sp, *all_rm)
-net.run(2000 * ms, report='stdout')
+# at 2s, select population 2
+stimuli2 = TimedArray(np.r_[np.zeros(80), np.ones(2), np.zeros(100)], dt=25 * ms)
+input2 = PoissonInput(pop_e_sel[1].brian2, 's_noise_E_sel_1', C_selection, rate_selection, 'stimuli2(t)')
+
+net = system.collect_brian2_network(*all_sp, *all_rm, input1, input2)
+net.run(4 * second, report='stdout')
 
 # plotting
+
+plots.rates(all_rm, 25 * ms)
+#plt.xlim([0, 2000])
+#plt.ylim([0, 9])
+plt.show()
+
 plots.activities(all_sp, N_activity_plot)
 plt.show()
 
-plots.rates(all_rm, 25 * ms)
-plt.show()

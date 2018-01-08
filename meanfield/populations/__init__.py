@@ -1,0 +1,3 @@
+from meanfield.populations.MFPopulation import MFPopulation
+from meanfield.populations.MFPoissonPopulation import MFPoissonPopulation
+from meanfield.populations.MFLinearPopulation import MFLinearPopulation

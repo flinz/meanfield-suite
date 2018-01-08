@@ -58,8 +58,8 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
         def fit(x):
             dim = x.dimensions
             # need to remove dimension through fit (due to powers)
-            out = fun(np.array(x), *popt)
-            return Quantity(out, dim=dim)
+            out = fun(x / (1e3 * units.Hz), *popt)
+            return out  # Quantity(out, dim=dim)
 
         self.fit = fit
 
@@ -68,7 +68,7 @@ class MFNonLinearNMDAInput(MFLinearNMDAInput):
     @check_units(result=1)
     def g_dyn(self):
         activation = max(0, self.fit(self.origin.rate))
-        return self.connection.theory(self.origin.n) * activation * self[IP.W] * self[IP.TAU]
+        return self.connection.theory(self.origin.n) * activation * self[IP.W]# * self[IP.TAU]
 
     # Simulation
 

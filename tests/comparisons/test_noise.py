@@ -1,10 +1,10 @@
 import pytest
-from brian2 import PopulationRateMonitor, Network, defaultclock
+from brian2 import PopulationRateMonitor, defaultclock
 from brian2.units import *
 import matplotlib.pyplot as plt
 import numpy as np
 
-from meanfield.MFSystem import MFSystem
+from core.MFSystem import MFSystem
 from meanfield.parameters import PP
 from meanfield.parameters import IP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation

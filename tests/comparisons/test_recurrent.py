@@ -1,10 +1,10 @@
 import pytest
-from brian2 import PopulationRateMonitor, Network, defaultclock, NeuronGroup, Synapses, PoissonInput
+from brian2 import PopulationRateMonitor, defaultclock
 from brian2.units import *
 import matplotlib.pyplot as plt
 import numpy as np
 
-from meanfield.MFSystem import MFSystem
+from core.MFSystem import MFSystem
 from meanfield.parameters import PP
 from meanfield.parameters import IP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
@@ -12,7 +12,7 @@ from meanfield.solvers.MFSolver import MFSolver
 from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.inputs.MFLinearInput import MFLinearInput
 from tests.utils import enable_cpp
-from meanfield.utils import brian2_introspect, reset_brian2
+from meanfield.utils import reset_brian2
 
 
 class TestRecurrent(object):

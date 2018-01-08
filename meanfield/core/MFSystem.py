@@ -1,9 +1,13 @@
+import logging
+
 import brian2 as b2
 import brian2.units
+import numpy as np
+from graphviz import Digraph
+
+from meanfield.parameters import IP
 from meanfield.populations.MFPopulation import MFPopulation
 from meanfield.utils import create_name, create_identifier, reset_lazyproperty
-from graphviz import Digraph
-import logging
 
 logger = logging.getLogger('system')
 
@@ -71,7 +75,7 @@ class MFSystem(object):
     def print_introspect(self) -> None:
         print(self.introspect(), flush=True)
 
-    def graph(self, engine='dot'):
+    def graph(self, details: bool = False, engine: str = 'dot'):
         g = Digraph(name=self.name, engine=engine)
         g.graph_attr.update(
             overlap='false',
@@ -109,10 +113,17 @@ class MFSystem(object):
             return f'<td>{value}</td>'
 
         for p in self.populations:
-            g.node(p.ref, table(**{p.__class__.__name__: p.name}, n=p.n, **p.parameters), shape='plaintext')
+            parameters = p.parameters if details else {}
+
+            if details:
+                g.node(p.ref, table(**{p.__class__.__name__: p.name}, n=p.n, **p.parameters), shape='plaintext')
+            else:
+                content = f'{p.name}\n({p.n} {p.__class__.__name__})'
+                g.node(p.ref, content)
 
             for i in p.inputs:
-                g.edge(i.origin.ref, p.ref, label=i.name)
+                content = f'{i.name}\n({i.__class__.__name__}, w={np.round(i[IP.W], 3)})'
+                g.edge(i.origin.ref, p.ref, label=content)
 
             for n in p.noises:
                 g.edge(n.ref, p.ref, style='dotted', arrowhead='empty')
@@ -125,7 +136,12 @@ class MFSystem(object):
 
             for p in self.populations:
                 for n in p.noises:
-                    c.node(n.ref, table(**{n.__class__.__name__: n.name}, n=n.n, rate=n.rate), shape='plaintext')
+                    if details:
+                        c.node(n.ref, table(**{n.__class__.__name__: n.name}, n=n.n, rate=n.rate), shape='plaintext')
+                    else:
+                        content = f'{n.name}\n({n.n} {n.rate} {p.__class__.__name__})'
+                        c.node(n.ref, content)
+
 
         return g
 

@@ -2,14 +2,13 @@ from typing import List, Union
 
 from brian2 import device, SpikeMonitor, units, PopulationRateMonitor
 
-import MFSystem
 from meanfield.inputs.MFInput import MFInput
 from meanfield.parameters import Connection
 from meanfield.parameters.MFParameters import MFParameters
 from meanfield.populations.MFPopulation import MFPopulation
 import numpy as np
 
-from utils import listify
+from meanfield.utils import listify
 
 
 def seed(seed: Union[int, None]) -> None:

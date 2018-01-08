@@ -4,7 +4,7 @@ from meanfield.parameters import IP
 
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.solvers.MFSolver import MFSolver
-from meanfield.MFSystem import MFSystem
+from core.MFSystem import MFSystem
 from meanfield.inputs.MFStaticInput import MFStaticInput
 
 BrianLogger.log_level_debug()
