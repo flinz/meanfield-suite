@@ -4,21 +4,20 @@ from brian2.units import *
 import matplotlib.pyplot as plt
 import numpy as np
 
-from core.MFSystem import MFSystem
+from meanfield.core.MFSystem import MFSystem
 from meanfield.parameters import PP
 from meanfield.parameters import IP
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.solvers.MFSolver import MFSolver
 from meanfield.inputs.MFStaticInput import MFStaticInput
 from meanfield.inputs.MFLinearInput import MFLinearInput
-from tests.utils import enable_cpp
 from meanfield.utils import reset_brian2
 
 
 class TestRecurrent(object):
 
     def test_simulation_theory(self):
-        enable_cpp()
+        reset_brian2()
 
         t = 1000 * ms
         dt = 0.01 * ms

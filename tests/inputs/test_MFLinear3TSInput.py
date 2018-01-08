@@ -6,10 +6,10 @@ from meanfield.inputs.MFLinear3TSInput import MFLinear3TSInput
 from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.populations.MFPoissonPopulation import MFPoissonPopulation
 from meanfield.solvers.MFSolver import MFSolver
-from core.MFSystem import MFSystem
+from meanfield.core.MFSystem import MFSystem
 from meanfield.parameters import PP
 from meanfield.parameters import IP
-from tests.utils import enable_cpp
+from meanfield.utils import reset_brian2
 
 params_pop = {
     PP.GAMMA: 0.280112,
@@ -31,8 +31,7 @@ params_source = {
 class TestMFLinear3TSInput(object):
 
     def test_simulation_theory(self):
-
-        enable_cpp()
+        reset_brian2()
 
         t = 3000 * ms
         dt = 0.01 * ms

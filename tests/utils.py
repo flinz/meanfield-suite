@@ -1,11 +1,3 @@
-from brian2 import set_device
-from brian2.devices import reinit_devices
-
-
-def enable_cpp():
-    set_device('cpp_standalone')
-
-
 def assert_equations(given, expected):
 
     def clean_str(obj):

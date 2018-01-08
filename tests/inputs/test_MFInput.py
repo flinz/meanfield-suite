@@ -4,8 +4,8 @@ from meanfield.populations.MFLinearPopulation import MFLinearPopulation
 from meanfield.inputs.MFInput import MFInput
 from meanfield.parameters import PP
 from meanfield.parameters import IP
-from meanfield.parameters import Connection
-from tests.utils import assert_equations, enable_cpp
+from meanfield.utils import reset_brian2
+from tests.utils import assert_equations
 
 params_pop = {
     PP.GAMMA: 0.280112,
@@ -28,7 +28,7 @@ params_source = {
 class TestMFInput(object):
 
     def test_model_gen(self):
-        enable_cpp()
+        reset_brian2()
         pop = MFLinearPopulation(1, params_pop)
         source = MFInput(None, pop, params_source, name='test')
 
