@@ -226,9 +226,10 @@ all_rm = rm_E + rm_I + rm_E_sel
 system = MFSystem(pop_e, *pop_e_sel, pop_i, name="Brunel Wang 2001")
 
 pop_e.rate = 1 * Hz
-pop_i.rate = 6 * Hz
+pop_i.rate = 9 * Hz
 for p in pop_e_sel:
     p.rate = 1 * Hz
+pop_e_sel[0].rate = 30 * Hz
 
 solver = MFSolver.rates_voltages(system, solver='simplex', maxiter=1)
 #sol = solver.run()

@@ -110,7 +110,7 @@ class MFSolver(object):
 
             # interrupt upon reaching the maxiter.
             if self.it > self.maxiter:
-                logger.info("]\n[%s] maximum iterations reached" % self.__class__.__name__)
+                logger.info('maximum iterations reached')
                 self.state = "EXCEEDED"
                 return self.finalize(min_sol)
 
@@ -144,21 +144,16 @@ class MFSolver(object):
                 sol = minimize(bounded_f, p_0, method='Nelder-Mead')
                 abs_err = np.sqrt(sol.fun)
                 logger.debug(sol)
+
                 if not sol.success:
                     logger.warning('optimizer failed')
 
 
-
             elif self.solver == "mse":
                 sq = lambda y: np.sum(np.array(y) ** 2)
-                #print(self.mfstate)
-                xs2 = []
-                ys2 = []
+
                 def f(x):
                     v = self.mfstate(x, fun=sq)
-                    xs2.append(np.array(x)[0])
-                    ys2.append(v)
-                    #print(np.array(x)[0], v)
                     return v
 
                 sol = minimize(f, p_0, bounds=bounds, method='L-BFGS-B')
@@ -177,20 +172,6 @@ class MFSolver(object):
 
                 if not sol.success:
                     logger.warning('optimizer failed')
-
-                # watch out nit
-
-                if plotting:
-                    xs = np.array(xs2)
-                    ys = np.array(ys2)
-                    plt.plot(xs[xs.argsort()], ys[xs.argsort()])
-                    plt.show()
-
-                    #xs = np.linspace(0, 10, 200) * units.Hz
-                    #plt.plot(xs, [f([x]) for x in xs], label='fun')
-                    ##plt.axvline(sol.x, c='r', label='sol')
-                    #plt.legend()
-                    #plt.show()
 
                 abs_err = np.sqrt(sol.fun)
 
