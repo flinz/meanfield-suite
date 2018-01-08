@@ -19,32 +19,9 @@ def with_g(g_e, g_i):
     return [max(0, r_e), max(0, r_i)]
 
 
-vals = 4
-res = zeros((vals, vals, 2))
+vals = 20
 xx = np.linspace(15, 35, vals)
 yy = np.linspace(10, 40, vals)
-
-for x, g_e in enumerate(xx):
-    for y, g_i in enumerate(yy):
-        res[x, y] = with_g(g_e, g_i)
-
-subplot(121)
-title('E rates (Hz)')
-imshow(res[:, :, 0], cmap='hot')
-xlabel('g_e (nS)')
-ylabel('g_i (nS)')
-xticks(range(vals), xx)
-yticks(range(vals), yy)
-colorbar(fraction=0.046, pad=0.04)
-
-subplot(122)
-title('I rates (Hz)')
-imshow(res[:, :, 1], cmap='hot')
-xlabel('g_e (nS)')
-xticks(range(vals), xx)
-yticks([])
-colorbar(fraction=0.046, pad=0.04)
-show()
 
 
 def sim():
